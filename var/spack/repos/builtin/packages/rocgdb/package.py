@@ -26,7 +26,7 @@ class Rocgdb(AutotoolsPackage):
     depends_on('expat', type='build')
     depends_on('python', type='build')
     depends_on('zlib', type='link')
-    for ver in ['3.5.0','3.7.0']:
+    for ver in ['3.5.0', '3.7.0']:
         depends_on('rocm-dbgapi@' + ver, type='link', when='@' + ver)
         depends_on('comgr@' + ver, type='link', when='@' + ver)
 
