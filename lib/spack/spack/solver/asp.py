@@ -93,6 +93,7 @@ def _id(thing):
         return '"%s"' % str(thing)
 
 
+@llnl.util.lang.key_ordering
 class AspFunction(AspObject):
     def __init__(self, name, args=None):
         self.name = name
@@ -766,7 +767,7 @@ class SpackSolverSetup(object):
 
             for i, provider in enumerate(providers):
                 provider_name = spack.spec.Spec(provider).name
-                func(vspec, provider_name, i + 10)
+                func(vspec, provider_name, i)
 
     def provider_defaults(self):
         self.gen.h2("Default virtual providers")

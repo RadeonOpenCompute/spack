@@ -7,7 +7,7 @@
 import sys
 
 import llnl.util.tty as tty
-import llnl.util.tty.color as color
+from llnl.util.tty.color import cprint, get_color_when
 
 import spack.cmd
 import spack.cmd.common.arguments as arguments
@@ -46,22 +46,7 @@ def setup_parser(subparser):
     )
 
 
-def boldblue(string):
-    """
-    Make a header string bold and blue we can easily see it
-    """
-    return color.colorize("@*b{%s}" % string)
-
-
-def green(string):
-    return color.colorize("@G{%s}" % string)
-
-
-def red(string):
-    return color.colorize("@R{%s}" % string)
-
-
-def compare_specs(a, b, to_string=False, colorful=True):
+def compare_specs(a, b, to_string=False, color=None):
     """
     Generate a comparison, including diffs (for each side) and an intersection.
 
@@ -75,60 +60,47 @@ def compare_specs(a, b, to_string=False, colorful=True):
         a_name (str): the name of spec a
         b_name (str): the name of spec b
         to_string (bool): return an object that can be json dumped
-        colorful (bool): do not format the names for the console
+        color (bool): whether to format the names for the console
     """
+    if color is None:
+        color = get_color_when()
+
     # Prepare a solver setup to parse differences
     setup = asp.SpackSolverSetup()
 
-    a_facts = set(to_tuple(t) for t in setup.spec_clauses(a, body=True))
-    b_facts = set(to_tuple(t) for t in setup.spec_clauses(b, body=True))
+    a_facts = set(t for t in setup.spec_clauses(a, body=True))
+    b_facts = set(t for t in setup.spec_clauses(b, body=True))
 
     # We want to present them to the user as simple key: values
-    intersect = list(a_facts.intersection(b_facts))
-    spec1_not_spec2 = list(a_facts.difference(b_facts))
-    spec2_not_spec1 = list(b_facts.difference(a_facts))
+    intersect = sorted(a_facts.intersection(b_facts))
+    spec1_not_spec2 = sorted(a_facts.difference(b_facts))
+    spec2_not_spec1 = sorted(b_facts.difference(a_facts))
 
     # Format the spec names to be colored
     fmt = "{name}{@version}{/hash}"
-    a_name = a.format(fmt, color=color.get_color_when())
-    b_name = b.format(fmt, color=color.get_color_when())
+    a_name = a.format(fmt, color=color)
+    b_name = b.format(fmt, color=color)
 
     # We want to show what is the same, and then difference for each
     return {
         "intersect": flatten(intersect) if to_string else intersect,
         "a_not_b": flatten(spec1_not_spec2) if to_string else spec1_not_spec2,
         "b_not_a": flatten(spec2_not_spec1) if to_string else spec2_not_spec1,
-        "a_name": a_name if colorful else a.format("{name}{@version}{/hash}"),
-        "b_name": b_name if colorful else b.format("{name}{@version}{/hash}")
+        "a_name": a_name,
+        "b_name": b_name,
     }
 
 
-def to_tuple(asp_function):
+def flatten(functions):
     """
-    Prepare tuples of objects.
-
-    If we need to save to json, convert to strings
-    See https://gist.github.com/tgamblin/83eba3c6d27f90d9fa3afebfc049ceaf
-    """
-    args = []
-    for arg in asp_function.args:
-        if isinstance(arg, str):
-            args.append(arg)
-            continue
-        args.append("%s(%s)" % (type(arg).__name__, str(arg)))
-    return tuple([asp_function.name] + args)
-
-
-def flatten(tuple_list):
-    """
-    Given a list of tuples, convert into a list of key: value tuples.
+    Given a list of ASP functions, convert into a list of key: value tuples.
 
     We are squashing whatever is after the first index into one string for
     easier parsing in the interface
     """
     updated = []
-    for item in tuple_list:
-        updated.append([item[0], " ".join(item[1:])])
+    for fun in functions:
+        updated.append([fun.name, " ".join(str(a) for a in fun.args)])
     return updated
 
 
@@ -145,8 +117,8 @@ def print_difference(c, attributes="all", out=None):
     A = c['b_not_a']
     B = c['a_not_b']
 
-    out.write(red("--- %s\n" % c["a_name"]))
-    out.write(green("+++ %s\n" % c["b_name"]))
+    cprint("@R{--- %s}" % c["a_name"])  # bright red
+    cprint("@G{+++ %s}" % c["b_name"])  # bright green
 
     # Cut out early if we don't have any differences!
     if not A and not B:
@@ -189,17 +161,17 @@ def print_difference(c, attributes="all", out=None):
             category = key
 
             # print category in bold, colorized
-            out.write(boldblue("@@ %s @@\n" % category))
+            cprint("@*b{@@ %s @@}" % category)  # bold blue
 
         # Print subtractions first
         while subtraction:
-            out.write(red("-  %s\n" % subtraction.pop(0)))
+            cprint("@R{-  %s}" % subtraction.pop(0))  # bright red
             if addition:
-                out.write(green("+  %s\n" % addition.pop(0)))
+                cprint("@G{+  %s}" % addition.pop(0))  # bright green
 
         # Any additions left?
         while addition:
-            out.write(green("+  %s\n" % addition.pop(0)))
+            cprint("@G{+  %s}" % addition.pop(0))
 
 
 def diff(parser, args):
@@ -212,8 +184,8 @@ def diff(parser, args):
              for spec in spack.cmd.parse_specs(args.specs)]
 
     # Calculate the comparison (c)
-    c = compare_specs(specs[0], specs[1], to_string=True,
-                      colorful=not args.dump_json)
+    color = False if args.dump_json else get_color_when()
+    c = compare_specs(specs[0], specs[1], to_string=True, color=color)
 
     # Default to all attributes
     attributes = args.attribute or ["all"]
