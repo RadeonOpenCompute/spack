@@ -31,13 +31,13 @@ colorized output with a flag
 
 .. code-block:: console
 
-    $ spack --color always | less -R
+    $ spack --color always find | less -R
 
 or an environment variable
 
 .. code-block:: console
 
-   $ SPACK_COLOR=always spack | less -R
+   $ SPACK_COLOR=always spack find | less -R
 
 --------------------------
 Listing available packages
@@ -757,7 +757,7 @@ The output is colored, and written in the style of a git diff. This means that y
 can copy and paste it into a GitHub markdown as a code block with language "diff"
 and it will render nicely! Here is an example:
 
-.. code-block:: markdown
+.. code-block:: md
 
     ```diff
     --- zlib@1.2.11/efzjziyc3dmb5h5u5azsthgbgog5mj7g

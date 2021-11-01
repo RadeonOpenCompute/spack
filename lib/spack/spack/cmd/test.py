@@ -137,6 +137,12 @@ def test_run(args):
     If no specs are listed, run tests for all packages in the current
     environment or all installed packages if there is no active environment.
     """
+    if args.alias:
+        suites = spack.install_test.get_named_test_suites(args.alias)
+        if suites:
+            tty.die('Test suite "{0}" already exists. Try another alias.'
+                    .format(args.alias))
+
     # cdash help option
     if args.help_cdash:
         parser = argparse.ArgumentParser(
@@ -155,7 +161,7 @@ environment variables:
         spack.config.set('config:fail_fast', True, scope='command_line')
 
     # Get specs to test
-    env = ev.get_env(args, 'test')
+    env = ev.active_environment()
     hashes = env.all_hashes() if env else None
 
     specs = spack.cmd.parse_specs(args.specs) if args.specs else [None]
@@ -221,7 +227,7 @@ def test_list(args):
 
     # TODO: This can be extended to have all of the output formatting options
     # from `spack find`.
-    env = ev.get_env(args, 'test')
+    env = ev.active_environment()
     hashes = env.all_hashes() if env else None
 
     specs = spack.store.db.query(hashes=hashes)

@@ -127,7 +127,10 @@ class PythonPackage(PackageBase):
             list: list of strings of module names
         """
         modules = []
-        root = self.spec['python'].package.get_python_lib(prefix=self.prefix)
+        root = os.path.join(
+            self.prefix,
+            self.spec['python'].package.config_vars['python_lib']['true']['false'],
+        )
 
         # Some Python libraries are packages: collections of modules
         # distributed in directories containing __init__.py files
@@ -252,12 +255,11 @@ class PythonPackage(PackageBase):
         # Get all relative paths since we set the root to `prefix`
         # We query the python with which these will be used for the lib and inc
         # directories. This ensures we use `lib`/`lib64` as expected by python.
-        pure_site_packages_dir = spec['python'].package.get_python_lib(
-            plat_specific=False, prefix='')
-        plat_site_packages_dir = spec['python'].package.get_python_lib(
-            plat_specific=True, prefix='')
-        inc_dir = spec['python'].package.get_python_inc(
-            plat_specific=True, prefix='')
+        pure_site_packages_dir = spec['python'].package.config_vars[
+            'python_lib']['false']['false']
+        plat_site_packages_dir = spec['python'].package.config_vars[
+            'python_lib']['true']['false']
+        inc_dir = spec['python'].package.config_vars['python_inc']['true']
 
         args += ['--root=%s' % prefix,
                  '--install-purelib=%s' % pure_site_packages_dir,
@@ -391,11 +393,15 @@ class PythonPackage(PackageBase):
                 self.spec
             )
         )
+
+        to_remove = []
         for src, dst in merge_map.items():
             if ignore_namespace and namespace_init(dst):
                 continue
 
             if global_view or not path_contains_subdirectory(src, bin_dir):
-                view.remove_file(src, dst)
+                to_remove.append(dst)
             else:
                 os.remove(dst)
+
+        view.remove_files(to_remove)

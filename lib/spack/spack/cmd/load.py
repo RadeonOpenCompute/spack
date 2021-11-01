@@ -21,7 +21,7 @@ def setup_parser(subparser):
     """Parser is only constructed so that this prints a nice help
        message with -h. """
     arguments.add_common_arguments(
-        subparser, ['recurse_dependencies', 'installed_specs'])
+        subparser, ['installed_specs'])
 
     shells = subparser.add_mutually_exclusive_group()
     shells.add_argument(
@@ -55,7 +55,7 @@ the dependencies"""
 
 
 def load(parser, args):
-    env = ev.get_env(args, 'load')
+    env = ev.active_environment()
     specs = [spack.cmd.disambiguate_spec(spec, env, first=args.load_first)
              for spec in spack.cmd.parse_specs(args.specs)]
 
