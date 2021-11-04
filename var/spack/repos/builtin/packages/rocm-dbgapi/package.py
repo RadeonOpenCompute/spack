@@ -36,7 +36,7 @@ class RocmDbgapi(CMakePackage):
     depends_on('cmake@3:', type='build')
 
     for ver in ['3.5.0', '3.7.0', '3.8.0', '3.9.0', '3.10.0', '4.0.0', '4.1.0',
-                '4.2.0', '4.3.0', '4.3.1', 'master']:
+                '4.2.0', '4.3.0', '4.3.1', '4.5.0', 'master']:
         depends_on('hsa-rocr-dev@' + ver, type='build', when='@' + ver)
         depends_on('comgr@' + ver, type=('build', 'link'), when='@' + ver)
 
