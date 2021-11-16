@@ -4,6 +4,7 @@
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 import itertools
 import os
+import platform
 import sys
 
 import llnl.util.tty as tty
@@ -12,6 +13,7 @@ from spack import *
 from spack.operating_systems.mac_os import macos_version
 
 MACOS_VERSION = macos_version() if sys.platform == 'darwin' else None
+LINUX_VERSION = Version(platform.release()) if platform.system() == 'Linux' else None
 
 
 class Qt(Package):
@@ -143,8 +145,7 @@ class Qt(Package):
           working_dir='qtwebsockets',
           when='@5.14: %gcc@11:')
     conflicts('%gcc@10:', when='@5.9:5.12.6 +opengl')
-    # Error: 'numeric_limits' is not a class template
-    conflicts('%gcc@11:', when='@5.8:5.14')
+    conflicts('%gcc@11:', when='@5.8')
 
     # Build-only dependencies
     depends_on("pkgconfig", type='build')
@@ -418,6 +419,11 @@ class Qt(Package):
         filter_file('^QMAKE_LFLAGS_NOUNDEF .*', 'QMAKE_LFLAGS_NOUNDEF = ',
                     conf('g++-unix'))
 
+        # https://gcc.gnu.org/gcc-11/porting_to.html: add -include limits
+        if self.spec.satisfies('@5.9:5.14%gcc@11:'):
+            with open(conf('gcc-base'), 'a') as f:
+                f.write("QMAKE_CXXFLAGS += -include limits\n")
+
         if self.spec.satisfies('@4'):
             # The gnu98 flag is necessary to build with GCC 6 and other modern
             # compilers (see http://stackoverflow.com/questions/10354371/);
@@ -632,6 +638,20 @@ class Qt(Package):
             if '+opengl' in spec:
                 config_args.append('-I{0}/include'.format(spec['libx11'].prefix))
                 config_args.append('-I{0}/include'.format(spec['xproto'].prefix))
+
+        # If the version of glibc is new enough Qt will configure features that
+        # may not be supported by the kernel version on the system. This will
+        # cause errors like:
+        #   error while loading shared libraries: libQt5Core.so.5: cannot open
+        #   shared object file: No such file or directory
+        # Test the kernel version and disable features that Qt detects in glibc
+        # but that are not supported in the kernel as determined by information
+        # in: qtbase/src/corelib/global/minimum-linux_p.h.
+        if LINUX_VERSION and version >= Version('5.10'):
+            if LINUX_VERSION < Version('3.16'):
+                config_args.append('-no-feature-renameat2')
+            if LINUX_VERSION < Version('3.17'):
+                config_args.append('-no-feature-getentropy')
 
         if '~webkit' in spec:
             config_args.extend([
