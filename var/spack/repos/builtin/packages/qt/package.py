@@ -1,4 +1,4 @@
-# Copyright 2013-2021 Lawrence Livermore National Security, LLC and other
+# Copyright 2013-2022 Lawrence Livermore National Security, LLC and other
 # Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
@@ -10,10 +10,11 @@ import sys
 import llnl.util.tty as tty
 
 from spack import *
+from spack.operating_systems.linux_distro import kernel_version
 from spack.operating_systems.mac_os import macos_version
 
 MACOS_VERSION = macos_version() if sys.platform == 'darwin' else None
-LINUX_VERSION = Version(platform.release()) if platform.system() == 'Linux' else None
+LINUX_VERSION = kernel_version() if platform.system() == 'Linux' else None
 
 
 class Qt(Package):
