@@ -17,7 +17,7 @@ jobs:
   validate:
     runs-on: windows-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8
     - uses: actions/setup-python@v2
       with:
         python-version: 3.9
@@ -33,7 +33,7 @@ jobs:
   style:
     runs-on: windows-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8
       with:
         fetch-depth: 0
     - uses: actions/setup-python@v2
@@ -55,7 +55,7 @@ jobs:
     needs: [ validate, style ]
     runs-on: windows-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8
       with:
         fetch-depth: 0
     - uses: actions/setup-python@v2
@@ -75,7 +75,7 @@ jobs:
     needs: [ validate, style ]
     runs-on: windows-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8
       with:
         fetch-depth: 0
     - uses: actions/setup-python@v2
@@ -95,7 +95,7 @@ jobs:
     needs: [ validate, style ]
     runs-on: windows-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8
       with:
         fetch-depth: 0
     - uses: actions/setup-python@v2
@@ -120,7 +120,7 @@ jobs:
         git config --global core.symlinks false
       shell:
         powershell
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8
       with:
         fetch-depth: 0
     - uses: actions/setup-python@v2
