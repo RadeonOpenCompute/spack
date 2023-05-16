@@ -11,13 +11,14 @@ class Rocminfo(CMakePackage):
     """Radeon Open Compute (ROCm) Runtime rocminfo tool"""
 
     homepage = "https://github.com/RadeonOpenCompute/rocminfo"
-    git = "https://github.com/RadeonOpenCompute/rocminfo.git"
+    git = "ssh://srekolam@gerrit-git.amd.com:29418/compute/ec/rocminfo"
     url = "https://github.com/RadeonOpenCompute/rocminfo/archive/rocm-5.4.3.tar.gz"
     tags = ["rocm"]
 
     maintainers("srekolam", "renjithravindrankannath", "haampie")
 
     version("master", branch="master")
+    version("develop", branch="amd-staging")
 
     version("5.4.3", sha256="72159eed31f8deee0df9228b9e306a18fe9efdd4d6c0eead871cad4617874170")
     version("5.4.0", sha256="79123b92992cce75ae679caf9a6bf57b16d24e96e54b36eb002511f3800e29c6")
@@ -133,6 +134,7 @@ class Rocminfo(CMakePackage):
         "5.4.0",
         "5.4.3",
         "master",
+        "develop",
     ]:
         depends_on("hsakmt-roct@" + ver, when="@" + ver)
         depends_on("hsa-rocr-dev@" + ver, when="@" + ver)

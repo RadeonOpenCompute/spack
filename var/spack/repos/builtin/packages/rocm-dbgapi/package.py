@@ -15,7 +15,7 @@ class RocmDbgapi(CMakePackage):
     AMD's commercially available GPU architectures."""
 
     homepage = "https://github.com/ROCm-Developer-Tools/ROCdbgapi"
-    git = "https://github.com/ROCm-Developer-Tools/ROCdbgapi.git"
+    git = "ssh://srekolam@gerrit-git.amd.com:29418/compute/ec/rocm-dbgapi.git"
     url = "https://github.com/ROCm-Developer-Tools/ROCdbgapi/archive/rocm-5.4.3.tar.gz"
     tags = ["rocm"]
 
@@ -23,6 +23,7 @@ class RocmDbgapi(CMakePackage):
     libraries = ["librocm-dbgapi"]
 
     version("master", branch="amd-master")
+    version("develop", branch="amd-staging")
 
     version("5.4.3", sha256="d647c9121a50f2c54367c567d8f39a145cb135e1ceed931581659f57f49f61e5")
     version("5.4.0", sha256="895eb7056864daada40c3f9cd37645b0bdf4b6dc408b5f8cc974fc4cd9ab7ccb")
@@ -112,6 +113,7 @@ class RocmDbgapi(CMakePackage):
     )
 
     depends_on("cmake@3:", type="build")
+    depends_on("hwdata", when="@develop")
 
     for ver in [
         "3.5.0",
@@ -138,6 +140,7 @@ class RocmDbgapi(CMakePackage):
         "5.4.0",
         "5.4.3",
         "master",
+        "develop",
     ]:
         depends_on("hsa-rocr-dev@" + ver, type="build", when="@" + ver)
         depends_on("comgr@" + ver, type=("build", "link"), when="@" + ver)

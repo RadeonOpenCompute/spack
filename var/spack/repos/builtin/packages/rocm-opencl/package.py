@@ -13,7 +13,7 @@ class RocmOpencl(CMakePackage):
     """OpenCL: Open Computing Language on ROCclr"""
 
     homepage = "https://github.com/RadeonOpenCompute/ROCm-OpenCL-Runtime"
-    git = "https://github.com/RadeonOpenCompute/ROCm-OpenCL-Runtime.git"
+    git = "ssh://srekolam@gerrit-git.amd.com:29418/compute/ec/opencl.git"
     tags = ["rocm"]
 
     maintainers("srekolam", "renjithravindrankannath")
@@ -29,6 +29,7 @@ class RocmOpencl(CMakePackage):
         return url.format(version)
 
     version("master", branch="main")
+    version("develop", branch="amd-staging-closed")
 
     version("5.4.3", sha256="b0f8339c844a2e62773bd85cd1e7c5ecddfe71d7c8e8d604e1a1d60900c30873")
     version("5.4.0", sha256="a294639478e76c75dac0e094b418f9bd309309b07faf6af126cdfad9aab3c5c7")
@@ -147,6 +148,14 @@ class RocmOpencl(CMakePackage):
             placement="rocclr",
             when="@{0}".format(d_version),
         )
+    resource(
+        name="rocclr",
+        git= "ssh://srekolam@gerrit-git.amd.com:29418/compute/ec/vdi.git",
+        destination="",
+        placement="rocclr",
+        branch="amd-staging-closed",
+        when="@develop",
+    )
     # Patch to set package installation path for OpenCL.
     patch("0001-fix-build-error-rocm-opencl-5.1.0.patch", when="@5.1.0:5.1")
 
@@ -162,6 +171,7 @@ class RocmOpencl(CMakePackage):
         "4.3.0",
         "4.3.1",
         "master",
+        "develop",
     ]:
         depends_on("hip-rocclr@" + ver, type="build", when="@" + ver)
     for ver in [
@@ -189,6 +199,7 @@ class RocmOpencl(CMakePackage):
         "5.4.0",
         "5.4.3",
         "master",
+        "develop",
     ]:
         depends_on("comgr@" + ver, type="build", when="@" + ver)
         depends_on("hsa-rocr-dev@" + ver, type="link", when="@" + ver)

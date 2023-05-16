@@ -15,7 +15,7 @@ class LlvmAmdgpu(CMakePackage):
     optimizers, and run-time environments."""
 
     homepage = "https://github.com/RadeonOpenCompute/llvm-project"
-    git = "https://github.com/RadeonOpenCompute/llvm-project.git"
+    git = "ssh://srekolam@gerrit-git.amd.com:29418/lightning/ec/llvm-project.git"
     url = "https://github.com/RadeonOpenCompute/llvm-project/archive/rocm-5.4.3.tar.gz"
     tags = ["rocm"]
     executables = [r"amdclang", r"amdclang\+\+", r"amdflang", r"clang.*", r"flang.*", "llvm-.*"]
@@ -24,6 +24,7 @@ class LlvmAmdgpu(CMakePackage):
     maintainers("srekolam", "renjithravindrankannath", "haampie")
 
     version("master", branch="amd-stg-open")
+    version("develop", branch="amd-stg-open")
     version("5.4.3", sha256="a844d3cc01613f6284a75d44db67c495ac1e9b600eacbb1eb13d2649f5d5404d")
     version("5.4.0", sha256="ff54f45a17723892cd775c1eaff9e5860527fcfd33d98759223c70e3362335bf")
     version("5.3.3", sha256="5296d5e474811c7d1e456cb6d5011db248b79b8d0512155e8a6c2aa5b5f12d38")
@@ -211,6 +212,14 @@ class LlvmAmdgpu(CMakePackage):
         git="https://github.com/RadeonOpenCompute/ROCm-Device-Libs.git",
         branch="amd-stg-open",
         when="@master +rocm-device-libs",
+    )
+
+    resource(
+        name="rocm-device-libs",
+        placement="rocm-device-libs",
+        git="ssh://srekolam@gerrit-git.amd.com:29418/lightning/ec/device-libs.git",
+        branch="amd-stg-open",
+        when="@develop +rocm-device-libs",
     )
 
     def cmake_args(self):

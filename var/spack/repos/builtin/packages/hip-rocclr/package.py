@@ -13,7 +13,7 @@ class HipRocclr(CMakePackage):
     runtimes to work on Windows as well as on Linux without much effort."""
 
     homepage = "https://github.com/ROCm-Developer-Tools/ROCclr"
-    git = "https://github.com/ROCm-Developer-Tools/ROCclr.git"
+    git = "ssh://srekolam@gerrit-git.amd.com:29418/compute/ec/vdi.git"
     tags = ["rocm"]
 
     maintainers("srekolam", "renjithravindrankannath")
@@ -27,6 +27,7 @@ class HipRocclr(CMakePackage):
         return url.format(version)
 
     version("master", branch="main")
+    version("develop", branch="amd-staging-closed")
 
     version("5.4.3", sha256="71d9668619ab57ec8a4564d11860438c5aad5bd161a3e58fbc49555fbd59182d")
     version("5.4.0", sha256="46a1579310b3ab9dc8948d0fb5bed4c6b312f158ca76967af7ab69e328d43138")
@@ -145,6 +146,7 @@ class HipRocclr(CMakePackage):
         "5.4.0",
         "5.4.3",
         "master",
+        "develop",
     ]:
         depends_on("hsakmt-roct@" + ver, when="@" + ver)
         depends_on("hsa-rocr-dev@" + ver, when="@" + ver)
@@ -209,7 +211,14 @@ class HipRocclr(CMakePackage):
         branch="main",
         when="@master",
     )
-
+    resource(
+        name="opencl-on-vdi",
+        git= "ssh://srekolam@gerrit-git.amd.com:29418/compute/ec/opencl.git",
+        destination="",
+        placement="opencl-on-vdi",
+        branch="amd-staging-closed",
+        when="@develop",
+    )
     @run_after("install")
     def deploy_missing_files(self):
         if "@3.5.0" in self.spec:

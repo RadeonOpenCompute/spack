@@ -16,7 +16,7 @@ class HsaRocrDev(CMakePackage):
     Linux HSA Runtime for Boltzmann (ROCm) platforms."""
 
     homepage = "https://github.com/RadeonOpenCompute/ROCR-Runtime"
-    git = "https://github.com/RadeonOpenCompute/ROCR-Runtime.git"
+    git = "ssh://srekolam@gerrit-git.amd.com:29418/hsa/ec/hsa-runtime.git"
     url = "https://github.com/RadeonOpenCompute/ROCR-Runtime/archive/rocm-5.4.3.tar.gz"
     tags = ["rocm"]
 
@@ -24,6 +24,7 @@ class HsaRocrDev(CMakePackage):
     libraries = ["libhsa-runtime64"]
 
     version("master", branch="master")
+    version("develop", branch="amd-staging")
 
     version("5.4.3", sha256="a600eed848d47a7578c60da7e64eb92f29bbce2ec67932b251eafd4c2974cb67")
     version("5.4.0", sha256="476cd18500cc227d01f6b44c00c7adc8574eb8234b6b4daefc219650183fa090")
@@ -149,6 +150,7 @@ class HsaRocrDev(CMakePackage):
         "5.4.0",
         "5.4.3",
         "master",
+        "develop",
     ]:
         depends_on("hsakmt-roct@" + ver, when="@" + ver)
         depends_on("llvm-amdgpu@" + ver, when="@" + ver)
@@ -159,9 +161,10 @@ class HsaRocrDev(CMakePackage):
 
     # Both 3.5.0 and 3.7.0 force INSTALL_RPATH in different ways
     patch("0001-Do-not-set-an-explicit-rpath-by-default-since-packag.patch", when="@3.5.0")
-    patch("0002-Remove-explicit-RPATH-again.patch", when="@3.7.0:")
+    patch("0002-Remove-explicit-RPATH-again.patch", when="@3.7.0:5.4")
 
-    root_cmakelists_dir = "src"
+    #root_cmakelists_dir = "src"
+    root_cmakelists_dir = "opensrc/hsa-runtime"
 
     @classmethod
     def determine_version(cls, lib):

@@ -15,12 +15,12 @@ class HsakmtRoct(CMakePackage):
     with the ROCk driver."""
 
     homepage = "https://github.com/RadeonOpenCompute/ROCT-Thunk-Interface"
-    git = "https://github.com/RadeonOpenCompute/ROCT-Thunk-Interface.git"
+    git = "ssh://srekolam@gerrit-git.amd.com:29418/compute/ec/libhsakmt.git"
     url = "https://github.com/RadeonOpenCompute/ROCT-Thunk-Interface/archive/rocm-5.4.3.tar.gz"
     tags = ["rocm"]
 
     maintainers("srekolam", "arjun-raj-kuppala", "renjithravindrankannath")
-
+    version("develop", branch="amd-staging")
     version("master", branch="master")
 
     version("5.4.3", sha256="3799abbe7177fbff3b304e2a363e2b39e8864f8650ae569b2b88b9291f9a710c")
@@ -120,7 +120,7 @@ class HsakmtRoct(CMakePackage):
     # See https://github.com/RadeonOpenCompute/ROCT-Thunk-Interface/issues/72
     # and https://github.com/spack/spack/issues/28398
     patch("0001-Remove-compiler-support-libraries-and-libudev-as-req.patch", when="@4.5.0:5.2")
-    patch("0002-Remove-compiler-support-libraries-and-libudev-as-req-5.3.patch", when="@5.3.0:")
+    patch("0002-Remove-compiler-support-libraries-and-libudev-as-req-5.3.patch", when="@5.3.0:5.4")
 
     @property
     def install_targets(self):

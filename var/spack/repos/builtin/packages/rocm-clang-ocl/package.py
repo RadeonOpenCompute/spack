@@ -10,12 +10,13 @@ class RocmClangOcl(CMakePackage):
     """OpenCL compilation with clang compiler"""
 
     homepage = "https://github.com/RadeonOpenCompute/clang-ocl"
-    git = "https://github.com/RadeonOpenCompute/clang-ocl.git"
+    git = "ssh://gerrit-git.amd.com:29418/compute/ec/clang-ocl.git"
     url = "https://github.com/RadeonOpenCompute/clang-ocl/archive/rocm-5.4.3.tar.gz"
     tags = ["rocm"]
 
     maintainers("srekolam", "renjithravindrankannath")
     version("master", branch="master")
+    version("develop", branch="amd-master")
 
     version("5.4.3", sha256="689e0354ea685bd488116de8eb902b902492e9ace184c3109b97b9a43f8b2d59")
     version("5.4.0", sha256="602f8fb1f36587543cc0ee95fd1938f8eeb03de79119101e128150332cc8d89c")
@@ -131,6 +132,7 @@ class RocmClangOcl(CMakePackage):
         "5.4.0",
         "5.4.3",
         "master",
+        "develop",
     ]:
         depends_on("rocm-cmake@%s:" % ver, type="build", when="@" + ver)
         depends_on("llvm-amdgpu@" + ver, when="@" + ver)
