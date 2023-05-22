@@ -1,23 +1,42 @@
-From 2b851bac2e206f1f36d3e5e7e1493b5cfbc85de5 Mon Sep 17 00:00:00 2001
+From 6df478bfeeb646ecabba503b8170ced65a5e74cf Mon Sep 17 00:00:00 2001
 From: sreenivasa murthy kolam <sreenivasamurthy.kolam@amd.com>
-Date: Thu, 4 May 2023 12:12:36 +0000
-Subject: [PATCH] update the original patch for rocm-5.5.0 code
+Date: Mon, 22 May 2023 10:25:48 +0000
+Subject: [PATCH] update the llvm-path and rocm-info path based on install
+ prefix for llvm-amdgpu and rocminfo;remove compiler rt builtin linkage for
+ host
 
 ---
- bin/hipcc.pl               | 3 ++-
- hipamd/hip-config.cmake.in | 1 -
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ bin/hipcc.pl               | 10 +++++++---
+ hipamd/hip-config.cmake.in |  1 -
+ 2 files changed, 7 insertions(+), 4 deletions(-)
 
 diff --git a/bin/hipcc.pl b/bin/hipcc.pl
-index 2cd3752..e4404f0 100644
+index 2cd3752..2af14d2 100644
 --- a/bin/hipcc.pl
 +++ b/bin/hipcc.pl
-@@ -493,7 +493,8 @@ if($HIP_PLATFORM eq "amd"){
+@@ -170,11 +170,14 @@ if ($HIP_PLATFORM eq "amd") {
+     if($isWindows) {
+         $execExtension = ".exe";
+     }
+-    $HIPCC="$HIP_CLANG_PATH/clang++" . $execExtension;
++    # llvm_path is set inside the hip recipe
++    $LLVM_PATH= $ENV{'LLVM_PATH'};
++    $HIPCC="${LLVM_PATH}/bin/clang++" . $execExtension;
+ 
+     # If $HIPCC clang++ is not compiled, use clang instead
+     if ( ! -e $HIPCC ) {
+-        $HIPCC="$HIP_CLANG_PATH/clang" . $execExtension;
++	$LLVM_PATH= $ENV{'LLVM_PATH'};
++        $HIPCC="${LLVM_PATH}/bin/clang" . $execExtension;
+         $HIPLDFLAGS = "--driver-mode=g++";
+     }
+     # to avoid using dk linker or MSVC linker
+@@ -493,7 +496,8 @@ if($HIP_PLATFORM eq "amd"){
              $targetsStr = $ENV{HCC_AMDGPU_TARGET};
          } elsif (not $isWindows) {
              # Else try using rocm_agent_enumerator
 -            $ROCM_AGENT_ENUM = "${ROCM_PATH}/bin/rocm_agent_enumerator";
-+            $ROCMINFO_PATH = $ENV{'ROCMINFO_PATH'} // $ROCM_PATH;
++	    $ROCMINFO_PATH = $ENV{'ROCMINFO_PATH'} // $ROCMINFO_PATH;
 +            $ROCM_AGENT_ENUM = "${ROCMINFO_PATH}/bin/rocm_agent_enumerator";
              $targetsStr = `${ROCM_AGENT_ENUM} -t GPU`;
              $targetsStr =~ s/\n/,/g;
