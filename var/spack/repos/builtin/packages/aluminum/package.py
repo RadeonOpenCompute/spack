@@ -25,6 +25,7 @@ class Aluminum(CMakePackage, CudaPackage, ROCmPackage):
     maintainers("bvanessen")
 
     version("master", branch="master")
+    version("1.3.1", sha256="28ce0af6c6f29f97b7f19c5e45184bd2f8a0b1428f1e898b027d96d47cb74b0b")
     version("1.3.0", sha256="d0442efbebfdfb89eec793ae65eceb8f1ba65afa9f2e48df009f81985a4c27e3")
     version("1.2.3", sha256="9b214bdf30f9b7e8e017f83e6615db6be2631f5be3dd186205dbe3aa62f4018a")
     version(
@@ -47,7 +48,7 @@ class Aluminum(CMakePackage, CudaPackage, ROCmPackage):
         sha256="78b03e36e5422e8651f400feb4d8a527f87302db025d77aa37e223be6b9bdfc9",
         deprecated=True,
     )
-    version("1.0.0-lbann", tag="v1.0.0-lbann")
+    version("1.0.0-lbann", tag="v1.0.0-lbann", commit="40a062b1f63e84e074489c0f926f36b806c6b8f3")
     version("1.0.0", sha256="028d12e271817214db5c07c77b0528f88862139c3e442e1b12f58717290f414a")
     version(
         "0.7.0",

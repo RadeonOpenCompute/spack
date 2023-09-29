@@ -5,7 +5,6 @@
 
 import os.path
 import re
-import sys
 
 import pytest
 
@@ -16,7 +15,7 @@ import spack.store
 
 module = spack.main.SpackCommand("module")
 
-pytestmark = pytest.mark.skipif(sys.platform == "win32", reason="does not run on windows")
+pytestmark = pytest.mark.not_on_windows("does not run on windows")
 
 
 #: make sure module files are generated for all the tests here
@@ -41,7 +40,7 @@ def _module_files(module_type, *specs):
         ["rm", "doesnotexist"],  # Try to remove a non existing module
         ["find", "mpileaks"],  # Try to find a module with multiple matches
         ["find", "doesnotexist"],  # Try to find a module with no matches
-        ["find", "--unkown_args"],  # Try to give an unknown argument
+        ["find", "--unknown_args"],  # Try to give an unknown argument
     ]
 )
 def failure_args(request):

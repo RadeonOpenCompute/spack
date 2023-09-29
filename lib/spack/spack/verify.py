@@ -14,6 +14,7 @@ import spack.filesystem_view
 import spack.store
 import spack.util.file_permissions as fp
 import spack.util.spack_json as sjson
+from spack.package_base import spack_times_log
 
 
 def compute_hash(path: str, block_size: int = 1048576) -> str:
@@ -49,7 +50,9 @@ def create_manifest_entry(path: str) -> Dict[str, Any]:
 
 def write_manifest(spec):
     manifest_file = os.path.join(
-        spec.prefix, spack.store.layout.metadata_dir, spack.store.layout.manifest_file_name
+        spec.prefix,
+        spack.store.STORE.layout.metadata_dir,
+        spack.store.STORE.layout.manifest_file_name,
     )
 
     if not os.path.exists(manifest_file):
@@ -106,14 +109,14 @@ def check_file_manifest(filename):
     dirname = os.path.dirname(filename)
 
     results = VerificationResults()
-    while spack.store.layout.metadata_dir not in os.listdir(dirname):
+    while spack.store.STORE.layout.metadata_dir not in os.listdir(dirname):
         if dirname == os.path.sep:
             results.add_error(filename, "not owned by any package")
             return results
         dirname = os.path.dirname(dirname)
 
     manifest_file = os.path.join(
-        dirname, spack.store.layout.metadata_dir, spack.store.layout.manifest_file_name
+        dirname, spack.store.STORE.layout.metadata_dir, spack.store.STORE.layout.manifest_file_name
     )
 
     if not os.path.exists(manifest_file):
@@ -139,7 +142,7 @@ def check_spec_manifest(spec):
 
     results = VerificationResults()
     manifest_file = os.path.join(
-        prefix, spack.store.layout.metadata_dir, spack.store.layout.manifest_file_name
+        prefix, spack.store.STORE.layout.metadata_dir, spack.store.STORE.layout.manifest_file_name
     )
 
     if not os.path.exists(manifest_file):
@@ -161,6 +164,10 @@ def check_spec_manifest(spec):
             if path == manifest_file:
                 continue
 
+            # Do not check the install times log file.
+            if entry == spack_times_log:
+                continue
+
             data = manifest.pop(path, {})
             results += check_entry(path, data)
 
@@ -172,7 +179,7 @@ def check_spec_manifest(spec):
     return results
 
 
-class VerificationResults(object):
+class VerificationResults:
     def __init__(self):
         self.errors = {}
 

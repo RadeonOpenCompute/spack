@@ -13,8 +13,8 @@ class Netcdf95(CMakePackage):
     homepage = "https://lguez.github.io/NetCDF95/"
     git = "https://github.com/lguez/NetCDF95.git"
 
-    maintainers = ["RemiLacroix-IDRIS"]
+    maintainers("RemiLacroix-IDRIS")
 
-    version("0.3", tag="v0.3", submodules=True)
+    version("0.3", tag="v0.3", commit="5b8db6bb66a22b6a080589ee1c11521ee3cae550", submodules=True)
 
     depends_on("netcdf-fortran")

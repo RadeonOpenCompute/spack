@@ -30,6 +30,9 @@ class Gdal(CMakePackage, AutotoolsPackage, PythonExtension):
 
     maintainers("adamjstewart")
 
+    version("3.7.2", sha256="40c0068591d2c711c699bbb734319398485ab169116ac28005d8302f80b923ad")
+    version("3.7.1", sha256="9297948f0a8ba9e6369cd50e87c7e2442eda95336b94d2b92ef1829d260b9a06")
+    version("3.7.0", sha256="af4b26a6b6b3509ae9ccf1fcc5104f7fe015ef2110f5ba13220816398365adce")
     version("3.6.4", sha256="889894cfff348c04ac65b462f629d03efc53ea56cf04de7662fbe81a364e3df1")
     version("3.6.3", sha256="3cccbed883b1fb99b913966aa3a650ad930e7c3afc714f5823f9754176ee49ea")
     version("3.6.2", sha256="35f40d2e08061b342513cdcddc2b997b3814ef8254514f0ef1e8bc7aa56cf681")
@@ -204,7 +207,7 @@ class Gdal(CMakePackage, AutotoolsPackage, PythonExtension):
         when="@2.1:",
         description="Used for linear interpolation of gdal_grid",
     )
-    variant("rasdaman", default=False, description="Required for Rasdaman driver")
+    variant("rasdaman", default=False, when="@:3.6", description="Required for Rasdaman driver")
     variant(
         "rasterlite2", default=False, when="@2.2:", description="Required for RasterLite2 driver"
     )
@@ -248,7 +251,7 @@ class Gdal(CMakePackage, AutotoolsPackage, PythonExtension):
     depends_on("proj@:6", when="@2.5:2")
     depends_on("proj@:5", when="@2.4")
     depends_on("proj@:4", when="@:2.3")
-    depends_on("zlib")
+    depends_on("zlib-api")
     depends_on("libtiff@4:", when="@3:")
     depends_on("libtiff@3.6.0:")  # 3.9.0+ needed to pass testsuite
     depends_on("libgeotiff@1.5:", when="@3:")
@@ -287,7 +290,8 @@ class Gdal(CMakePackage, AutotoolsPackage, PythonExtension):
     depends_on("libheif@1.1:", when="+heif")
     depends_on("hdf", when="+hdf4")
     depends_on("hdf5+cxx", when="+hdf5")
-    depends_on("hdf5@:1.12", when="@:3.4.1 +hdf5")
+    depends_on("hdf5@:1.13", when="@:3.5 +hdf5")
+    depends_on("hdf5@:1.12", when="@:3.4 +hdf5")
     depends_on("hadoop", when="+hdfs")
     depends_on("iconv", when="+iconv")
     # depends_on('idb', when='+idb')
@@ -365,6 +369,8 @@ class Gdal(CMakePackage, AutotoolsPackage, PythonExtension):
     depends_on("python@3.6:", type=("build", "link", "run"), when="@3.3:+python")
     depends_on("python@2.0:", type=("build", "link", "run"), when="@3.2:+python")
     depends_on("python", type=("build", "link", "run"), when="+python")
+    # Uses distutils
+    depends_on("python@:3.11", type=("build", "link", "run"), when="@:3.4+python")
     # swig/python/setup.py
     depends_on("py-setuptools@:57", type="build", when="@:3.2+python")  # needs 2to3
     depends_on("py-setuptools", type="build", when="+python")
@@ -380,6 +386,9 @@ class Gdal(CMakePackage, AutotoolsPackage, PythonExtension):
     depends_on("swig", type="build", when="+perl")
     depends_on("php", type=("build", "link", "run"), when="+php")
     depends_on("swig", type="build", when="+php")
+
+    # https://gdal.org/development/rfc/rfc88_googletest.html
+    depends_on("googletest@1.10:", type="test")
 
     # https://trac.osgeo.org/gdal/wiki/SupportedCompilers
     msg = "GDAL requires C++11 support"
@@ -475,6 +484,10 @@ class CMakeBuilder(CMakeBuilder):
             self.define("GDAL_USE_JSONC", True),
             self.define("GDAL_USE_TIFF", True),
             self.define("GDAL_USE_ZLIB", True),
+            # zlib-ng + deflate64 doesn't compile (heavily relies on zlib)
+            # but since zlib-ng is faster than zlib, it deflate shouldn't
+            # be necessary.
+            self.define("ENABLE_DEFLATE64", "zlib-ng" not in self.spec),
             # Optional dependencies
             self.define_from_variant("GDAL_USE_ARMADILLO", "armadillo"),
             self.define_from_variant("GDAL_USE_ARROW", "arrow"),
@@ -598,7 +611,7 @@ class AutotoolsBuilder(AutotoolsBuilder):
             "--with-geotiff={}".format(self.spec["libgeotiff"].prefix),
             "--with-libjson-c={}".format(self.spec["json-c"].prefix),
             "--with-libtiff={}".format(self.spec["libtiff"].prefix),
-            "--with-libz={}".format(self.spec["zlib"].prefix),
+            "--with-libz={}".format(self.spec["zlib-api"].prefix),
             # Optional dependencies
             self.with_or_without("armadillo", package="armadillo"),
             self.with_or_without("blosc", package="c-blosc"),
