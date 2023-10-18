@@ -139,7 +139,7 @@ class Rocminfo(CMakePackage):
         depends_on("hsakmt-roct@" + ver, when="@" + ver)
         depends_on("hsa-rocr-dev@" + ver, when="@" + ver)
 
-    for ver in ["develop", "5.5.0", "5.5.1", "5.6.0", "5.6.1"]:
+    for ver in ["develop", "master", "5.5.0", "5.5.1", "5.6.0", "5.6.1"]:
         depends_on("rocm-core@" + ver, when="@" + ver)
 
     def cmake_args(self):

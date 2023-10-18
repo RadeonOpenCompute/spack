@@ -1,0 +1,17 @@
+diff --git a/rocm-device-libs/cmake/OCL.cmake b/rocm-device-libs/cmake/OCL.cmake
+index 773c6f6..d1dba14 100644
+--- a/rocm-device-libs/cmake/OCL.cmake
++++ b/rocm-device-libs/cmake/OCL.cmake
+@@ -38,9 +38,9 @@ execute_process (
+   ERROR_QUIET
+ )
+ file(REMOVE ${CMAKE_BINARY_DIR}/tmp.cl)
+-if (NOT TEST_CODE_OBJECT_VERSION_NONE_RESULT)
+-  set(CLANG_OCL_FLAGS ${CLANG_OCL_FLAGS} -Xclang -mcode-object-version=none)
+-endif()
++#if (NOT TEST_CODE_OBJECT_VERSION_NONE_RESULT)
++set(CLANG_OCL_FLAGS ${CLANG_OCL_FLAGS} -Xclang -mcode-object-version=none)
++#endif()
+ 
+ set (BC_EXT .bc)
+ set (LIB_SUFFIX ".lib${BC_EXT}")
