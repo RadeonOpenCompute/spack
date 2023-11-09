@@ -167,15 +167,18 @@ class LlvmAmdgpu(CMakePackage):
     # OpenMP clang toolchain looks for bitcode files in llvm/bin/../lib
     # as per 5.2.0 llvm code. It used to be llvm/bin/../lib/libdevice.
     # Below patch is to look in the old path.
-    patch("adjust-openmp-bitcode-directory-for-llvm-link.patch", when="@5.2.0:5.5")
-    patch("patch-llvm-5.5.0.patch", when="@5.5:5.6")
-    patch("llvm-amdgpu-ocl-cmake-fix-5.5.0.patch", when="@5.5.0:5.6 + rocm-device-libs")
+    patch("adjust-openmp-bitcode-directory-for-llvm-link.patch", when="@5.2.0:5.6")
+
+    # Below patch is to set the flag -mcode-object-version=none until
+    # the below fix is available in device-libs release code.
+    # https://github.com/RadeonOpenCompute/ROCm-Device-Libs/commit/f0356159dbdc93ea9e545f9b61a7842f9c881fdf
+    patch("patch-llvm-5.5.0.patch", when="@5.5:5.7 +rocm-device-libs")
 
     # i1 muls can sometimes happen after SCEV.
     # They resulted in ISel failures because we were missing the patterns for them.
     # This fix is targeting 6.1 rocm release.
     # Need patch until https://github.com/llvm/llvm-project/pull/67291 is merged.
-    patch("001-Add-i1-mul-patterns.patch", when="@5.6.0:5.6")
+    patch("001-Add-i1-mul-patterns.patch", when="@5.6")
 
     conflicts("^cmake@3.19.0")
 
@@ -248,9 +251,7 @@ class LlvmAmdgpu(CMakePackage):
         resource(
             name="hsa-runtime",
             placement="hsa-runtime",
-            url="https://github.com/RadeonOpenCompute/ROCR-Runtime/archive/rocm-{0}.tar.gz".format(
-                d_version
-            ),
+            url=f"https://github.com/RadeonOpenCompute/ROCR-Runtime/archive/rocm-{d_version}.tar.gz",
             sha256=d_shasum,
             when="@{0}".format(d_version),
         )
@@ -261,6 +262,14 @@ class LlvmAmdgpu(CMakePackage):
         branch="amd-staging",
         when="@develop",
     )
+    resource(
+        name="hsa-runtime",
+        placement="hsa-runtime",
+        git="https://github.com/RadeonOpenCompute/ROCR-Runtime.git",
+        branch="master",
+        when="@master",
+    )
+
     for d_version, d_shasum in [
         ("5.7.1", "3b9433b4a0527167c3e9dfc37a3c54e0550744b8d4a8e1be298c8d4bcedfee7c"),
         ("5.7.0", "e234bcb93d602377cfaaacb59aeac5796edcd842a618162867b7e670c3a2c42c"),
@@ -270,9 +279,7 @@ class LlvmAmdgpu(CMakePackage):
         resource(
             name="comgr",
             placement="comgr",
-            url="https://github.com/RadeonOpenCompute/ROCm-CompilerSupport/archive/rocm-{0}.tar.gz".format(
-                d_version
-            ),
+            url=f"https://github.com/RadeonOpenCompute/ROCm-CompilerSupport/archive/rocm-{d_version}.tar.gz",
             sha256=d_shasum,
             when="@{0}".format(d_version),
         )
@@ -282,6 +289,13 @@ class LlvmAmdgpu(CMakePackage):
         git= "ssh://srekolam@gerrit-git.amd.com:29418/lightning/ec/support.git",
         branch="amd-stg-open",
         when="@develop",
+    )
+    resource(
+        name="comgr",
+        placement="comgr",
+        git="https://github.com/RadeonOpenCompute/ROCm-CompilerSupport.git",
+        branch="amd-stg-open",
+        when="@master",
     )
 
     def cmake_args(self):
@@ -349,12 +363,19 @@ class LlvmAmdgpu(CMakePackage):
         if self.spec.satisfies("@5.5.0:"):
             args.append("-DCLANG_DEFAULT_RTLIB=compiler-rt")
             args.append("-DCLANG_DEFAULT_UNWINDLIB=libgcc")
-        if self.spec.satisfies("@develop:"):
+        if self.spec.satisfies("@5.6.0:5.7"):
+            hsainc_path = os.path.join(self.stage.source_path, "hsa-runtime/src/inc")
+            comgrinc_path = os.path.join(self.stage.source_path, "comgr/lib/comgr/include")
+            args.append("-DSANITIZER_HSA_INCLUDE_PATH={0}".format(hsainc_path))
+            args.append("-DSANITIZER_COMGR_INCLUDE_PATH={0}".format(comgrinc_path))
+            args.append("-DSANITIZER_AMDGPU:Bool=ON")
+        if self.spec.satisfies("@develop"):
             hsainc = os.path.join(self.stage.source_path, "hsa-runtime/opensrc/hsa-runtime/inc")
             comgrinc = os.path.join(self.stage.source_path, "comgr/lib/comgr/include")
             args.append("-DSANITIZER_HSA_INCLUDE_PATH={0}/hsa-runtime/opensrc/hsa-runtime/inc".format(self.stage.source_path))
             args.append("-DSANITIZER_COMGR_INCLUDE_PATH={0}/comgr/lib/comgr/include".format(self.stage.source_path))
             args.append("-DSANITIZER_AMDGPU:Bool=ON")
+
         return args
 
     @run_after("install")
