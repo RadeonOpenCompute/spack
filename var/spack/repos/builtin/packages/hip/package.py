@@ -17,7 +17,7 @@ class Hip(CMakePackage):
     single source code."""
 
     homepage = "https://github.com/ROCm-Developer-Tools/HIP"
-    git = "https://github.com/ROCm-Developer-Tools/HIP.git"
+    git = "ssh://srekolam@gerrit-git.amd.com:29418/compute/ec/hip"
     url = "https://github.com/ROCm-Developer-Tools/HIP/archive/rocm-5.5.0.tar.gz"
     tags = ["rocm"]
 
@@ -25,6 +25,7 @@ class Hip(CMakePackage):
     libraries = ["libamdhip64"]
 
     version("master", branch="master")
+    version("develop", branch="amd-staging")
     version("5.6.1", sha256="4b3c4dfcf8595da0e1b8c3e8067b1ccebeaac337762ff098db14375fa8dd4487")
     version("5.6.0", sha256="a8237768c1ae70029d972376f8d279f4de18a1e6106fff6215d1e16847bc375e")
     version("5.5.1", sha256="1f5f6bb72d8d64335ccc8242ef2e2ea8efeb380cce2997f475b1ee77528d9fb4")
@@ -166,6 +167,7 @@ class Hip(CMakePackage):
             "5.5.1",
             "5.6.0",
             "5.6.1",
+            "develop",
         ]:
             depends_on("hsakmt-roct@" + ver, when="@" + ver)
             depends_on("hsa-rocr-dev@" + ver, when="@" + ver)
@@ -174,10 +176,10 @@ class Hip(CMakePackage):
             depends_on("rocminfo@" + ver, when="@" + ver)
             depends_on("roctracer-dev-api@" + ver, when="@" + ver)
 
-        for ver in ["5.4.0", "5.4.3", "5.5.0", "5.5.1", "5.6.0", "5.6.1"]:
+        for ver in ["5.4.0", "5.4.3", "5.5.0", "5.5.1", "5.6.0", "5.6.1", "develop"]:
             depends_on("hipify-clang", when="@" + ver)
 
-        for ver in ["5.5.0", "5.5.1", "5.6.0", "5.6.1"]:
+        for ver in ["5.5.0", "5.5.1", "5.6.0", "5.6.1", "develop"]:
             depends_on("rocm-core@" + ver, when="@" + ver)
         # hipcc likes to add `-lnuma` by default :(
         # ref https://github.com/ROCm-Developer-Tools/HIP/pull/2202
@@ -289,6 +291,15 @@ class Hip(CMakePackage):
             placement="clr",
             when="@{0}".format(d_version),
         )
+    resource(
+        name="clr",
+        git="ssh://srekolam@gerrit-git.amd.com:29418/compute/ec/clr.git",
+        expand=True,
+        destination="",
+        branch="amd-staging",
+        placement="clr",
+        when="@develop",
+    )
 
     # Add hipcc sources thru the below
     for d_version, d_shasum in [
@@ -306,6 +317,15 @@ class Hip(CMakePackage):
             placement="hipcc",
             when="@{0}".format(d_version),
         )
+    resource(
+        name="hipcc",
+        git="ssh://srekolam@gerrit-git.amd.com:29418/compute/ec/hipcc.git",
+        expand=True,
+        destination="",
+        branch="amd-stg-open",
+        placement="hipcc",
+        when="@develop",
+    )
     # Add hiptests sources thru the below
     for d_version, d_shasum in [
         ("5.6.1", "5b3002ddfafda162329e4d9e6ac1200eeb48ff08e666b342aa8aeca30750f48b"),
@@ -322,6 +342,15 @@ class Hip(CMakePackage):
             placement="hip-tests",
             when="@{0}".format(d_version),
         )
+    resource(
+        name="hip-tests",
+        git="ssh://srekolam@gerrit-git.amd.com:29418/compute/ec/hip-tests.git",
+        expand=True,
+        destination="",
+        branch="amd-staging",
+        placement="hip-tests",
+        when="@develop",
+    )
     # Note: the ROCm ecosystem expects `lib/` and `bin/` folders with symlinks
     # in the parent directory of the package, which is incompatible with spack.
     # In hipcc the ROCM_PATH variable is used to point to the parent directory
@@ -387,13 +416,13 @@ class Hip(CMakePackage):
     patch("0014-hip-test-file-reorg-5.4.0.patch", when="@5.4.0:5.5")
     patch("0016-hip-sample-fix-hipMalloc-call.patch", when="@5.4.3:5.5")
     patch("0014-remove-compiler-rt-linkage-for-host.5.5.0.patch", when="@5.5")
-    patch("0014-remove-compiler-rt-linkage-for-host.5.6.0.patch", when="@5.6:")
-    patch("0015-reverting-operator-mixup-fix-for-slate.patch", when="@5.6:")
+    patch("0014-remove-compiler-rt-linkage-for-host.5.6.0.patch", when="@5.6.0:5.6")
+    patch("0015-reverting-operator-mixup-fix-for-slate.patch", when="@5.6:5.7")
     # See https://github.com/ROCm-Developer-Tools/HIP/pull/3206
     patch(
         "https://github.com/ROCm-Developer-Tools/HIP/commit/50ee82f6bc4aad10908ce09198c9f7ebfb2a3561.patch?full_index=1",
         sha256="c2ee21cdc55262c7c6ba65546b5ca5f65ea89730",
-        when="@5.2:",
+        when="@5.2:5.7",
     )
 
     @property
