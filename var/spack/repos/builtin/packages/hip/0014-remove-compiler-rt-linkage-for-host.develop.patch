@@ -1,0 +1,46 @@
+diff --git a/clr/hipamd/CMakeLists.txt b/clr/hipamd/CMakeLists.txt
+index 9b00d3c..face262 100755
+--- a/clr/hipamd/CMakeLists.txt
++++ b/clr/hipamd/CMakeLists.txt
+@@ -401,10 +401,6 @@ if (NOT ${HIPCC_BIN_DIR} STREQUAL "")
+   install(PROGRAMS ${HIPCC_BIN_DIR}/hipcc.pl DESTINATION bin)
+   install(PROGRAMS ${HIPCC_BIN_DIR}/hipconfig.pl DESTINATION bin)
+   install(PROGRAMS ${HIPCC_BIN_DIR}/hipvars.pm DESTINATION bin)
+-  if(WIN32)
+-    install(PROGRAMS ${HIPCC_BIN_DIR}/hipcc.bat DESTINATION bin)
+-    install(PROGRAMS ${HIPCC_BIN_DIR}/hipconfig.bat DESTINATION bin)
+-  endif()
+ endif()
+ 
+ #############################
+diff --git a/hipcc/bin/hipcc.pl b/hipcc/bin/hipcc.pl
+index 513a427..cd2d6ac 100755
+--- a/hipcc/bin/hipcc.pl
++++ b/hipcc/bin/hipcc.pl
+@@ -160,11 +160,14 @@ if ($HIP_PLATFORM eq "amd") {
+     if($isWindows) {
+         $execExtension = ".exe";
+     }
+-    $HIPCC=get_normalized_path("$HIP_CLANG_PATH/clang++" . $execExtension);
++    # llvm_path is set inside the hip recipe
++    $LLVM_PATH= $ENV{'LLVM_PATH'};
++    $HIPCC="${LLVM_PATH}/bin/clang++" . $execExtension;
+ 
+     # If $HIPCC clang++ is not compiled, use clang instead
+     if ( ! -e $HIPCC ) {
+-        $HIPCC=get_normalized_path("$HIP_CLANG_PATH/clang" . $execExtension);
++        $LLVM_PATH= $ENV{'LLVM_PATH'};
++        $HIPCC="${LLVM_PATH}/bin/clang" . $execExtension;
+         $HIPLDFLAGS = "--driver-mode=g++";
+     }
+     # to avoid using dk linker or MSVC linker
+@@ -484,7 +487,8 @@ if($HIP_PLATFORM eq "amd"){
+             $targetsStr = $ENV{HCC_AMDGPU_TARGET};
+         } elsif (not $isWindows) {
+             # Else try using rocm_agent_enumerator
+-            $ROCM_AGENT_ENUM = "${ROCM_PATH}/bin/rocm_agent_enumerator";
++            $ROCMINFO_PATH = $ENV{'ROCMINFO_PATH'} // $ROCMINFO_PATH;
++            $ROCM_AGENT_ENUM = "${ROCMINFO_PATH}/bin/rocm_agent_enumerator";
+             $targetsStr = `${ROCM_AGENT_ENUM} -t GPU`;
+             $targetsStr =~ s/\n/,/g;
+         }

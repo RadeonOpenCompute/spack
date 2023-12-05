@@ -108,7 +108,7 @@ class HipifyClang(CMakePackage):
     # this will fix the issue https://github.com/spack/spack/issues/30711
 
     patch("0001-install-hipify-clang-in-bin-dir-and-llvm-clangs-head.patch", when="@5.1.0:5.5")
-    patch("0002-install-hipify-clang-in-bin-dir-and-llvm-clangs-head.patch", when="@5.6:")
+    patch("0002-install-hipify-clang-in-bin-dir-and-llvm-clangs-head.patch", when="@5.6")
     patch("0003-install-hipify-clang-in-bin-dir-and-llvm-clangs-head.patch", when="@develop")
 
     depends_on("cmake@3.5:", type="build")
