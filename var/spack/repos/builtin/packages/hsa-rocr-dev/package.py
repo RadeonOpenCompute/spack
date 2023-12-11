@@ -208,4 +208,6 @@ class HsaRocrDev(CMakePackage):
 
         if self.spec.satisfies("@5.6:"):
             args.append("-DCMAKE_INSTALL_LIBDIR=lib")
+        if self.spec.satisfies("@develop"):
+            args.append(self.define("ROCM_PATCH_VERSION", "60100"))
         return args
