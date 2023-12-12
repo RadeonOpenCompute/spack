@@ -12,7 +12,7 @@ class RocmDebugAgent(CMakePackage):
     """Radeon Open Compute (ROCm) debug agent"""
 
     homepage = "https://github.com/ROCm-Developer-Tools/rocr_debug_agent"
-    git = "https://github.com/ROCm-Developer-Tools/rocr_debug_agent.git"
+    git = "ssh://srekolam@gerrit-git.amd.com:29418/DevTools/ec/rocr_debug_agent.git"
     url = "https://github.com/ROCm-Developer-Tools/rocr_debug_agent/archive/rocm-5.5.0.tar.gz"
     tags = ["rocm"]
 

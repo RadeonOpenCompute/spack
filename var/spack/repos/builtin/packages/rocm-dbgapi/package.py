@@ -23,7 +23,7 @@ class RocmDbgapi(CMakePackage):
     libraries = ["librocm-dbgapi"]
 
     version("master", branch="amd-master")
-    version("develop", branch="amd-staging")
+    version("develop", branch="amd-mainline")
 
     version("5.6.1", sha256="c7241bf94bdb97a4cf1befbf25b8c35720797710da6f6b5b9d6a4094c1bc9c8b")
     version("5.6.0", sha256="9b66e47f4eccb3c8bbc324aade92aac6139539dda449427b7823d0c45341afc8")
