@@ -21,7 +21,6 @@ from typing import Dict, Iterable, List, Optional, Set, Tuple, Union
 import llnl.util.filesystem as fs
 import llnl.util.tty as tty
 import llnl.util.tty.color as clr
-from llnl.util.lang import dedupe
 from llnl.util.link_tree import ConflictingSpecsError
 from llnl.util.symlink import symlink
 
@@ -379,8 +378,8 @@ def _rewrite_relative_dev_paths_on_relocation(env, init_file_dir):
         if not dev_specs:
             return
         for name, entry in dev_specs.items():
-            dev_path = entry["path"]
-            expanded_path = os.path.normpath(os.path.join(init_file_dir, entry["path"]))
+            dev_path = substitute_path_variables(entry["path"])
+            expanded_path = spack.util.path.canonicalize_path(dev_path, default_wd=init_file_dir)
 
             # Skip if the expanded path is the same (e.g. when absolute)
             if dev_path == expanded_path:
@@ -663,30 +662,26 @@ class ViewDescriptor:
 
         return True
 
-    def specs_for_view(self, concretized_root_specs):
+    def specs_for_view(self, concrete_roots: List[Spec]) -> List[Spec]:
         """
         From the list of concretized user specs in the environment, flatten
         the dags, and filter selected, installed specs, remove duplicates on dag hash.
         """
-        # With deps, requires traversal
-        if self.link == "all" or self.link == "run":
-            deptype = ("run") if self.link == "run" else ("link", "run")
-            specs = list(
-                traverse.traverse_nodes(
-                    concretized_root_specs, deptype=deptype, key=traverse.by_dag_hash
-                )
-            )
+        if self.link == "all":
+            deptype = dt.LINK | dt.RUN
+        elif self.link == "run":
+            deptype = dt.RUN
         else:
-            specs = list(dedupe(concretized_root_specs, key=traverse.by_dag_hash))
+            deptype = dt.NONE
+
+        specs = traverse.traverse_nodes(concrete_roots, deptype=deptype, key=traverse.by_dag_hash)
 
         # Filter selected, installed specs
         with spack.store.STORE.db.read_transaction():
-            specs = [s for s in specs if s in self and s.installed]
+            return [s for s in specs if s in self and s.installed]
 
-        return specs
-
-    def regenerate(self, concretized_root_specs):
-        specs = self.specs_for_view(concretized_root_specs)
+    def regenerate(self, concrete_roots: List[Spec]) -> None:
+        specs = self.specs_for_view(concrete_roots)
 
         # To ensure there are no conflicts with packages being installed
         # that cannot be resolved or have repos that have been removed
@@ -703,14 +698,14 @@ class ViewDescriptor:
         old_root = self._current_root
 
         if new_root == old_root:
-            tty.debug("View at %s does not need regeneration." % self.root)
+            tty.debug(f"View at {self.root} does not need regeneration.")
             return
 
         _error_on_nonempty_view_dir(new_root)
 
         # construct view at new_root
         if specs:
-            tty.msg("Updating view at {0}".format(self.root))
+            tty.msg(f"Updating view at {self.root}")
 
         view = self.view(new=new_root)
 
@@ -720,7 +715,7 @@ class ViewDescriptor:
         # Create a new view
         try:
             fs.mkdirp(new_root)
-            view.add_specs(*specs, with_dependencies=False)
+            view.add_specs(*specs)
 
             # create symlink from tmp_symlink_name to new_root
             if os.path.exists(tmp_symlink_name):
@@ -734,7 +729,7 @@ class ViewDescriptor:
             try:
                 shutil.rmtree(new_root, ignore_errors=True)
                 os.unlink(tmp_symlink_name)
-            except (IOError, OSError):
+            except OSError:
                 pass
 
             # Give an informative error message for the typical error case: two specs, same package
