@@ -1,4 +1,4 @@
-# Copyright 2013-2023 Lawrence Livermore National Security, LLC and other
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
 # Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
@@ -11,7 +11,7 @@ class RocmDeviceLibs(CMakePackage):
     """set of AMD specific device-side language runtime libraries"""
 
     homepage = "https://github.com/RadeonOpenCompute/ROCm-Device-Libs"
-    git = "ssh://srekolam@gerrit-git.amd.com:29418/lightning/ec/device-libs.git"
+    git = "ssh://<user-id>@gerrit-git.amd.com:<port-number>/lightning/ec/device-libs.git"
     url = "https://github.com/RadeonOpenCompute/ROCm-Device-Libs/archive/rocm-5.4.3.tar.gz"
     tags = ["rocm"]
 
@@ -19,6 +19,9 @@ class RocmDeviceLibs(CMakePackage):
 
     version("master", branch="amd-stg-open")
     version("develop", branch="amd-stg-open")
+    version("6.0.0", sha256="198df4550d4560537ba60ac7af9bde31d59779c8ec5d6309627f77a43ab6ef6f")
+    version("5.7.1", sha256="703de8403c0bd0d80f37c970a698f10f148daf144d34f982e4484d04f7c7bbef")
+    version("5.7.0", sha256="0f8780b9098573f1c456bdc84358de924dcf00604330770a383983e1775bf61e")
     version("5.6.1", sha256="f0dfab272ff936225bfa1e9dabeb3c5d12ce08b812bf53ffbddd2ddfac49761c")
     version("5.6.0", sha256="efb5dcdca9b3a9fbe408d494fb4a23e0b78417eb5fa8eebd4a5d226088f28921")
     version("5.5.1", sha256="3b5f6dd85f0e3371f6078da7b59bf77d5b210e30f1cc66ef1e2de6bbcb775833")
@@ -143,12 +146,15 @@ class RocmDeviceLibs(CMakePackage):
         "5.5.1",
         "5.6.0",
         "5.6.1",
+        "5.7.0",
+        "5.7.1",
+        "6.0.0",
         "master",
         "develop",
     ]:
         depends_on("llvm-amdgpu@" + ver, when="@" + ver)
 
-    for ver in ["develop", "5.5.0", "5.5.1", "5.6.0", "5.6.1"]:
+    for ver in ["develop", "5.5.0", "5.5.1", "5.6.0", "5.6.1", "5.7.0", "5.7.1", "6.0.0"]:
         depends_on("rocm-core@" + ver, when="@" + ver)
 
     def cmake_args(self):

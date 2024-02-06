@@ -1,4 +1,4 @@
-# Copyright 2013-2023 Lawrence Livermore National Security, LLC and other
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
 # Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
@@ -14,9 +14,11 @@ class Atmi(CMakePackage):
     (integrated and discrete)."""
 
     homepage = "https://github.com/RadeonOpenCompute/atmi"
-    git = "ssh://srekolam@gerrit-git.amd.com:29418/compute/ec/atmi"
+    git = "ssh://<user-id>@gerrit-git.amd.com:<port-number>/compute/ec/atmi"
     url = "https://github.com/RadeonOpenCompute/atmi/archive/rocm-5.4.3.tar.gz"
     tags = ["rocm"]
+
+    license("MIT")
 
     maintainers("srekolam", "renjithravindrankannath")
     version("develop", branch="amd-master")

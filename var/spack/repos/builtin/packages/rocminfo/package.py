@@ -1,4 +1,4 @@
-# Copyright 2013-2023 Lawrence Livermore National Security, LLC and other
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
 # Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
@@ -11,7 +11,7 @@ class Rocminfo(CMakePackage):
     """Radeon Open Compute (ROCm) Runtime rocminfo tool"""
 
     homepage = "https://github.com/RadeonOpenCompute/rocminfo"
-    git = "ssh://srekolam@gerrit-git.amd.com:29418/compute/ec/rocminfo"
+    git = "ssh://<user-id>@gerrit-git.amd.com:<port-number>/compute/ec/rocminfo"
     url = "https://github.com/RadeonOpenCompute/rocminfo/archive/rocm-5.5.0.tar.gz"
     tags = ["rocm"]
 
@@ -19,6 +19,9 @@ class Rocminfo(CMakePackage):
 
     version("master", branch="master")
     version("develop", branch="amd-staging")
+    version("6.0.0", sha256="bc29f1798644b6dea73895353dffada9db7366d0058274e587ebd3291a4d3844")
+    version("5.7.1", sha256="642dc2ec4254b3c30c43064e6690861486db820b25f4906ec78bdb47e68dcd0b")
+    version("5.7.0", sha256="a5a3c19513bf26f17f163a03ba5288c5c761619ef55f0cb9e15472771748b93e")
     version("5.6.1", sha256="780b186ac7410a503eca1060f4bbc35db1b7b4d1d714d15c7534cd26d8af7b54")
     version("5.6.0", sha256="87d98a736e4f7510d1475d35717842068d826096a0af7c15a395bcf9d36d7fa0")
     version("5.5.1", sha256="bcab27bb3595d5a4c981e2416458d169e85c27e603c22e743d9240473bfbe98a")
@@ -133,13 +136,16 @@ class Rocminfo(CMakePackage):
         "5.5.1",
         "5.6.0",
         "5.6.1",
+        "5.7.0",
+        "5.7.1",
+        "6.0.0",
         "master",
         "develop",
     ]:
         depends_on("hsakmt-roct@" + ver, when="@" + ver)
         depends_on("hsa-rocr-dev@" + ver, when="@" + ver)
 
-    for ver in ["develop", "master", "5.5.0", "5.5.1", "5.6.0", "5.6.1"]:
+    for ver in ["develop", "master", "5.5.0", "5.5.1", "5.6.0", "5.6.1", "5.7.0", "5.7.1", "6.0.0"]:
         depends_on("rocm-core@" + ver, when="@" + ver)
 
     def cmake_args(self):

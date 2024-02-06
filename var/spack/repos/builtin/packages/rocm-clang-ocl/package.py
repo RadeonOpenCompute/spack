@@ -1,4 +1,4 @@
-# Copyright 2013-2023 Lawrence Livermore National Security, LLC and other
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
 # Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
@@ -10,14 +10,18 @@ class RocmClangOcl(CMakePackage):
     """OpenCL compilation with clang compiler"""
 
     homepage = "https://github.com/RadeonOpenCompute/clang-ocl"
-    git = "ssh://gerrit-git.amd.com:29418/compute/ec/clang-ocl.git"
+    git = "ssh://<user-id>@gerrit-git.amd.com:<port-number>/compute/ec/clang-ocl.git"
     url = "https://github.com/RadeonOpenCompute/clang-ocl/archive/rocm-5.4.3.tar.gz"
     tags = ["rocm"]
+
+    license("MIT")
 
     maintainers("srekolam", "renjithravindrankannath")
     version("master", branch="master")
     version("develop", branch="amd-master")
-
+    version("6.0.0", sha256="74b5a64c32f3c57e7e4de638fffabbf448ecdb3dd8e65678b7ba0633352b4ca3")
+    version("5.7.1", sha256="32e4430d009cbbf5404ca9cbbb549b36897fa1826bc2285372e293cfe7531bf8")
+    version("5.7.0", sha256="c9ca80bfee674e740039256a846107373f1cf6554dc28398599976d8646a0392")
     version("5.6.1", sha256="c41deb1b564d939fc897b2bbdb13570b2234fa4c052a39783f5ad2dd1052f901")
     version("5.6.0", sha256="1afc47dee02d73c10de422f254067f4ef3ff921c4a1204d54ecc40e61fc63497")
     version("5.5.1", sha256="bfa62ad14830e2bd5afbc346685216c69f8cbef0eb449954f793178e10b19a38")
@@ -132,6 +136,9 @@ class RocmClangOcl(CMakePackage):
         "5.5.1",
         "5.6.0",
         "5.6.1",
+        "5.7.0",
+        "5.7.1",
+        "6.0.0",
         "master",
         "develop",
     ]:
@@ -142,7 +149,7 @@ class RocmClangOcl(CMakePackage):
         depends_on(
             "rocm-device-libs@" + ver, when="@{0} ^llvm-amdgpu ~rocm-device-libs".format(ver)
         )
-    for ver in ["develop", "5.5.0", "5.5.1", "5.6.0", "5.6.1"]:
+    for ver in ["develop", "5.5.0", "5.5.1", "5.6.0", "5.6.1", "5.7.0", "5.7.1", "6.0.0"]:
         depends_on("rocm-core@" + ver, when="@" + ver)
 
     test_src_dir = "test"

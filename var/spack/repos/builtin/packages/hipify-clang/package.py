@@ -1,4 +1,4 @@
-# Copyright 2013-2023 Lawrence Livermore National Security, LLC and other
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
 # Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
@@ -11,15 +11,19 @@ class HipifyClang(CMakePackage):
     sources into HIP sources"""
 
     homepage = "https://github.com/ROCm-Developer-Tools/HIPIFY"
-    git = "ssh://srekolam@gerrit-git.amd.com:29418/compute/ec/hipify.git"
+    git = "ssh://<user-id>@gerrit-git.amd.com:<port-number>/compute/ec/hipify.git"
     url = "https://github.com/ROCm-Developer-Tools/HIPIFY/archive/rocm-5.4.3.tar.gz"
     tags = ["rocm"]
 
     maintainers("srekolam", "renjithravindrankannath")
 
+    license("MIT")
+
     version("master", branch="master")
     version("develop", branch="amd-mainline")
-
+    version("6.0.0", sha256="91bed2b72a6684a04e078e50b12b36b93f64ff96523283f4e5d9a33c11e6b967")
+    version("5.7.1", sha256="43121e62233dab010ab686d6805bc2d3163f0dc5e89cc503d50c4bcd59eeb394")
+    version("5.7.0", sha256="10e4386727e102fba166f012147120a6ec776e8d95fbcac3af93e243205d80a6")
     version("5.6.1", sha256="ec3a4f276556f9fd924ea3c89be11b6c6ddf999cdd4387f669e38e41ee0042e8")
     version("5.6.0", sha256="a2572037a7d3bd0813bd6819a5e6c0e911678db5fd3ab15a65370601df91891b")
     version("5.5.1", sha256="35b9c07a7afaf9cf6f3bbe9dd147fa81b1b297af3e5e26e60c55629e83feaa48")
@@ -140,12 +144,15 @@ class HipifyClang(CMakePackage):
         "5.5.1",
         "5.6.0",
         "5.6.1",
+        "5.7.0",
+        "5.7.1",
+        "6.0.0",
         "master",
         "develop",
     ]:
         depends_on("llvm-amdgpu@" + ver, when="@" + ver)
 
-    for ver in ["develop", "5.5.0", "5.5.1", "5.6.0", "5.6.1"]:
+    for ver in ["develop", "5.5.0", "5.5.1", "5.6.0", "5.6.1", "5.7.0", "5.7.1", "6.0.0"]:
         depends_on("rocm-core@" + ver, when="@" + ver)
 
     def setup_run_environment(self, env):

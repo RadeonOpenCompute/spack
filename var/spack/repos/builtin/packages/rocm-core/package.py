@@ -1,4 +1,4 @@
-# Copyright 2013-2023 Lawrence Livermore National Security, LLC and other
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
 # Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
@@ -13,14 +13,18 @@ class RocmCore(CMakePackage):
     getROCmVersion function provides the ROCm version."""
 
     homepage = "https://github.com/RadeonOpenCompute/rocm-core"
-    git = "ssh://srekolam@gerrit-git.amd.com:29418/compute/ec/rocm-core.git"
+    git = "ssh://<user-id>@gerrit-git.amd.com:<port-number>/compute/ec/rocm-core.git"
     url = "https://github.com/RadeonOpenCompute/rocm-core/archive/refs/tags/rocm-5.5.0.tar.gz"
     tags = ["rocm"]
 
     maintainers("srekolam", "renjithravindrankannath")
     libraries = ["librocm-core"]
+    license("MIT")
     version("master", branch="master")
     version("develop", branch="master")
+
+    version("6.0.0", sha256="d950ee4b63336f34579b6e1dda2d05966b7afa9c84bcdc13874991d1147dc788")
+    version("5.7.1", sha256="fc4915019ddfd126e8ef6a15006bce3aa7bd5fd11dc8eb04ce2ee6bdf9c6ae7f")
     version("5.7.0", sha256="722689bfec46c35f5428a41c5aacfc31efec2294fc3b0112861c562f8a71ac93")
     version("5.6.1", sha256="eeef75e16e05380ccbc8df17a02dc141a66dddaadb444a97f7278f78067c498c")
     version("5.6.0", sha256="3c3d47c8b774968d768d42810a3fed42d058b7d6da248d5295df2a7ffb262568")
