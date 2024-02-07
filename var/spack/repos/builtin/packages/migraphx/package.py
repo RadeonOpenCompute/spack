@@ -21,6 +21,7 @@ class Migraphx(CMakePackage):
 
     license("MIT")
 
+    version("develop", branch="develop")
     version("6.0.0", sha256="7bb3f5011da9b1f3b79707b06118c523c1259215f650c2ffa5622a7e1d88868f")
     version("5.7.1", sha256="3e58c043a5a7d1357ee05725fd6cd41e190b070f1ba57f61300128429902089c")
     version("5.7.0", sha256="14f13554367d2d6490d66f8b5b739203225e7acce25085559e7c4acf29e2a4d5")
@@ -170,6 +171,7 @@ class Migraphx(CMakePackage):
         "5.7.0",
         "5.7.1",
         "6.0.0",
+        "develop",
     ]:
         depends_on("rocm-cmake@%s:" % ver, type="build", when="@" + ver)
         depends_on("hip@" + ver, when="@" + ver)
@@ -177,7 +179,7 @@ class Migraphx(CMakePackage):
         depends_on("rocblas@" + ver, when="@" + ver)
         depends_on("miopen-hip@" + ver, when="@" + ver)
 
-    for ver in ["5.7.0", "5.7.1", "6.0.0"]:
+    for ver in ["5.7.0", "5.7.1", "6.0.0", "develop"]:
         depends_on("composable-kernel@" + ver, when="@" + ver)
 
     @property

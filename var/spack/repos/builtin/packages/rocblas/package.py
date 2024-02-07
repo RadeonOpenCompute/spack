@@ -156,6 +156,8 @@ class Rocblas(CMakePackage):
     depends_on("rocm-cmake@develop", type="build", when="@develop")
     depends_on("hip@develop", type="build", when="@develop")
     depends_on("llvm-amdgpu@develop", type="build", when="@develop")
+    depends_on("comgr@develop", type="build", when="@develop")
+    depends_on("hsa-rocr-dev@develop", type="build", when="@develop")
 
     for ver in [
         "3.5.0",
