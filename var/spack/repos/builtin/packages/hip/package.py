@@ -561,6 +561,9 @@ class Hip(CMakePackage):
             args.append(self.define("CLR_BUILD_HIP", True)),
             args.append(self.define("CLR_BUILD_OCL", False)),
             args.append(self.define("HIP_LLVM_ROOT", self.spec["llvm-amdgpu"].prefix))
+        if "@develop" in self.spec:
+            args.append("-DHIP_ENABLE_ROCPROFILER_REGISTER=OFF")
+
         return args
 
     test_src_dir_old = "samples"
