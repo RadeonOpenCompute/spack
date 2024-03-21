@@ -12,7 +12,7 @@ class RoctracerDevApi(Package):
     For the ROC-tracer library, please check out roctracer-dev."""
 
     homepage = "https://github.com/ROCm/roctracer"
-    git = "https://github.com/ROCm/roctracer.git"
+    git = "ssh://<user-id>@gerrit-git.amd.com:<port-number>/compute/ec/roctracer.git"
     url = "https://github.com/ROCm/roctracer/archive/refs/tags/rocm-6.0.2.tar.gz"
     tags = ["rocm"]
 
