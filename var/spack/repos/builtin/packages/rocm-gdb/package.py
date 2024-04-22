@@ -69,6 +69,7 @@ class RocmGdb(AutotoolsPackage):
         "5.7.1",
         "6.0.0",
         "6.0.2",
+        "develop",
     ]:
         depends_on(f"rocm-dbgapi@{ver}", type="link", when=f"@{ver}")
         depends_on(f"comgr@{ver}", type="link", when=f"@{ver}")

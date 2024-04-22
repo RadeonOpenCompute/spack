@@ -53,7 +53,7 @@ class Rccl(CMakePackage):
     patch("0002-Fix-numactl-rocm-smi-path-issue.patch", when="@:5.2.1")
     patch("0003-Fix-numactl-rocm-smi-path-issue.patch", when="@5.2.3:5.6")
     patch("0004-version-file-path.patch", when="@develop")
-    patch("0004-Set-rocm-core-path-for-version-file.patch", when="@6.0:")
+    patch("0004-Set-rocm-core-path-for-version-file.patch", when="@6.0")
 
     depends_on("cmake@3.5:", type="build")
     depends_on("chrpath", when="@5.3.0:5", type="build")
@@ -111,6 +111,8 @@ class Rccl(CMakePackage):
 
     depends_on("googletest@1.11.0:", when="@5.3:")
 
+    for ver in ["develop"]:
+        depends_on(f"roctracer-dev@{ver}", when=f"@{ver}")
     @classmethod
     def determine_version(cls, lib):
         match = re.search(r"lib\S*\.so\.\d+\.\d+\.(\d)(\d\d)(\d\d)", lib)
@@ -131,6 +133,7 @@ class Rccl(CMakePackage):
         args = [
             self.define("NUMACTL_DIR", self.spec["numactl"].prefix),
             self.define("ROCM_SMI_DIR", self.spec["rocm-smi-lib"].prefix),
+            self.define("ROCTRACER_DIR", self.spec["roctracer-dev"].prefix),
         ]
         if "auto" not in self.spec.variants["amdgpu_target"]:
             args.append(self.define_from_variant("AMDGPU_TARGETS", "amdgpu_target"))

@@ -65,8 +65,6 @@ class Rocblas(CMakePackage):
     for ver in ["5.6.0", "5.6.1", "5.7.0", "5.7.1", "6.0.0", "6.0.2"]:
         depends_on(f"rocm-openmp-extras@{ver}", type="test", when=f"@{ver}")
 
-    depends_on("rocm-cmake@master", type="build", when="@master:")
-    depends_on("rocm-cmake", type="build")
     depends_on("rocm-cmake@master", type="build", when="@master")
     depends_on("rocm-cmake@4.5.0:6.0", type="build", when="@4.5.0:6.0")
     depends_on("rocm-cmake@develop", type="build", when="@develop")
