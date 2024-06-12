@@ -94,7 +94,7 @@ class LlvmAmdgpu(CMakePackage, CompilerPackage):
     patch(
         "https://github.com/ROCm/llvm-project/commit/444d1d12bbc0269fed5451fb1a9110a049679ca5.patch?full_index=1",
         sha256="b4774ca19b030890d7b276d12c446400ccf8bc3aa724c7f2e9a73531a7400d69",
-        when="@6.0:",
+        when="@6.0:6.1",
     )
 
     conflicts("^cmake@3.19.0")
