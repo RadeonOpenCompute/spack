@@ -10,7 +10,7 @@ import spack.platforms.cray
 from spack.package import *
 
 
-class Libfabric(AutotoolsPackage):
+class Libfabric(AutotoolsPackage, CudaPackage):
     """The Open Fabrics Interfaces (OFI) is a framework focused on exporting
     fabric communication services to applications."""
 
@@ -63,6 +63,8 @@ class Libfabric(AutotoolsPackage):
     version("1.5.3", sha256="f62a40da06f8951db267a59a4ee7363b6ee60a7abbc55cd5db6c8b067d93fa0c")
     version("1.5.0", sha256="88a8ad6772f11d83e5b6f7152a908ffcb237af273a74a1bd1cb4202f577f1f23")
     version("1.4.2", sha256="5d027d7e4e34cb62508803e51d6bd2f477932ad68948996429df2bfff37ca2a5")
+
+    depends_on("c", type="build")  # generated
 
     fabrics = (
         conditional("cxi", when=spack.platforms.cray.slingshot_network()),
@@ -208,6 +210,9 @@ class Libfabric(AutotoolsPackage):
                 args.append("--enable-{0}=yes".format(fabric))
             else:
                 args.append("--enable-{0}=no".format(fabric))
+
+        if self.spec.satisfies("+cuda"):
+            args.append(f"--with-cuda={self.spec['cuda'].prefix}")
 
         return args
 

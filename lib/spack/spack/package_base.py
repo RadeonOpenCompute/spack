@@ -15,7 +15,7 @@ import copy
 import functools
 import glob
 import hashlib
-import inspect
+import importlib
 import io
 import os
 import re
@@ -35,6 +35,7 @@ from llnl.util.link_tree import LinkTree
 
 import spack.compilers
 import spack.config
+import spack.dependency
 import spack.deptypes as dt
 import spack.directives
 import spack.directory_layout
@@ -115,11 +116,10 @@ def preferred_version(pkg: "PackageBase"):
     Arguments:
         pkg: The package whose versions are to be assessed.
     """
-    # Here we sort first on the fact that a version is marked
-    # as preferred in the package, then on the fact that the
-    # version is not develop, then lexicographically
-    key_fn = lambda v: (pkg.versions[v].get("preferred", False), not v.isdevelop(), v)
-    return max(pkg.versions, key=key_fn)
+    from spack.solver.asp import concretization_version_order
+
+    version, _ = max(pkg.versions.items(), key=concretization_version_order)
+    return version
 
 
 class WindowsRPath:
@@ -196,13 +196,12 @@ class DetectablePackageMeta(type):
         # that "foo" was a possible executable.
 
         # If a package has the executables or libraries  attribute then it's
-        # assumed to be detectable
+        # assumed to be detectable. Add a tag, so finding them is faster
         if hasattr(cls, "executables") or hasattr(cls, "libraries"):
-            # Append a tag to each detectable package, so that finding them is faster
-            if hasattr(cls, "tags"):
-                getattr(cls, "tags").append(DetectablePackageMeta.TAG)
-            else:
-                setattr(cls, "tags", [DetectablePackageMeta.TAG])
+            # To add the tag, we need to copy the tags attribute, and attach it to
+            # the current class. We don't use append, since it might modify base classes,
+            # if "tags" is retrieved following the MRO.
+            cls.tags = getattr(cls, "tags", []) + [DetectablePackageMeta.TAG]
 
             @classmethod
             def platform_executables(cls):
@@ -245,10 +244,7 @@ class DetectablePackageMeta(type):
                         if version_str:
                             objs_by_version[version_str].append(obj)
                     except Exception as e:
-                        msg = (
-                            "An error occurred when trying to detect " 'the version of "{0}" [{1}]'
-                        )
-                        tty.debug(msg.format(obj, str(e)))
+                        tty.debug(f"Cannot detect the version of '{obj}' [{str(e)}]")
 
                 specs = []
                 for version_str, objs in objs_by_version.items():
@@ -261,27 +257,23 @@ class DetectablePackageMeta(type):
                         if isinstance(variant, str):
                             variant = (variant, {})
                         variant_str, extra_attributes = variant
-                        spec_str = "{0}@{1} {2}".format(cls.name, version_str, variant_str)
+                        spec_str = f"{cls.name}@{version_str} {variant_str}"
 
                         # Pop a few reserved keys from extra attributes, since
                         # they have a different semantics
                         external_path = extra_attributes.pop("prefix", None)
                         external_modules = extra_attributes.pop("modules", None)
                         try:
-                            spec = spack.spec.Spec(
+                            spec = spack.spec.Spec.from_detection(
                                 spec_str,
                                 external_path=external_path,
                                 external_modules=external_modules,
+                                extra_attributes=extra_attributes,
                             )
                         except Exception as e:
-                            msg = 'Parsing failed [spec_str="{0}", error={1}]'
-                            tty.debug(msg.format(spec_str, str(e)))
+                            tty.debug(f'Parsing failed [spec_str="{spec_str}", error={str(e)}]')
                         else:
-                            specs.append(
-                                spack.spec.Spec.from_detection(
-                                    spec, extra_attributes=extra_attributes
-                                )
-                            )
+                            specs.append(spec)
 
                 return sorted(specs)
 
@@ -740,7 +732,7 @@ class PackageBase(WindowsRPath, PackageViewMixin, RedistributionMixin, metaclass
             raise ValueError(msg.format(self))
 
         # init internal variables
-        self._stage = None
+        self._stage: Optional[StageComposite] = None
         self._fetcher = None
         self._tester: Optional["PackageTest"] = None
 
@@ -748,11 +740,6 @@ class PackageBase(WindowsRPath, PackageViewMixin, RedistributionMixin, metaclass
         self._fetch_time = 0.0
 
         self.win_rpath = fsys.WindowsSimulatedRPath(self)
-
-        if self.is_extension:
-            pkg_cls = spack.repo.PATH.get_pkg_class(self.extendee_spec.name)
-            pkg_cls(self.extendee_spec)._check_extendable()
-
         super().__init__()
 
     @classmethod
@@ -873,7 +860,7 @@ class PackageBase(WindowsRPath, PackageViewMixin, RedistributionMixin, metaclass
         We use this to add variables to package modules.  This makes
         install() methods easier to write (e.g., can call configure())
         """
-        return __import__(cls.__module__, fromlist=[cls.__name__])
+        return importlib.import_module(cls.__module__)
 
     @classproperty
     def namespace(cls):
@@ -889,7 +876,7 @@ class PackageBase(WindowsRPath, PackageViewMixin, RedistributionMixin, metaclass
     def fullnames(cls):
         """Fullnames for this package and any packages from which it inherits."""
         fullnames = []
-        for cls in inspect.getmro(cls):
+        for cls in cls.__mro__:
             namespace = getattr(cls, "namespace", None)
             if namespace:
                 fullnames.append("%s.%s" % (namespace, cls.name))
@@ -1103,9 +1090,10 @@ class PackageBase(WindowsRPath, PackageViewMixin, RedistributionMixin, metaclass
             root=root_stage,
             resource=resource,
             name=self._resource_stage(resource),
-            mirror_paths=spack.mirror.mirror_archive_paths(
+            mirror_paths=spack.mirror.default_mirror_layout(
                 resource.fetcher, os.path.join(self.name, pretty_resource_name)
             ),
+            mirrors=spack.mirror.MirrorCollection(source=True).values(),
             path=self.path,
         )
 
@@ -1117,7 +1105,7 @@ class PackageBase(WindowsRPath, PackageViewMixin, RedistributionMixin, metaclass
         # Construct a mirror path (TODO: get this out of package.py)
         format_string = "{name}-{version}"
         pretty_name = self.spec.format_path(format_string)
-        mirror_paths = spack.mirror.mirror_archive_paths(
+        mirror_paths = spack.mirror.default_mirror_layout(
             fetcher, os.path.join(self.name, pretty_name), self.spec
         )
         # Construct a path where the stage should build..
@@ -1126,6 +1114,7 @@ class PackageBase(WindowsRPath, PackageViewMixin, RedistributionMixin, metaclass
         stage = Stage(
             fetcher,
             mirror_paths=mirror_paths,
+            mirrors=spack.mirror.MirrorCollection(source=True).values(),
             name=stage_name,
             path=self.path,
             search_fn=self._download_search,
@@ -1141,10 +1130,9 @@ class PackageBase(WindowsRPath, PackageViewMixin, RedistributionMixin, metaclass
             if not link_format:
                 link_format = "build-{arch}-{hash:7}"
             stage_link = self.spec.format_path(link_format)
-            return DevelopStage(compute_stage_name(self.spec), dev_path, stage_link)
-
-        # To fetch the current version
-        source_stage = self._make_root_stage(self.fetcher)
+            source_stage = DevelopStage(compute_stage_name(self.spec), dev_path, stage_link)
+        else:
+            source_stage = self._make_root_stage(self.fetcher)
 
         # all_stages is source + resources + patches
         all_stages = StageComposite()
@@ -1183,7 +1171,7 @@ class PackageBase(WindowsRPath, PackageViewMixin, RedistributionMixin, metaclass
         return self._stage
 
     @stage.setter
-    def stage(self, stage):
+    def stage(self, stage: StageComposite):
         """Allow a stage object to be set to override the default."""
         self._stage = stage
 
@@ -1473,12 +1461,11 @@ class PackageBase(WindowsRPath, PackageViewMixin, RedistributionMixin, metaclass
             return
 
         checksum = spack.config.get("config:checksum")
-        fetch = self.stage.needs_fetching
         if (
             checksum
-            and fetch
             and (self.version not in self.versions)
             and (not isinstance(self.version, GitVersion))
+            and ("dev_path" not in self.spec.variants)
         ):
             tty.warn(
                 "There is no checksum on file to fetch %s safely."
@@ -1583,13 +1570,11 @@ class PackageBase(WindowsRPath, PackageViewMixin, RedistributionMixin, metaclass
                 tty.debug("Patching failed last time. Restaging.")
                 self.stage.restage()
             else:
-                # develop specs/ DIYStages may have patch failures but
-                # should never be restaged
-                msg = (
-                    "A patch failure was detected in %s." % self.name
-                    + " Build errors may occur due to this."
+                # develop specs may have patch failures but should never be restaged
+                tty.warn(
+                    f"A patch failure was detected in {self.name}."
+                    " Build errors may occur due to this."
                 )
-                tty.warn(msg)
                 return
 
         # If this file exists, then we already applied all the patches.
@@ -1757,7 +1742,7 @@ class PackageBase(WindowsRPath, PackageViewMixin, RedistributionMixin, metaclass
             bool: True if 'target' is found, else False
         """
         # Prevent altering LC_ALL for 'make' outside this function
-        make = copy.deepcopy(inspect.getmodule(self).make)
+        make = copy.deepcopy(self.module.make)
 
         # Use English locale for missing target message comparison
         make.add_default_env("LC_ALL", "C")
@@ -1807,7 +1792,7 @@ class PackageBase(WindowsRPath, PackageViewMixin, RedistributionMixin, metaclass
         """
         if self._has_make_target(target):
             # Execute target
-            inspect.getmodule(self).make(target, *args, **kwargs)
+            self.module.make(target, *args, **kwargs)
 
     def _has_ninja_target(self, target):
         """Checks to see if 'target' is a valid target in a Ninja build script.
@@ -1818,7 +1803,7 @@ class PackageBase(WindowsRPath, PackageViewMixin, RedistributionMixin, metaclass
         Returns:
             bool: True if 'target' is found, else False
         """
-        ninja = inspect.getmodule(self).ninja
+        ninja = self.module.ninja
 
         # Check if we have a Ninja build script
         if not os.path.exists("build.ninja"):
@@ -1847,7 +1832,7 @@ class PackageBase(WindowsRPath, PackageViewMixin, RedistributionMixin, metaclass
         """
         if self._has_ninja_target(target):
             # Execute target
-            inspect.getmodule(self).ninja(target, *args, **kwargs)
+            self.module.ninja(target, *args, **kwargs)
 
     def _get_needed_resources(self):
         # We use intersects here cause it would also work if self.spec is abstract
@@ -2392,10 +2377,6 @@ class PackageBase(WindowsRPath, PackageViewMixin, RedistributionMixin, metaclass
         # Now that we've handled metadata, uninstall and replace with link
         PackageBase.uninstall_by_spec(spec, force=True, deprecator=deprecator)
         link_fn(deprecator.prefix, spec.prefix)
-
-    def _check_extendable(self):
-        if not self.extendable:
-            raise ValueError("Package %s is not extendable!" % self.name)
 
     def view(self):
         """Create a view with the prefix of this package as the root.
