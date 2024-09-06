@@ -14,11 +14,14 @@ class RocmClangOcl(CMakePackage):
     url = "https://github.com/RadeonOpenCompute/clang-ocl/archive/rocm-5.4.3.tar.gz"
     tags = ["rocm"]
 
+    test_requires_compiler = True
+
     license("MIT")
 
     maintainers("srekolam", "renjithravindrankannath")
     version("master", branch="master")
     version("develop", branch="amd-master")
+    version("6.1.2", sha256="cc9942539b5e50b97fa0d2425ba93aae7223635fecba869d8f43b2c26f9482ae")
     version("6.1.1", sha256="21b8a6d521a8e584e18851d27b5ef328a63ea7ee9eb3cc52508b9bfcf975e119")
     version("6.1.0", sha256="c983adad49ab5850307db1282f8bc957b9870d4ce37db8fbb43c52db6c90d0ed")
     version("6.0.2", sha256="a2f2fcb203737b1f436b4c2b78bbd696552f6de619ba0e7e8faf95a888869866")
@@ -52,6 +55,7 @@ class RocmClangOcl(CMakePackage):
         "6.0.2",
         "6.1.0",
         "6.1.1",
+        "6.1.2",
         "master",
         "develop",
     ]:
@@ -71,6 +75,7 @@ class RocmClangOcl(CMakePackage):
         "6.0.2",
         "6.1.0",
         "6.1.1",
+        "6.1.2",
         "develop",
     ]:
         depends_on(f"rocm-core@{ver}", when=f"@{ver}")
@@ -81,14 +86,13 @@ class RocmClangOcl(CMakePackage):
     def cache_test_sources(self):
         """Copy the tests source files after the package is installed to an
         install test subdirectory for use during `spack test run`."""
-        self.cache_extra_test_sources([self.test_src_dir])
+        cache_extra_test_sources(self, [self.test_src_dir])
 
-    def test(self):
+    def test_make(self):
+        """Test make"""
         test_dir = join_path(self.test_suite.current_test_cache_dir, self.test_src_dir)
-        with working_dir(test_dir, create=True):
-            cmake_bin = join_path(self.spec["cmake"].prefix.bin, "cmake")
-            prefixes = ";".join([self.spec["rocm-clang-ocl"].prefix])
-            cc_options = ["-DCMAKE_PREFIX_PATH=" + prefixes, "."]
-            self.run_test(cmake_bin, cc_options)
+        with working_dir(test_dir):
+            cmake = self.spec["cmake"].command
+            cmake("-DCMAKE_PREFIX_PATH=" + self.spec["rocm-clang-ocl"].prefix, ".")
+            make = which("make")
             make()
-            make("clean")

@@ -451,7 +451,7 @@ def _process_external_package(pkg: "spack.package_base.PackageBase", explicit: b
 
         # Add to the DB
         tty.debug(f"{pre} registering into DB")
-        spack.store.STORE.db.add(spec, None, explicit=explicit)
+        spack.store.STORE.db.add(spec, explicit=explicit)
 
 
 def _process_binary_cache_tarball(
@@ -488,13 +488,12 @@ def _process_binary_cache_tarball(
 
     with timer.measure("install"), spack.util.path.filter_padding():
         binary_distribution.extract_tarball(pkg.spec, download_result, force=False, timer=timer)
-        pkg.windows_establish_runtime_linkage()
 
         if hasattr(pkg, "_post_buildcache_install_hook"):
             pkg._post_buildcache_install_hook()
 
         pkg.installed_from_binary_cache = True
-        spack.store.STORE.db.add(pkg.spec, spack.store.STORE.layout, explicit=explicit)
+        spack.store.STORE.db.add(pkg.spec, explicit=explicit)
         return True
 
 
@@ -582,7 +581,7 @@ def dump_packages(spec: "spack.spec.Spec", path: str) -> None:
 
             # Create a source repo and get the pkg directory out of it.
             try:
-                source_repo = spack.repo.Repo(source_repo_root)
+                source_repo = spack.repo.from_path(source_repo_root)
                 source_pkg_dir = source_repo.dirname_for_package_name(node.name)
             except spack.repo.RepoError as err:
                 tty.debug(f"Failed to create source repo for {node.name}: {str(err)}")
@@ -593,7 +592,7 @@ def dump_packages(spec: "spack.spec.Spec", path: str) -> None:
         dest_repo_root = os.path.join(path, node.namespace)
         if not os.path.exists(dest_repo_root):
             spack.repo.create_repo(dest_repo_root)
-        repo = spack.repo.Repo(dest_repo_root)
+        repo = spack.repo.from_path(dest_repo_root)
 
         # Get the location of the package in the dest repo.
         dest_pkg_dir = repo.dirname_for_package_name(node.name)
@@ -1542,17 +1541,6 @@ class PackageInstaller:
             tty.warn(f"Installation request refused: {str(err)}")
             return
 
-        # Skip out early if the spec is not being installed locally (i.e., if
-        # external or upstream).
-        #
-        # External and upstream packages need to get flagged as installed to
-        # ensure proper status tracking for environment build.
-        explicit = request.pkg.spec.dag_hash() in request.install_args.get("explicit", [])
-        not_local = _handle_external_and_upstream(request.pkg, explicit)
-        if not_local:
-            self._flag_installed(request.pkg)
-            return
-
         install_compilers = spack.config.get("config:install_missing_compilers", False)
 
         install_deps = request.install_args.get("install_deps")
@@ -1622,9 +1610,7 @@ class PackageInstaller:
 
     def _add_compiler_package_to_config(self, pkg: "spack.package_base.PackageBase") -> None:
         compiler_search_prefix = getattr(pkg, "compiler_search_prefix", pkg.spec.prefix)
-        spack.compilers.add_compilers_to_config(
-            spack.compilers.find_compilers([compiler_search_prefix])
-        )
+        spack.compilers.find_compilers([compiler_search_prefix])
 
     def _install_task(self, task: BuildTask, install_status: InstallStatus) -> None:
         """
@@ -1682,7 +1668,7 @@ class PackageInstaller:
             )
             # Note: PARENT of the build process adds the new package to
             # the database, so that we don't need to re-read from file.
-            spack.store.STORE.db.add(pkg.spec, spack.store.STORE.layout, explicit=explicit)
+            spack.store.STORE.db.add(pkg.spec, explicit=explicit)
 
             # If a compiler, ensure it is added to the configuration
             if task.compiler:
@@ -2029,11 +2015,10 @@ class PackageInstaller:
             # Skip the installation if the spec is not being installed locally
             # (i.e., if external or upstream) BUT flag it as installed since
             # some package likely depends on it.
-            if not task.explicit:
-                if _handle_external_and_upstream(pkg, False):
-                    term_status.clear()
-                    self._flag_installed(pkg, task.dependents)
-                    continue
+            if _handle_external_and_upstream(pkg, task.explicit):
+                term_status.clear()
+                self._flag_installed(pkg, task.dependents)
+                continue
 
             # Flag a failed spec.  Do not need an (install) prefix lock since
             # assume using a separate (failed) prefix lock file.

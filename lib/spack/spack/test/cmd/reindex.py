@@ -2,18 +2,15 @@
 # Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
-import os
-
-import pytest
+import shutil
 
 import spack.store
+from spack.database import Database
 from spack.main import SpackCommand
 
 install = SpackCommand("install")
 deprecate = SpackCommand("deprecate")
 reindex = SpackCommand("reindex")
-
-pytestmark = pytest.mark.not_on_windows("does not run on windows")
 
 
 def test_reindex_basic(mock_packages, mock_archive, mock_fetch, install_mockery):
@@ -27,20 +24,31 @@ def test_reindex_basic(mock_packages, mock_archive, mock_fetch, install_mockery)
     assert spack.store.STORE.db.query() == all_installed
 
 
-def test_reindex_db_deleted(mock_packages, mock_archive, mock_fetch, install_mockery):
+def _clear_db(tmp_path):
+    empty_db = Database(str(tmp_path))
+    with empty_db.write_transaction():
+        pass
+    shutil.rmtree(spack.store.STORE.db.database_directory)
+    shutil.copytree(empty_db.database_directory, spack.store.STORE.db.database_directory)
+    # force a re-read of the database
+    assert len(spack.store.STORE.db.query()) == 0
+
+
+def test_reindex_db_deleted(mock_packages, mock_archive, mock_fetch, install_mockery, tmp_path):
     install("libelf@0.8.13")
     install("libelf@0.8.12")
 
     all_installed = spack.store.STORE.db.query()
 
-    os.remove(spack.store.STORE.db._index_path)
+    _clear_db(tmp_path)
+
     reindex()
 
     assert spack.store.STORE.db.query() == all_installed
 
 
 def test_reindex_with_deprecated_packages(
-    mock_packages, mock_archive, mock_fetch, install_mockery
+    mock_packages, mock_archive, mock_fetch, install_mockery, tmp_path
 ):
     install("libelf@0.8.13")
     install("libelf@0.8.12")
@@ -50,7 +58,8 @@ def test_reindex_with_deprecated_packages(
     all_installed = spack.store.STORE.db.query(installed=any)
     non_deprecated = spack.store.STORE.db.query(installed=True)
 
-    os.remove(spack.store.STORE.db._index_path)
+    _clear_db(tmp_path)
+
     reindex()
 
     assert spack.store.STORE.db.query(installed=any) == all_installed

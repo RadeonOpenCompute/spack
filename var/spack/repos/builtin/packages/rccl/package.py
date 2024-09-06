@@ -16,12 +16,13 @@ class Rccl(CMakePackage):
 
     homepage = "https://github.com/ROCm/rccl"
     git = "https://github.com/ROCm/rccl.git"
-    url = "https://github.com/ROCm/rccl/archive/rocm-6.1.1.tar.gz"
+    url = "https://github.com/ROCm/rccl/archive/rocm-6.1.2.tar.gz"
     tags = ["rocm"]
 
     maintainers("srekolam", "renjithravindrankannath")
     libraries = ["librccl"]
     version("develop", branch="develop")
+    version("6.1.2", sha256="98af99c12d800f5439c7740d797162c35810a25e08e3b11b397d3300d3c0148e")
     version("6.1.1", sha256="6368275059ba190d554535d5aeaa5c2510d944b56efd85c90a1701d0292a14c5")
     version("6.1.0", sha256="c6308f6883cbd63dceadbe4ee154cc6fa9e6bdccbd2f0fda295b564b0cf01e9a")
     version("6.0.2", sha256="5c8495acba3d620b751e729d1157e7b4eea8f5e5692c50ce47c5204d3dfd443c")
@@ -37,6 +38,9 @@ class Rccl(CMakePackage):
         version("5.4.0", sha256="213f4f3d75389be588673e43f563e5c0d6908798228b0b6a71f27138fd4ed0c7")
         version("5.3.3", sha256="8995a2d010ad0748fc85ac06e8da7e8d110ba996db04d42b77526c9c059c05bb")
         version("5.3.0", sha256="51da5099fa58c2be882319cebe9ceabe2062feebcc0c5849e8c109030882c10a")
+
+    depends_on("c", type="build")  # generated
+    depends_on("cxx", type="build")  # generated
 
     amdgpu_targets = ROCmPackage.amdgpu_targets
 
@@ -70,6 +74,7 @@ class Rccl(CMakePackage):
         "6.0.2",
         "6.1.0",
         "6.1.1",
+        "6.1.2",
         "develop",
     ]:
         depends_on(f"rocm-cmake@{ver}:", type="build", when=f"@{ver}")
@@ -107,6 +112,7 @@ class Rccl(CMakePackage):
         "6.0.2",
         "6.1.0",
         "6.1.1",
+        "6.1.2",
         "develop",
     ]:
         depends_on(f"rocm-core@{ver}", when=f"@{ver}")
@@ -149,7 +155,7 @@ class Rccl(CMakePackage):
             args.append(self.define("ROCMCORE_PATH", self.spec["rocm-core"].prefix))
         return args
 
-    def test(self):
-        test_dir = join_path(self.spec["rccl"].prefix, "bin")
-        with working_dir(test_dir, create=True):
-            self.run_test("UnitTests")
+    def test_unit(self):
+        """Run unit tests"""
+        unit_tests = which(join_path(self.prefix.bin, "rccl-UnitTests"))
+        unit_tests()

@@ -24,6 +24,7 @@ class LlvmAmdgpu(CMakePackage, CompilerPackage):
 
     version("master", branch="amd-stg-open")
     version("develop", branch="amd-stg-open")
+    version("6.1.2", sha256="300e9d6a137dcd91b18d5809a316fddb615e0e7f982dc7ef1bb56876dff6e097")
     version("6.1.1", sha256="f1a67efb49f76a9b262e9735d3f75ad21e3bd6a05338c9b15c01e6c625c4460d")
     version("6.1.0", sha256="6bd9912441de6caf6b26d1323e1c899ecd14ff2431874a2f5883d3bc5212db34")
     version("6.0.2", sha256="7d35acc84de1adee65406f92a369a30364703f84279241c444cd93a48c7eeb76")
@@ -39,6 +40,10 @@ class LlvmAmdgpu(CMakePackage, CompilerPackage):
         version("5.4.0", sha256="ff54f45a17723892cd775c1eaff9e5860527fcfd33d98759223c70e3362335bf")
         version("5.3.3", sha256="5296d5e474811c7d1e456cb6d5011db248b79b8d0512155e8a6c2aa5b5f12d38")
         version("5.3.0", sha256="4e3fcddb5b8ea8dcaa4417e0e31a9c2bbdc9e7d4ac3401635a636df32905c93e")
+
+    depends_on("c", type="build")  # generated
+    depends_on("cxx", type="build")  # generated
+    depends_on("fortran", type="build")  # generated
 
     variant(
         "rocm-device-libs",
@@ -72,6 +77,11 @@ class LlvmAmdgpu(CMakePackage, CompilerPackage):
     depends_on("ncurses+termlib", type="link")
     depends_on("pkgconfig", type="build")
 
+    # This flavour of LLVM doesn't work on MacOS, so we should ensure that it
+    # isn't used to satisfy any of the libllvm dependencies on the Darwin
+    # platform.
+    conflicts("platform=darwin")
+
     # OpenMP clang toolchain looks for bitcode files in llvm/bin/../lib
     # as per 5.2.0 llvm code. It used to be llvm/bin/../lib/libdevice.
     # Below patch is to look in the old path.
@@ -98,6 +108,9 @@ class LlvmAmdgpu(CMakePackage, CompilerPackage):
     )
 
     conflicts("^cmake@3.19.0")
+
+    # https://github.com/spack/spack/issues/45746
+    conflicts("^ninja@1.12:", when="@:6.0")
 
     root_cmakelists_dir = "llvm"
     install_targets = ["clang-tidy", "install"]
@@ -141,6 +154,7 @@ class LlvmAmdgpu(CMakePackage, CompilerPackage):
         when="@develop +rocm-device-libs",
     )
     for d_version, d_shasum in [
+        ("6.1.2", "6eb7a02e5f1e5e3499206b9e74c9ccdd644abaafa2609dea0993124637617866"),
         ("6.1.1", "72841f112f953c16619938273370eb8727ddf6c2e00312856c9fca54db583b99"),
         ("6.1.0", "50386ebcb7ff24449afa2a10c76a059597464f877225c582ba3e097632a43f9c"),
         ("6.0.2", "e7ff4d7ac35a2dd8aad1cb40b96511a77a9c23fe4d1607902328e53728e05c28"),
@@ -280,7 +294,7 @@ class LlvmAmdgpu(CMakePackage, CompilerPackage):
             args.append(self.define("LLVM_ENABLE_PROJECTS", llvm_projects))
             args.append(self.define("LLVM_ENABLE_RUNTIMES", llvm_runtimes))
             args.append(self.define("LLVM_ENABLE_LIBCXX", "OFF"))
-            args.append(self.define("CLANG_LINK_FLANG_LEGACY", False))
+            args.append(self.define("CLANG_LINK_FLANG_LEGACY", True))
             args.append(self.define("CMAKE_CXX_STANDARD", 17))
             args.append(self.define("FLANG_INCLUDE_DOCS", False))
             args.append(self.define("LLVM_BUILD_DOCS", "ON"))
@@ -297,9 +311,17 @@ class LlvmAmdgpu(CMakePackage, CompilerPackage):
     # Make sure that the compiler paths are in the LD_LIBRARY_PATH
     def setup_run_environment(self, env):
         llvm_amdgpu_home = self.spec["llvm-amdgpu"].prefix
-        env.prepend_path("LD_LIBRARY_PATH", llvm_amdgpu_home + "/llvm/lib")
+        env.prepend_path("LD_LIBRARY_PATH", llvm_amdgpu_home + "/lib")
 
     # Make sure that the compiler paths are in the LD_LIBRARY_PATH
     def setup_dependent_run_environment(self, env, dependent_spec):
         llvm_amdgpu_home = self.spec["llvm-amdgpu"].prefix
-        env.prepend_path("LD_LIBRARY_PATH", llvm_amdgpu_home + "/llvm/lib")
+        env.prepend_path("LD_LIBRARY_PATH", llvm_amdgpu_home + "/lib")
+
+    # Required for enabling asan on dependent packages
+    def setup_dependent_build_environment(self, env, dependent_spec):
+        for root, _, files in os.walk(self.spec["llvm-amdgpu"].prefix):
+            if "libclang_rt.asan-x86_64.so" in files:
+                asan_lib_path = root
+        env.prepend_path("LD_LIBRARY_PATH", asan_lib_path)
+        env.prune_duplicate_paths("LD_LIBRARY_PATH")
