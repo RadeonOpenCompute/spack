@@ -103,6 +103,8 @@ class Comgr(CMakePackage):
 
     @property
     def root_cmakelists_dir(self):
+        if self.spec.satisfies("@develop"):
+            return join_path("lib", "comgr")
         if self.spec.satisfies("@:6.0"):
             return join_path("lib", "comgr")
         else:

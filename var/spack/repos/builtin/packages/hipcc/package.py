@@ -12,7 +12,7 @@ class Hipcc(CMakePackage):
     """HIPCC: HIP compiler driver"""
 
     homepage = "https://github.com/ROCm/hipcc"
-    git = "https://github.com/ROCm/hipcc.git"
+    git = "ssh://<user-id>@gerrit-git.amd.com:<port-number>/lightning/ec/llvm-project.git"
 
     def url_for_version(self, version):
         if version <= Version("6.0.2"):
@@ -24,6 +24,7 @@ class Hipcc(CMakePackage):
     maintainers("srekolam", "renjithravindrankannath", "afzpatel")
 
     license("MIT")
+    version("develop", branch="amd-staging")
     version("6.1.2", sha256="300e9d6a137dcd91b18d5809a316fddb615e0e7f982dc7ef1bb56876dff6e097")
     version("6.1.1", sha256="f1a67efb49f76a9b262e9735d3f75ad21e3bd6a05338c9b15c01e6c625c4460d")
     version("6.1.0", sha256="6bd9912441de6caf6b26d1323e1c899ecd14ff2431874a2f5883d3bc5212db34")
@@ -52,6 +53,9 @@ class Hipcc(CMakePackage):
         numactl = self.spec["numactl"].prefix.lib
         if self.spec.satisfies("@:6.0"):
             with working_dir("bin"):
+                filter_shebang("hipconfig")
+        if self.spec.satisfies("@develop"):
+            with working_dir("amd/hipcc/bin"):
                 filter_shebang("hipconfig")
         else:
             with working_dir("amd/hipcc/bin"):

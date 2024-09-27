@@ -174,6 +174,8 @@ class RocmOpenmpExtras(Package):
     depends_on("libffi", type=("build", "link"))
     depends_on("libdrm", when="@5.7:6.0")
     depends_on("numactl", when="@5.7:6.0")
+    depends_on("libdrm", when="@develop")
+    depends_on("numactl", when="@develop")
 
     for ver in [
         "5.5.0",
@@ -187,6 +189,7 @@ class RocmOpenmpExtras(Package):
         "6.1.0",
         "6.1.1",
         "6.1.2",
+	"develop",
     ]:
         depends_on(f"rocm-core@{ver}", when=f"@{ver}")
 
@@ -247,6 +250,52 @@ class RocmOpenmpExtras(Package):
             placement="llvm-project",
             when=f"@{ver}",
         )
+    for ver in ["develop"]:
+        #depends_on(f"rocm-core@{ver}", when=f"@{ver}")
+        depends_on(f"hip@{ver}", when=f"@{ver}")
+
+        tag = "rocm-"
+
+        resource(
+            name="rocm-device-libs",
+            git=f"ssh://<user-id>@gerrit-git.amd.com:<port-number>/lightning/ec/device-libs.git",
+            branch="amd-stg-open",
+            expand=True,
+            destination="rocm-openmp-extras",
+            placement="rocm-device-libs",
+            when=f"@{ver}",
+        )
+
+        resource(
+            name="flang",
+            git=f"ssh://<user-id>@gerrit-git.amd.com:<port-number>/compute/ec/flang.git",
+            branch="amd-mainline-open",
+            expand=True,
+            destination="rocm-openmp-extras",
+            placement="flang",
+            when=f"@{ver}",
+        )
+
+        resource(
+            name="aomp-extras",
+            git=f"ssh://<user-id>@gerrit-git.amd.com:<port-number>/compute/ec/aomp-extras.git",
+            branch="amd-mainline-open",
+            expand=True,
+            destination="rocm-openmp-extras",
+            placement="aomp-extras",
+            when=f"@{ver}",
+        )
+
+        resource(
+            name="llvm-project",
+            git=f"ssh://<user-id>@gerrit-git.amd.com:<port-number>/lightning/ec/llvm-project.git",
+            branch="amd-staging",
+            expand=True,
+            destination="rocm-openmp-extras",
+            placement="llvm-project",
+            when=f"@{ver}",
+        )
+
     for ver in ["6.1.0", "6.1.1", "6.1.2"]:
         depends_on(f"hsakmt-roct@{ver}", when=f"@{ver}")
         depends_on(f"comgr@{ver}", when=f"@{ver}")
@@ -364,88 +413,88 @@ class RocmOpenmpExtras(Package):
             "",
             libomptarget.format(src) + "/cmake/Modules/LibomptargetGetDependencies.cmake",
         )
+        if self.spec.satisfies("@5.1:6.0"):
+            filter_file(
+                r"{OPENMP_INSTALL_LIBDIR}",
+                "{OPENMP_INSTALL_LIBDIR}/libdevice",
+                libomptarget.format(src) + "/deviceRTLs/amdgcn/CMakeLists.txt",
+            )
 
-        filter_file(
-            r"{OPENMP_INSTALL_LIBDIR}",
-            "{OPENMP_INSTALL_LIBDIR}/libdevice",
-            libomptarget.format(src) + "/deviceRTLs/amdgcn/CMakeLists.txt",
-        )
+            filter_file(
+                "-nogpulib",
+                "-nogpulib -nogpuinc",
+                libomptarget.format(src) + "/deviceRTLs/amdgcn/CMakeLists.txt",
+            )
 
-        filter_file(
-            "-nogpulib",
-            "-nogpulib -nogpuinc",
-            libomptarget.format(src) + "/deviceRTLs/amdgcn/CMakeLists.txt",
-        )
+            filter_file(
+                "-x hip",
+                "-x hip -nogpulib -nogpuinc",
+                libomptarget.format(src) + "/deviceRTLs/amdgcn/CMakeLists.txt",
+            )
 
-        filter_file(
-            "-x hip",
-            "-x hip -nogpulib -nogpuinc",
-            libomptarget.format(src) + "/deviceRTLs/amdgcn/CMakeLists.txt",
-        )
+            filter_file(
+                "-c ",
+                "-c -nogpulib -nogpuinc -I{LIMIT}",
+                libomptarget.format(src) + "/hostrpc/CMakeLists.txt",
+            )
 
-        filter_file(
-            "-c ",
-            "-c -nogpulib -nogpuinc -I{LIMIT}",
-            libomptarget.format(src) + "/hostrpc/CMakeLists.txt",
-        )
+            filter_file(
+                r"${ROCM_DIR}/hsa/include ${ROCM_DIR}/hsa/include/hsa",
+                "${HSA_INCLUDE}/hsa/include ${HSA_INCLUDE}/hsa/include/hsa",
+                libomptarget.format(src) + plugin,
+                string=True,
+            )
 
-        filter_file(
-            r"${ROCM_DIR}/hsa/include ${ROCM_DIR}/hsa/include/hsa",
-            "${HSA_INCLUDE}/hsa/include ${HSA_INCLUDE}/hsa/include/hsa",
-            libomptarget.format(src) + plugin,
-            string=True,
-        )
+            filter_file("{ROCM_DIR}/hsa/lib", "{HSA_LIB}", libomptarget.format(src) + plugin)
 
-        filter_file("{ROCM_DIR}/hsa/lib", "{HSA_LIB}", libomptarget.format(src) + plugin)
+            filter_file(
+                r"{ROCM_DIR}/lib\)",
+                "{HSAKMT_LIB})\nset(HSAKMT_LIB64 ${HSAKMT_LIB64})",
+                libomptarget.format(src) + plugin,
+            )
 
-        filter_file(
-            r"{ROCM_DIR}/lib\)",
-            "{HSAKMT_LIB})\nset(HSAKMT_LIB64 ${HSAKMT_LIB64})",
-            libomptarget.format(src) + plugin,
-        )
+            filter_file(
+                r"-L${LIBOMPTARGET_DEP_LIBHSAKMT_LIBRARIES_DIRS}",
+                "-L${LIBOMPTARGET_DEP_LIBHSAKMT_LIBRARIES_DIRS} -L${HSAKMT_LIB64}",
+                libomptarget.format(src) + plugin,
+                string=True,
+            )
 
-        filter_file(
-            r"-L${LIBOMPTARGET_DEP_LIBHSAKMT_LIBRARIES_DIRS}",
-            "-L${LIBOMPTARGET_DEP_LIBHSAKMT_LIBRARIES_DIRS} -L${HSAKMT_LIB64}",
-            libomptarget.format(src) + plugin,
-            string=True,
-        )
+            filter_file(
+                r"-rpath,${LIBOMPTARGET_DEP_LIBHSAKMT_LIBRARIES_DIRS}",
+                "-rpath,${LIBOMPTARGET_DEP_LIBHSAKMT_LIBRARIES_DIRS}" + ",-rpath,${HSAKMT_LIB64}",
+                libomptarget.format(src) + plugin,
+                string=True,
+            )
 
-        filter_file(
-            r"-rpath,${LIBOMPTARGET_DEP_LIBHSAKMT_LIBRARIES_DIRS}",
-            "-rpath,${LIBOMPTARGET_DEP_LIBHSAKMT_LIBRARIES_DIRS}" + ",-rpath,${HSAKMT_LIB64}",
-            libomptarget.format(src) + plugin,
-            string=True,
-        )
+            filter_file("{ROCM_DIR}/include", "{COMGR_INCLUDE}", libomptarget.format(src) + plugin)
 
-        filter_file("{ROCM_DIR}/include", "{COMGR_INCLUDE}", libomptarget.format(src) + plugin)
+            filter_file(
+                r"-L${LLVM_LIBDIR}${OPENMP_LIBDIR_SUFFIX}",
+                "-L${LLVM_LIBDIR}${OPENMP_LIBDIR_SUFFIX} -L${COMGR_LIB}",
+                libomptarget.format(src) + plugin,
+                string=True,
+            )
 
-        filter_file(
-            r"-L${LLVM_LIBDIR}${OPENMP_LIBDIR_SUFFIX}",
-            "-L${LLVM_LIBDIR}${OPENMP_LIBDIR_SUFFIX} -L${COMGR_LIB}",
-            libomptarget.format(src) + plugin,
-            string=True,
-        )
+            filter_file(
+                r"rpath,${LLVM_LIBDIR}${OPENMP_LIBDIR_SUFFIX}",
+                "rpath,${LLVM_LIBDIR}${OPENMP_LIBDIR_SUFFIX}" + "-Wl,-rpath,${COMGR_LIB}",
+                libomptarget.format(src) + plugin,
+                string=True,
+            )
 
-        filter_file(
-            r"rpath,${LLVM_LIBDIR}${OPENMP_LIBDIR_SUFFIX}",
-            "rpath,${LLVM_LIBDIR}${OPENMP_LIBDIR_SUFFIX}" + "-Wl,-rpath,${COMGR_LIB}",
-            libomptarget.format(src) + plugin,
-            string=True,
-        )
+            filter_file(
+                "ADDITIONAL_VERSIONS 2.7",
+                "ADDITIONAL_VERSIONS 3",
+                flang.format(src) + "CMakeLists.txt",
+            )
 
-        filter_file(
-            "ADDITIONAL_VERSIONS 2.7",
-            "ADDITIONAL_VERSIONS 3",
-            flang.format(src) + "CMakeLists.txt",
-        )
-
-        filter_file(
-            "if (LIBOMPTARGET_DEP_CUDA_FOUND)",
-            "if (LIBOMPTARGET_DEP_CUDA_FOUND AND NOT LIBOMPTARGET_AMDGPU_ARCH)",
-            libomptarget.format(src) + "/hostexec/CMakeLists.txt",
-            string=True,
-        )
+            filter_file(
+                "if (LIBOMPTARGET_DEP_CUDA_FOUND)",
+                "if (LIBOMPTARGET_DEP_CUDA_FOUND AND NOT LIBOMPTARGET_AMDGPU_ARCH)",
+                libomptarget.format(src) + "/hostexec/CMakeLists.txt",
+                string=True,
+            )
 
     def install(self, spec, prefix):
         src = self.stage.source_path
@@ -460,6 +509,9 @@ class RocmOpenmpExtras(Package):
         hsa_prefix = self.spec["hsa-rocr-dev"].prefix
         hsakmt_prefix = self.spec["hsakmt-roct"].prefix
         if self.spec.satisfies("@5.7:6.1"):
+            libdrm_prefix = self.spec["libdrm"].prefix
+            numactl_prefix = self.spec["numactl"].prefix
+        if self.spec.satisfies("@develop"):
             libdrm_prefix = self.spec["libdrm"].prefix
             numactl_prefix = self.spec["numactl"].prefix
         comgr_prefix = self.spec["comgr"].prefix
@@ -548,6 +600,12 @@ class RocmOpenmpExtras(Package):
             "-DHSA_INCLUDE={0}/include/hsa".format(hsa_prefix),
         ]
         if self.spec.satisfies("@5.7:6.1"):
+            openmp_common_args += [
+                "-DLIBDRM_LIB={0}/lib".format(libdrm_prefix),
+                "-DHSAKMT_INC_PATH={0}/include".format(hsakmt_prefix),
+                "-DNUMACTL_DIR={0}".format(numactl_prefix),
+            ]
+        if self.spec.satisfies("@develop"):
             openmp_common_args += [
                 "-DLIBDRM_LIB={0}/lib".format(libdrm_prefix),
                 "-DHSAKMT_INC_PATH={0}/include".format(hsakmt_prefix),
