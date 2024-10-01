@@ -79,7 +79,7 @@ jobs:
           UNIT_TEST_COVERAGE: ${{ matrix.python-version == '3.11' }}
       run: |
           share/spack/qa/run-unit-tests
-    - uses: codecov/codecov-action@e28ff129e5465c2c0dcc6f003fc735cb6ae0c673
+    - uses: codecov/codecov-action@b9fd7d16f6d7d1b5d2bec1a2887e65ceed900238
       with:
         flags: unittests,linux,${{ matrix.concretizer }}
         token: ${{ secrets.CODECOV_TOKEN }}
@@ -112,7 +112,7 @@ jobs:
           COVERAGE: true
       run: |
           share/spack/qa/run-shell-tests
-    - uses: codecov/codecov-action@e28ff129e5465c2c0dcc6f003fc735cb6ae0c673
+    - uses: codecov/codecov-action@b9fd7d16f6d7d1b5d2bec1a2887e65ceed900238
       with:
         flags: shelltests,linux
         token: ${{ secrets.CODECOV_TOKEN }}
@@ -172,7 +172,7 @@ jobs:
           COVERAGE: true
       run: |
           share/spack/qa/run-unit-tests
-    - uses: codecov/codecov-action@e28ff129e5465c2c0dcc6f003fc735cb6ae0c673
+    - uses: codecov/codecov-action@b9fd7d16f6d7d1b5d2bec1a2887e65ceed900238
       with:
         flags: unittests,linux,clingo
         token: ${{ secrets.CODECOV_TOKEN }}
@@ -209,7 +209,7 @@ jobs:
         $(which spack) solve zlib
         common_args=(--dist loadfile --tx '4*popen//python=./bin/spack-tmpconfig python -u ./bin/spack python' -x)
         $(which spack) unit-test --verbose --cov --cov-config=pyproject.toml --cov-report=xml:coverage.xml "${common_args[@]}"
-    - uses: codecov/codecov-action@e28ff129e5465c2c0dcc6f003fc735cb6ae0c673
+    - uses: codecov/codecov-action@b9fd7d16f6d7d1b5d2bec1a2887e65ceed900238
       with:
         flags: unittests,macos
         token: ${{ secrets.CODECOV_TOKEN }}
@@ -240,7 +240,7 @@ jobs:
         ./share/spack/qa/validate_last_exit.ps1
         coverage combine -a
         coverage xml
-    - uses: codecov/codecov-action@e28ff129e5465c2c0dcc6f003fc735cb6ae0c673
+    - uses: codecov/codecov-action@b9fd7d16f6d7d1b5d2bec1a2887e65ceed900238
       with:
         flags: unittests,windows
         token: ${{ secrets.CODECOV_TOKEN }}
