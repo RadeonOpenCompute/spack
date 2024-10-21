@@ -15,7 +15,7 @@ class HsakmtRoct(CMakePackage):
     with the ROCk driver."""
 
     homepage = "https://github.com/ROCm/ROCT-Thunk-Interface"
-    git = "ssh://<user-id>@gerrit-git.amd.com:<port-number>/compute/ec/libhsakmt.git"
+    git = "ssh://gerritgit/compute/ec/libhsakmt.git"
     url = "https://github.com/ROCm/ROCT-Thunk-Interface/archive/rocm-6.0.2.tar.gz"
     tags = ["rocm"]
 

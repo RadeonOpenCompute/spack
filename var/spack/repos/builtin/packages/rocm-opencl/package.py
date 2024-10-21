@@ -14,7 +14,7 @@ class RocmOpencl(CMakePackage):
     """OpenCL: Open Computing Language on ROCclr"""
 
     homepage = "https://github.com/RadeonOpenCompute/ROCm-OpenCL-Runtime"
-    git = "ssh://<user-id>@gerrit-git.amd.com:<port-number>/compute/ec/opencl.git"
+    git = "ssh://gerritgit/compute/ec/opencl.git"
     tags = ["rocm"]
 
     maintainers("srekolam", "renjithravindrankannath")
@@ -90,7 +90,7 @@ class RocmOpencl(CMakePackage):
         )
     resource(
         name="rocclr",
-        git= "ssh://<user-id>@gerrit-git.amd.com:<port-number>/compute/ec/vdi.git",
+        git= "ssh://gerritgit/compute/ec/vdi.git",
         destination="",
         placement="rocclr",
         branch="amd-staging-closed",

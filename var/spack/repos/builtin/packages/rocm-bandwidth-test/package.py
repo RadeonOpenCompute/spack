@@ -11,7 +11,7 @@ class RocmBandwidthTest(CMakePackage):
     """Test to measure PciE bandwidth on ROCm platforms"""
 
     homepage = "https://github.com/RadeonOpenCompute/rocm_bandwidth_test"
-    git = "ssh://<user-id>@gerrit-git.amd.com:<port-number>/compute/ec/rocm_bandwidth_test.git"
+    git = "ssh://gerritgit/compute/ec/rocm_bandwidth_test.git"
     url = "https://github.com/RadeonOpenCompute/rocm_bandwidth_test/archive/rocm-5.5.0.tar.gz"
     tags = ["rocm"]
 

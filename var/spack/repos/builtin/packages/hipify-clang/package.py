@@ -11,7 +11,7 @@ class HipifyClang(CMakePackage):
     sources into HIP sources"""
 
     homepage = "https://github.com/ROCm/HIPIFY"
-    git = "ssh://<user-id>@gerrit-git.amd.com:<port-number>/compute/ec/hipify.git"
+    git = "ssh://gerritgit/compute/ec/hipify.git"
     url = "https://github.com/ROCm/HIPIFY/archive/rocm-6.0.2.tar.gz"
     tags = ["rocm"]
 
@@ -47,8 +47,8 @@ class HipifyClang(CMakePackage):
 
     patch("0001-install-hipify-clang-in-bin-dir-and-llvm-clangs-head.patch", when="@5.1.0:5.5")
     patch("0002-install-hipify-clang-in-bin-dir-and-llvm-clangs-head.patch", when="@5.6")
-    #patch("0003-install-hipify-clang-in-bin-dir-and-llvm-clangs-head.patch", when="@develop")
-    patch("0004-install-hipify-clang-in-bin-dir-and-llvm-clangs-head.patch", when="@develop")
+    patch("0003-install-hipify-clang-in-bin-dir-and-llvm-clangs-head.patch", when="@develop")
+    #patch("0004-install-hipify-clang-in-bin-dir-and-llvm-clangs-head.patch", when="@develop")
     patch("0002-install-hipify-clang-in-bin-dir-and-llvm-clangs-head.patch", when="@5.6:6.0")
     patch("0003-install-hipify-clang-in-bin-dir-and-llvm-clangs-head.patch", when="@6.1")
 

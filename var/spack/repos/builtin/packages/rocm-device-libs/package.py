@@ -11,7 +11,7 @@ class RocmDeviceLibs(CMakePackage):
     """set of AMD specific device-side language runtime libraries"""
 
     homepage = "https://github.com/ROCm/ROCm-Device-Libs"
-    git = "ssh://<user-id>@gerrit-git.amd.com:<port-number>/lightning/ec/device-libs.git"
+    git = "ssh://gerritgit/lightning/ec/device-libs.git"
     url = "https://github.com/ROCm/ROCm-Device-Libs/archive/rocm-6.0.2.tar.gz"
     tags = ["rocm"]
 

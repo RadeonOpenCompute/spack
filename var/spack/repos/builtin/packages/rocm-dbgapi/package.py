@@ -15,7 +15,7 @@ class RocmDbgapi(CMakePackage):
     AMD's commercially available GPU architectures."""
 
     homepage = "https://github.com/ROCm-Developer-Tools/ROCdbgapi"
-    git = "ssh://<user-id>@gerrit-git.amd.com:<port-number>/compute/ec/rocm-dbgapi.git"
+    git = "ssh://gerritgit/compute/ec/rocm-dbgapi.git"
     url = "https://github.com/ROCm-Developer-Tools/ROCdbgapi/archive/rocm-5.4.3.tar.gz"
     tags = ["rocm"]
 

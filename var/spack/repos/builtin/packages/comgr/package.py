@@ -13,7 +13,7 @@ class Comgr(CMakePackage):
     contains one library, the Code Object Manager (Comgr)"""
 
     homepage = "https://github.com/RadeonOpenCompute/ROCm-CompilerSupport"
-    git =  "ssh://<user-id>@gerrit-git.amd.com:<port-number>/lightning/ec/support.git"
+    git =  "ssh://gerritgit/lightning/ec/support.git"
     url = "https://github.com/RadeonOpenCompute/ROCm-CompilerSupport/archive/rocm-5.4.3.tar.gz"
     tags = ["rocm"]
 

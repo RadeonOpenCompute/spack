@@ -12,7 +12,7 @@ class RocmGdb(AutotoolsPackage):
     based on GDB, the GNU source-level debugger."""
 
     homepage = "https://github.com/ROCm-Developer-Tools/ROCgdb/"
-    git = "ssh://<user-id>@gerrit-git.amd.com:<port-number>/compute/ec/rocm-gdb"
+    git = "ssh://gerritgit/compute/ec/rocm-gdb"
     url = "https://github.com/ROCm-Developer-Tools/ROCgdb/archive/rocm-5.5.0.tar.gz"
     tags = ["rocm"]
 

@@ -17,7 +17,7 @@ class Hip(CMakePackage):
     single source code."""
 
     homepage = "https://github.com/ROCm/HIP"
-    git = "ssh://<user-id>@gerrit-git.amd.com:<port-number>/compute/ec/hip"
+    git = "ssh://gerritgit/compute/ec/hip"
     url = "https://github.com/ROCm/HIP/archive/rocm-6.0.2.tar.gz"
     tags = ["rocm"]
 
@@ -214,7 +214,7 @@ class Hip(CMakePackage):
         )
     resource(
         name="clr",
-        git="ssh://<user-id>@gerrit-git.amd.com:<port-number>/compute/ec/clr.git",
+        git="ssh://gerritgit/compute/ec/clr.git",
         expand=True,
         destination="",
         branch="amd-staging",
@@ -255,7 +255,7 @@ class Hip(CMakePackage):
         )
     resource(
         name="hipcc",
-        git="ssh://<user-id>@gerrit-git.amd.com:<port-number>/compute/ec/hipcc.git",
+        git="ssh://gerritgit/compute/ec/hipcc.git",
         expand=True,
         destination="",
         branch="amd-stg-open",
@@ -303,7 +303,7 @@ class Hip(CMakePackage):
         )
     resource(
         name="hip-tests",
-        git="ssh://<user-id>@gerrit-git.amd.com:<port-number>/compute/ec/hip-tests.git",
+        git="ssh://gerritgit/compute/ec/hip-tests.git",
         expand=True,
         destination="",
         branch="amd-staging",

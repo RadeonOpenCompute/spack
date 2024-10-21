@@ -14,7 +14,7 @@ class RoctracerDev(CMakePackage, ROCmPackage):
     specific runtime profiler to trace API and asyncronous activity."""
 
     homepage = "https://github.com/ROCm/roctracer"
-    git = "ssh://<user-id>@gerrit-git.amd.com:<port-number>/compute/ec/roctracer.git"
+    git = "ssh://gerritgit/compute/ec/roctracer.git"
     url = "https://github.com/ROCm/roctracer/archive/rocm-6.0.2.tar.gz"
     tags = ["rocm"]
 

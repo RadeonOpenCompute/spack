@@ -11,7 +11,7 @@ class Rocminfo(CMakePackage):
     """Radeon Open Compute (ROCm) Runtime rocminfo tool"""
 
     homepage = "https://github.com/ROCm/rocminfo"
-    git = "ssh://<user-id>@gerrit-git.amd.com:<port-number>/compute/ec/rocminfo"
+    git = "ssh://gerritgit/compute/ec/rocminfo"
     url = "https://github.com/ROCm/rocminfo/archive/rocm-6.0.2.tar.gz"
     tags = ["rocm"]
 
