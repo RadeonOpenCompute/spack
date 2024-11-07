@@ -13,7 +13,7 @@ class HipRocclr(CMakePackage):
     runtimes to work on Windows as well as on Linux without much effort."""
 
     homepage = "https://github.com/ROCm-Developer-Tools/ROCclr"
-    git = "ssh://<user-id>@gerrit-git.amd.com:<port-number>/compute/ec/vdi.git"
+    git = "ssh://gerritgit/compute/ec/vdi.git"
     tags = ["rocm"]
 
     phases = ["cmake", "build"]
@@ -93,7 +93,7 @@ class HipRocclr(CMakePackage):
     )
     resource(
         name="opencl-on-vdi",
-        git= "ssh://<user-id>@gerrit-git.amd.com:<port-number>/compute/ec/opencl.git",
+        git= "ssh://gerritgit/compute/ec/opencl.git",
         destination="",
         placement="opencl-on-vdi",
         branch="amd-staging-closed",

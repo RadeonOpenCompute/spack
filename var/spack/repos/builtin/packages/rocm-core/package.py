@@ -13,7 +13,7 @@ class RocmCore(CMakePackage):
     getROCmVersion function provides the ROCm version."""
 
     homepage = "https://github.com/RadeonOpenCompute/rocm-core"
-    git = "ssh://<user-id>@gerrit-git.amd.com:<port-number>/compute/ec/rocm-core.git"
+    git = "ssh://gerritgit/compute/ec/rocm-core.git"
     url = "https://github.com/RadeonOpenCompute/rocm-core/archive/refs/tags/rocm-5.5.0.tar.gz"
     tags = ["rocm"]
 

@@ -14,7 +14,7 @@ class LlvmAmdgpu(CMakePackage, CompilerPackage):
     optimizers, and run-time environments."""
 
     homepage = "https://github.com/ROCm/llvm-project"
-    git = "ssh://<user-id>@gerrit-git.amd.com:<port-number>/lightning/ec/llvm-project.git"
+    git = "ssh://gerritgit/lightning/ec/llvm-project.git"
     url = "https://github.com/ROCm/llvm-project/archive/rocm-6.0.2.tar.gz"
     tags = ["rocm"]
     executables = [r"amdclang", r"amdclang\+\+", r"amdflang", r"clang.*", r"flang.*", "llvm-.*"]
@@ -152,7 +152,7 @@ class LlvmAmdgpu(CMakePackage, CompilerPackage):
     resource(
         name="rocm-device-libs",
         placement="rocm-device-libs",
-        git="ssh://<user-id>@gerrit-git.amd.com:<port-number>/lightning/ec/device-libs.git",
+        git="ssh://gerritgit/lightning/ec/device-libs.git",
         branch="amd-stg-open",
         when="@develop +rocm-device-libs",
     )
@@ -178,7 +178,7 @@ class LlvmAmdgpu(CMakePackage, CompilerPackage):
     resource(
         name="hsa-runtime",
         placement="hsa-runtime",
-        git="ssh://<user-id>@gerrit-git.amd.com:<port-number>/hsa/ec/hsa-runtime.git",
+        git="ssh://gerritgit/hsa/ec/hsa-runtime.git",
         branch="amd-staging",
         when="@develop",
     )
@@ -208,7 +208,7 @@ class LlvmAmdgpu(CMakePackage, CompilerPackage):
     resource(
         name="comgr",
         placement="comgr",
-        git= "ssh://<user-id>@gerrit-git.amd.com:<port-number>/lightning/ec/support.git",
+        git= "ssh://gerritgit/lightning/ec/support.git",
         branch="amd-stg-open",
         when="@develop",
     )

@@ -16,7 +16,7 @@ class HsaRocrDev(CMakePackage):
     Linux HSA Runtime for Boltzmann (ROCm) platforms."""
 
     homepage = "https://github.com/ROCm/ROCR-Runtime"
-    git = "ssh://<user-id>@gerrit-git.amd.com:<port-number>/hsa/ec/hsa-runtime.git"
+    git = "ssh://gerritgit/hsa/ec/hsa-runtime.git"
     url = "https://github.com/ROCm/ROCR-Runtime/archive/rocm-6.0.2.tar.gz"
     tags = ["rocm"]
 

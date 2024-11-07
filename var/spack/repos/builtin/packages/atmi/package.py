@@ -14,7 +14,7 @@ class Atmi(CMakePackage):
     (integrated and discrete)."""
 
     homepage = "https://github.com/RadeonOpenCompute/atmi"
-    git = "ssh://<user-id>@gerrit-git.amd.com:<port-number>/compute/ec/atmi"
+    git = "ssh://gerritgit/compute/ec/atmi"
     url = "https://github.com/RadeonOpenCompute/atmi/archive/rocm-5.4.3.tar.gz"
     tags = ["rocm"]
 

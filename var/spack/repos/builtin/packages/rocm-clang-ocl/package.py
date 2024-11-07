@@ -10,7 +10,7 @@ class RocmClangOcl(CMakePackage):
     """OpenCL compilation with clang compiler"""
 
     homepage = "https://github.com/RadeonOpenCompute/clang-ocl"
-    git = "ssh://<user-id>@gerrit-git.amd.com:<port-number>/compute/ec/clang-ocl.git"
+    git = "ssh://gerritgit/compute/ec/clang-ocl.git"
     url = "https://github.com/RadeonOpenCompute/clang-ocl/archive/rocm-5.4.3.tar.gz"
     tags = ["rocm"]
 

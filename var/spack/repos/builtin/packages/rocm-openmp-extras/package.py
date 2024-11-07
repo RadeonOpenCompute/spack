@@ -258,7 +258,7 @@ class RocmOpenmpExtras(Package):
 
         resource(
             name="rocm-device-libs",
-            git=f"ssh://<user-id>@gerrit-git.amd.com:<port-number>/lightning/ec/device-libs.git",
+            git=f"ssh://gerritgit/lightning/ec/device-libs.git",
             branch="amd-stg-open",
             expand=True,
             destination="rocm-openmp-extras",
@@ -268,7 +268,7 @@ class RocmOpenmpExtras(Package):
 
         resource(
             name="flang",
-            git=f"ssh://<user-id>@gerrit-git.amd.com:<port-number>/compute/ec/flang.git",
+            git=f"ssh://gerritgit/compute/ec/flang.git",
             branch="amd-mainline-open",
             expand=True,
             destination="rocm-openmp-extras",
@@ -278,7 +278,7 @@ class RocmOpenmpExtras(Package):
 
         resource(
             name="aomp-extras",
-            git=f"ssh://<user-id>@gerrit-git.amd.com:<port-number>/compute/ec/aomp-extras.git",
+            git=f"ssh://gerritgit/compute/ec/aomp-extras.git",
             branch="amd-mainline-open",
             expand=True,
             destination="rocm-openmp-extras",
@@ -288,7 +288,7 @@ class RocmOpenmpExtras(Package):
 
         resource(
             name="llvm-project",
-            git=f"ssh://<user-id>@gerrit-git.amd.com:<port-number>/lightning/ec/llvm-project.git",
+            git=f"ssh://gerritgit/lightning/ec/llvm-project.git",
             branch="amd-staging",
             expand=True,
             destination="rocm-openmp-extras",

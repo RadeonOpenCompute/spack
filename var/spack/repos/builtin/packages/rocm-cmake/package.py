@@ -12,7 +12,7 @@ class RocmCmake(CMakePackage):
     in the ROCm software stack"""
 
     homepage = "https://github.com/RadeonOpenCompute/rocm-cmake"
-    git = "ssh://<user-id>@gerrit-git.amd.com:<port-number>/compute/ec/packaging/rocm-cmake.git"
+    git = "ssh://gerritgit/compute/ec/packaging/rocm-cmake.git"
     url = "https://github.com/RadeonOpenCompute/rocm-cmake/archive/rocm-5.6.0.tar.gz"
     tags = ["rocm"]
 

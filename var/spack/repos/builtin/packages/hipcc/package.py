@@ -12,7 +12,7 @@ class Hipcc(CMakePackage):
     """HIPCC: HIP compiler driver"""
 
     homepage = "https://github.com/ROCm/hipcc"
-    git = "ssh://<user-id>@gerrit-git.amd.com:<port-number>/lightning/ec/llvm-project.git"
+    git = "ssh://gerritgit/lightning/ec/llvm-project.git"
 
     def url_for_version(self, version):
         if version <= Version("6.0.2"):
