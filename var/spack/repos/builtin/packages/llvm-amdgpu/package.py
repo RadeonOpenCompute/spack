@@ -25,7 +25,7 @@ class LlvmAmdgpu(CMakePackage, CompilerPackage):
     license("Apache-2.0")
 
     version("master", branch="amd-stg-open")
-    version("develop", branch="amd-stg-open")
+    version("develop", branch="amd-staging")
     version("6.2.0", sha256="12ce17dc920ec6dac0c5484159b3eec00276e4a5b301ab1250488db3b2852200")
     version("6.1.2", sha256="300e9d6a137dcd91b18d5809a316fddb615e0e7f982dc7ef1bb56876dff6e097")
     version("6.1.1", sha256="f1a67efb49f76a9b262e9735d3f75ad21e3bd6a05338c9b15c01e6c625c4460d")
@@ -263,8 +263,6 @@ class LlvmAmdgpu(CMakePackage, CompilerPackage):
             args.append(self.define("CLANG_LINK_CLANG_DYLIB", True))
 
         # Get the GCC prefix for LLVM.
-        if self.compiler.name == "gcc":
-            args.append(self.define("GCC_INSTALL_PREFIX", self.compiler.prefix))
         if self.spec.satisfies("@5.4.3:"):
             args.append("-DCMAKE_INSTALL_LIBDIR=lib")
         if self.spec.satisfies("@5.5.0:"):
@@ -324,7 +322,20 @@ class LlvmAmdgpu(CMakePackage, CompilerPackage):
 
     @run_after("install")
     def post_install(self):
-        if self.spec.satisfies("@6.1: +rocm-device-libs"):
+        if self.spec.satisfies("@6.1:6.2 +rocm-device-libs"):
+            exe = self.prefix.bin.join("llvm-config")
+            output = Executable(exe)("--version", output=str, error=str)
+            version = re.split("[.]", output)[0]
+            mkdirp(join_path(self.prefix.lib.clang, version, "lib"), "amdgcn")
+            install_tree(
+                self.prefix.amdgcn, join_path(self.prefix.lib.clang, version, "lib", "amdgcn")
+            )
+            shutil.rmtree(self.prefix.amdgcn)
+            os.symlink(
+                join_path(self.prefix.lib.clang, version, "lib", "amdgcn"),
+                os.path.join(self.prefix, "amdgcn"),
+            )
+        if self.spec.satisfies("@develop +rocm-device-libs"):
             exe = self.prefix.bin.join("llvm-config")
             output = Executable(exe)("--version", output=str, error=str)
             version = re.split("[.]", output)[0]
