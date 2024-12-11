@@ -10,14 +10,15 @@ from spack.package import *
 class RocmBandwidthTest(CMakePackage):
     """Test to measure PciE bandwidth on ROCm platforms"""
 
-    homepage = "https://github.com/ROCm/rocm_bandwidth_test"
-    git = "https://github.com/ROCm/rocm_bandwidth_test.git"
-    url = "https://github.com/ROCm/rocm_bandwidth_test/archive/rocm-6.1.2.tar.gz"
+    homepage = "https://github.com/RadeonOpenCompute/rocm_bandwidth_test"
+    git = "ssh://gerritgit/compute/ec/rocm_bandwidth_test.git"
+    url = "https://github.com/RadeonOpenCompute/rocm_bandwidth_test/archive/rocm-5.5.0.tar.gz"
     tags = ["rocm"]
 
     maintainers("srekolam", "renjithravindrankannath")
 
     version("master", branch="master")
+    version("develop", branch="master")
     version("6.1.2", sha256="4259d53350d6731613d36c03593750547f84f084569f8017783947486b8189da")
     version("6.1.1", sha256="01da756228f2bfb5e25ddb74b75a5939693b1b4f4559f37cfc85729e36a98450")
     version("6.1.0", sha256="b06522efbd1a55247412c8f535321058e2463eab4abd25505c37e8c67941ae26")
@@ -56,6 +57,7 @@ class RocmBandwidthTest(CMakePackage):
         "6.1.1",
         "6.1.2",
         "master",
+        "develop",
     ]:
         depends_on(f"hsa-rocr-dev@{ver}", when=f"@{ver}")
         depends_on(f"hsakmt-roct@{ver}", when=f"@{ver}")
@@ -72,6 +74,7 @@ class RocmBandwidthTest(CMakePackage):
         "6.1.0",
         "6.1.1",
         "6.1.2",
+        "develop",
     ]:
         depends_on(f"rocm-core@{ver}", when=f"@{ver}")
 

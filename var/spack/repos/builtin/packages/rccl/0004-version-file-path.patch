@@ -1,0 +1,25 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 0355cb5..6ec3986 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -124,7 +124,7 @@ message(STATUS "hipcc version:    ${hipcc_version_string}")
+ 
+ ## Check for ROCm version
+ execute_process(
+-  COMMAND         bash "-c" "cat ${ROCM_PATH}/.info/version"
++  COMMAND         bash "-c" "cat ${ROCMCORE_PATH}/.info/version"
+   OUTPUT_VARIABLE rocm_version_string
+ )
+ string(REGEX MATCH "([0-9]+)\\.([0-9]+)\\.([0-9]+)" rocm_version_matches ${rocm_version_string})
+@@ -527,6 +527,11 @@ target_include_directories(rccl PRIVATE ${HIPIFY_DIR}/src/device)
+ target_include_directories(rccl PRIVATE ${HIPIFY_DIR}/src/device/network/unpack)
+ target_include_directories(rccl PRIVATE ${HSA_INCLUDE_PATH})
+ target_include_directories(rccl PRIVATE ${ROCM_SMI_INCLUDE_DIR})
++include_directories(${NUMACTL_DIR}/include)
++include_directories(${ROCTRACER_DIR}/include)
++include_directories(${HSA_INCLUDE_PATH})
++link_directories(${NUMACTL_DIR}/lib)
++
+ if(DEMANGLE_DIR)
+   target_include_directories(rccl PRIVATE ${DEMANGLE_DIR})
+ endif()

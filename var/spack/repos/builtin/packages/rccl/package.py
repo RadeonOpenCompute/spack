@@ -21,6 +21,7 @@ class Rccl(CMakePackage):
 
     maintainers("srekolam", "renjithravindrankannath")
     libraries = ["librccl"]
+    version("develop", branch="develop")
     version("6.1.2", sha256="98af99c12d800f5439c7740d797162c35810a25e08e3b11b397d3300d3c0148e")
     version("6.1.1", sha256="6368275059ba190d554535d5aeaa5c2510d944b56efd85c90a1701d0292a14c5")
     version("6.1.0", sha256="c6308f6883cbd63dceadbe4ee154cc6fa9e6bdccbd2f0fda295b564b0cf01e9a")
@@ -51,7 +52,8 @@ class Rccl(CMakePackage):
     )
 
     patch("0003-Fix-numactl-rocm-smi-path-issue.patch", when="@5.2.3:5.6")
-    patch("0004-Set-rocm-core-path-for-version-file.patch", when="@6.0:")
+    patch("0004-version-file-path.patch", when="@develop")
+    patch("0004-Set-rocm-core-path-for-version-file.patch", when="@6.0")
 
     depends_on("cmake@3.5:", type="build")
     depends_on("chrpath", when="@5.3.0:5", type="build")
@@ -73,11 +75,30 @@ class Rccl(CMakePackage):
         "6.1.0",
         "6.1.1",
         "6.1.2",
+        "develop",
     ]:
         depends_on(f"rocm-cmake@{ver}:", type="build", when=f"@{ver}")
         depends_on(f"hip@{ver}", when=f"@{ver}")
         depends_on(f"comgr@{ver}", when=f"@{ver}")
         depends_on(f"hsa-rocr-dev@{ver}", when=f"@{ver}")
+
+    for ver in [
+        "5.3.0",
+        "5.3.3",
+        "5.4.0",
+        "5.4.3",
+        "5.5.0",
+        "5.5.1",
+        "5.6.0",
+        "5.6.1",
+        "5.7.0",
+        "5.7.1",
+        "6.0.0",
+        "6.0.2",
+        "6.1.0",
+        "6.1.1",
+        "develop",
+    ]:
         depends_on(f"rocm-smi-lib@{ver}", when=f"@{ver}")
 
     for ver in [
@@ -90,12 +111,16 @@ class Rccl(CMakePackage):
         "6.0.0",
         "6.0.2",
         "6.1.0",
+        "6.1.1",
         "6.1.2",
+        "develop",
     ]:
         depends_on(f"rocm-core@{ver}", when=f"@{ver}")
 
     depends_on("googletest@1.11.0:", when="@5.3:")
 
+    for ver in ["develop"]:
+        depends_on(f"roctracer-dev@{ver}", when=f"@{ver}")
     @classmethod
     def determine_version(cls, lib):
         match = re.search(r"lib\S*\.so\.\d+\.\d+\.(\d)(\d\d)(\d\d)", lib)
@@ -111,10 +136,12 @@ class Rccl(CMakePackage):
         env.set("CXX", self.spec["hip"].hipcc)
         env.set("ROCMCORE_PATH", self.spec["rocm-core"].prefix)
 
+
     def cmake_args(self):
         args = [
             self.define("NUMACTL_DIR", self.spec["numactl"].prefix),
             self.define("ROCM_SMI_DIR", self.spec["rocm-smi-lib"].prefix),
+            self.define("ROCTRACER_DIR", self.spec["roctracer-dev"].prefix),
         ]
         if "auto" not in self.spec.variants["amdgpu_target"]:
             args.append(self.define_from_variant("AMDGPU_TARGETS", "amdgpu_target"))
@@ -124,6 +151,8 @@ class Rccl(CMakePackage):
 
         if self.spec.satisfies("@5.3.0:"):
             args.append(self.define("BUILD_TESTS", "ON"))
+        if "@develop" in self.spec:
+            args.append(self.define("ROCMCORE_PATH", self.spec["rocm-core"].prefix))
         return args
 
     def test_unit(self):

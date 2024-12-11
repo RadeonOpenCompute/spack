@@ -14,9 +14,9 @@ class RocmDbgapi(CMakePackage):
     control of the execution and inspection of execution state of
     AMD's commercially available GPU architectures."""
 
-    homepage = "https://github.com/ROCm/ROCdbgapi"
-    git = "https://github.com/ROCm/ROCdbgapi.git"
-    url = "https://github.com/ROCm/ROCdbgapi/archive/rocm-6.1.2.tar.gz"
+    homepage = "https://github.com/ROCm-Developer-Tools/ROCdbgapi"
+    git = "ssh://gerritgit/compute/ec/rocm-dbgapi.git"
+    url = "https://github.com/ROCm-Developer-Tools/ROCdbgapi/archive/rocm-5.4.3.tar.gz"
     tags = ["rocm"]
 
     maintainers("srekolam", "renjithravindrankannath")
@@ -25,6 +25,7 @@ class RocmDbgapi(CMakePackage):
     license("MIT")
 
     version("master", branch="amd-master")
+    version("develop", branch="amd-mainline")
     version("6.1.2", sha256="6e55839e3d95c2cfe3ff89e3e31da77aeecc74012a17f5308589e8808df78026")
     version("6.1.1", sha256="425a6cf6a3942c2854c1f5e7717bed906cf6c3753b46c44476f54bfef6188dac")
     version("6.1.0", sha256="0985405b6fd44667a7ce8914aa39a7e651613e037e649fbdbfa2adcf744a2d50")
@@ -50,6 +51,7 @@ class RocmDbgapi(CMakePackage):
 
     depends_on("cxx", type="build")  # generated
     depends_on("cmake@3:", type="build")
+    depends_on("hwdata", when="@develop")
     depends_on("hwdata", when="@5.5.0:")
 
     for ver in [
@@ -69,6 +71,7 @@ class RocmDbgapi(CMakePackage):
         "6.1.1",
         "6.1.2",
         "master",
+        "develop",
     ]:
         depends_on(f"hsa-rocr-dev@{ver}", type="build", when=f"@{ver}")
         depends_on(f"comgr@{ver}", type=("build", "link"), when=f"@{ver}")
@@ -85,6 +88,7 @@ class RocmDbgapi(CMakePackage):
         "6.1.0",
         "6.1.1",
         "6.1.2",
+        "develop",
     ]:
         depends_on(f"rocm-core@{ver}", when=f"@{ver}")
 

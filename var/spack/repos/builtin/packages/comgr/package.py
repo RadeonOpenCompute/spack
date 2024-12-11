@@ -12,16 +12,9 @@ class Comgr(CMakePackage):
     """This provides various Lightning Compiler related services. It currently
     contains one library, the Code Object Manager (Comgr)"""
 
-    homepage = "https://github.com/ROCm/ROCm-CompilerSupport"
-    git = "https://github.com/ROCm/ROCm-CompilerSupport.git"
-
-    def url_for_version(self, version):
-        if version <= Version("6.0.2"):
-            url = "https://github.com/ROCm/ROCm-CompilerSupport/archive/rocm-{0}.tar.gz"
-        else:
-            url = "https://github.com/ROCm/llvm-project/archive/rocm-{0}.tar.gz"
-        return url.format(version)
-
+    homepage = "https://github.com/RadeonOpenCompute/ROCm-CompilerSupport"
+    git =  "ssh://gerritgit/lightning/ec/llvm-project.git"
+    url = "https://github.com/RadeonOpenCompute/ROCm-CompilerSupport/archive/rocm-5.4.3.tar.gz"
     tags = ["rocm"]
 
     maintainers("srekolam", "renjithravindrankannath", "haampie")
@@ -30,6 +23,7 @@ class Comgr(CMakePackage):
     license("NCSA")
 
     version("master", branch="amd-stg-open")
+    version("develop", branch="amd-mainline")
     version("6.1.2", sha256="300e9d6a137dcd91b18d5809a316fddb615e0e7f982dc7ef1bb56876dff6e097")
     version("6.1.1", sha256="f1a67efb49f76a9b262e9735d3f75ad21e3bd6a05338c9b15c01e6c625c4460d")
     version("6.1.0", sha256="6bd9912441de6caf6b26d1323e1c899ecd14ff2431874a2f5883d3bc5212db34")
@@ -82,6 +76,7 @@ class Comgr(CMakePackage):
         "6.1.1",
         "6.1.2",
         "master",
+        "develop",
     ]:
         # llvm libs are linked statically, so this *could* be a build dep
         depends_on(f"llvm-amdgpu@{ver}", when=f"@{ver}")
@@ -101,12 +96,15 @@ class Comgr(CMakePackage):
         "6.0.2",
         "6.1.0",
         "6.1.1",
+        "develop",
         "6.1.2",
     ]:
         depends_on(f"rocm-core@{ver}", when=f"@{ver}")
 
     @property
     def root_cmakelists_dir(self):
+        if self.spec.satisfies("@develop"):
+            return join_path("amd", "comgr")
         if self.spec.satisfies("@:6.0"):
             return join_path("lib", "comgr")
         else:

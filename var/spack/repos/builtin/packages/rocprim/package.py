@@ -15,6 +15,8 @@ class Rocprim(CMakePackage):
     tags = ["rocm"]
 
     license("MIT")
+    maintainers("cgmb", "srekolam", "renjithravindrankannath")
+    version("develop", branch="develop")
 
     maintainers("cgmb", "srekolam", "renjithravindrankannath")
     version("6.1.2", sha256="560b65fffb103c11bee710e4eb871fd47dd84dfe99f5762a19c5650e490fd85d")
@@ -70,6 +72,7 @@ class Rocprim(CMakePackage):
         "6.1.0",
         "6.1.1",
         "6.1.2",
+        "develop",
     ]:
         depends_on(f"hip@{ver}", when=f"@{ver}")
         depends_on(f"comgr@{ver}", when=f"@{ver}")

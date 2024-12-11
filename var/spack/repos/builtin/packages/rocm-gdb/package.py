@@ -11,13 +11,15 @@ class RocmGdb(AutotoolsPackage):
     """This is ROCmgdb, the ROCm source-level debugger for Linux,
     based on GDB, the GNU source-level debugger."""
 
-    homepage = "https://github.com/ROCm/ROCgdb"
-    url = "https://github.com/ROCm/ROCgdb/archive/rocm-6.1.2.tar.gz"
+    homepage = "https://github.com/ROCm-Developer-Tools/ROCgdb/"
+    git = "ssh://gerritgit/compute/ec/rocm-gdb"
+    url = "https://github.com/ROCm-Developer-Tools/ROCgdb/archive/rocm-5.5.0.tar.gz"
     tags = ["rocm"]
 
     license("LGPL-2.0-or-later")
 
     maintainers("srekolam", "renjithravindrankannath")
+    version("develop", branch="amd-mainline-rocgdb-14")
     version("6.1.2", sha256="19208de18d503e1da79dc0c9085221072a68e299f110dc836204364fa1b532cc")
     version("6.1.1", sha256="3d982abc130a286d227948aca5783f2e4507ef4275be21dad0914e37217ba19e")
     version("6.1.0", sha256="e90d855ca4c1478acf143d45ff0811e7ecd068711db155de6d5f3593cdef6230")
@@ -49,6 +51,7 @@ class RocmGdb(AutotoolsPackage):
     depends_on("zlib-api", type="link")
     depends_on("babeltrace@1.2.4", type="link")
     depends_on("gmp", type=("build", "link"))
+    depends_on("mpfr", type=("build", "link"), when="@develop")
     depends_on("mpfr", type=("build", "link"))
 
     for ver in [
@@ -67,6 +70,7 @@ class RocmGdb(AutotoolsPackage):
         "6.1.0",
         "6.1.1",
         "6.1.2",
+        "develop",
     ]:
         depends_on(f"rocm-dbgapi@{ver}", type="link", when=f"@{ver}")
         depends_on(f"comgr@{ver}", type="link", when=f"@{ver}")
@@ -83,6 +87,7 @@ class RocmGdb(AutotoolsPackage):
         "6.1.0",
         "6.1.1",
         "6.1.2",
+        "develop",
     ]:
         depends_on(f"rocm-core@{ver}", when=f"@{ver}")
 

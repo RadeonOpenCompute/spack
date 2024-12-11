@@ -11,8 +11,8 @@ class HipifyClang(CMakePackage):
     sources into HIP sources"""
 
     homepage = "https://github.com/ROCm/HIPIFY"
-    git = "https://github.com/ROCm/HIPIFY.git"
-    url = "https://github.com/ROCm/HIPIFY/archive/rocm-6.1.2.tar.gz"
+    git = "ssh://gerritgit/compute/ec/hipify.git"
+    url = "https://github.com/ROCm/HIPIFY/archive/rocm-6.0.2.tar.gz"
     tags = ["rocm"]
 
     maintainers("srekolam", "renjithravindrankannath")
@@ -20,6 +20,7 @@ class HipifyClang(CMakePackage):
     license("MIT")
 
     version("master", branch="master")
+    version("develop", branch="amd-mainline")
     version("6.1.2", sha256="7cc1e3fd7690a3e1d99cd07f2bd62ee73682cceeb4a46918226fc70f8092eb68")
     version("6.1.1", sha256="240b83ccbe1b6514a6af6c2261e306948ce6c2b1c4d1056e830bbaebddeabd82")
     version("6.1.0", sha256="dc61b476081750130c62c7540fce49ee3a45a2b74e185d20049382574c1842d1")
@@ -45,8 +46,10 @@ class HipifyClang(CMakePackage):
     # this will fix the issue https://github.com/spack/spack/issues/30711
 
     patch("0001-install-hipify-clang-in-bin-dir-and-llvm-clangs-head.patch", when="@5.1.0:5.5")
+    patch("0002-install-hipify-clang-in-bin-dir-and-llvm-clangs-head.patch", when="@5.6")
+    patch("0004-install-hipify-clang-in-bin-dir-and-llvm-clangs-head.patch", when="@develop")
     patch("0002-install-hipify-clang-in-bin-dir-and-llvm-clangs-head.patch", when="@5.6:6.0")
-    patch("0003-install-hipify-clang-in-bin-dir-and-llvm-clangs-head.patch", when="@6.1:")
+    patch("0003-install-hipify-clang-in-bin-dir-and-llvm-clangs-head.patch", when="@6.1")
 
     depends_on("cmake@3.5:", type="build")
     for ver in [
@@ -66,6 +69,7 @@ class HipifyClang(CMakePackage):
         "6.1.1",
         "6.1.2",
         "master",
+        "develop",
     ]:
         depends_on(f"llvm-amdgpu@{ver}", when=f"@{ver}")
 
@@ -81,6 +85,7 @@ class HipifyClang(CMakePackage):
         "6.1.0",
         "6.1.1",
         "6.1.2",
+        "develop",
     ]:
         depends_on(f"rocm-core@{ver}", when=f"@{ver}")
 

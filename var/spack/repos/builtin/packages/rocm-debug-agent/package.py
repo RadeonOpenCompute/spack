@@ -11,13 +11,14 @@ from spack.package import *
 class RocmDebugAgent(CMakePackage):
     """Radeon Open Compute (ROCm) debug agent"""
 
-    homepage = "https://github.com/ROCm/rocr_debug_agent"
-    git = "https://github.com/ROCm/rocr_debug_agent.git"
-    url = "https://github.com/ROCm/rocr_debug_agent/archive/rocm-6.1.2.tar.gz"
+    homepage = "https://github.com/ROCm-Developer-Tools/rocr_debug_agent"
+    git = "ssh://gerritgit/DevTools/ec/rocr_debug_agent.git"
+    url = "https://github.com/ROCm-Developer-Tools/rocr_debug_agent/archive/rocm-5.5.0.tar.gz"
     tags = ["rocm"]
 
     maintainers("srekolam", "renjithravindrankannath")
     libraries = ["librocm-debug-agent"]
+    version("develop", branch="amd-staging")
     version("6.1.2", sha256="c7cb779915a3d61e39d92cef172997bcf5eae720308f6d9c363a2cbc71b5621c")
     version("6.1.1", sha256="c631281b346bab9ec3607c59404f548f7cba084a05e9c9ceb3c3579c48361ad1")
     version("6.1.0", sha256="f52700563e490d662b505693d485272d73521aabff306107586dd1149fb4a70e")
@@ -62,9 +63,29 @@ class RocmDebugAgent(CMakePackage):
         "6.1.0",
         "6.1.1",
         "6.1.2",
+        "develop",
     ]:
         depends_on(f"hsa-rocr-dev@{ver}", when=f"@{ver}")
         depends_on(f"hsakmt-roct@{ver}", when=f"@{ver}")
+
+    for ver in [
+        "5.3.0",
+        "5.3.3",
+        "5.4.0",
+        "5.4.3",
+        "5.5.0",
+        "5.5.1",
+        "5.6.0",
+        "5.6.1",
+        "5.7.0",
+        "5.7.1",
+        "6.0.0",
+        "6.0.2",
+        "6.1.0",
+        "6.1.1",
+        "6.1.2",
+        "develop",
+    ]:
         depends_on(f"rocm-dbgapi@{ver}", when=f"@{ver}")
         depends_on(f"hip@{ver}", when=f"@{ver}")
 
@@ -78,7 +99,9 @@ class RocmDebugAgent(CMakePackage):
         "6.0.0",
         "6.0.2",
         "6.1.0",
+        "6.1.1",
         "6.1.2",
+        "develop",
     ]:
         depends_on(f"rocm-core@{ver}", when=f"@{ver}")
 

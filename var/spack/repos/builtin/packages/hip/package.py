@@ -17,8 +17,8 @@ class Hip(CMakePackage):
     single source code."""
 
     homepage = "https://github.com/ROCm/HIP"
-    git = "https://github.com/ROCm/HIP.git"
-    url = "https://github.com/ROCm/HIP/archive/rocm-6.1.2.tar.gz"
+    git = "ssh://gerritgit/compute/ec/hip"
+    url = "https://github.com/ROCm/HIP/archive/rocm-6.0.2.tar.gz"
     tags = ["rocm"]
 
     maintainers("srekolam", "renjithravindrankannath", "haampie")
@@ -27,6 +27,7 @@ class Hip(CMakePackage):
     license("MIT")
 
     version("master", branch="master")
+    version("develop", branch="amd-staging")
     version("6.1.2", sha256="9ba5f70a553b48b2cea25c7e16b97ad49320750c0152763b173b63b9f151e783")
     version("6.1.1", sha256="09e8013b8071fca2cf914758001bbd1dccaa237e798e945970e4356cb9b90050")
     version("6.1.0", sha256="6fd57910a16d0b54df822807e67b6207146233a2de5a46c6a05b940a21e2c4d7")
@@ -84,6 +85,7 @@ class Hip(CMakePackage):
             "6.1.0",
             "6.1.1",
             "6.1.2",
+            "develop",
         ]:
             depends_on(f"hsakmt-roct@{ver}", when=f"@{ver}")
             depends_on(f"hsa-rocr-dev@{ver}", when=f"@{ver}")
@@ -106,6 +108,7 @@ class Hip(CMakePackage):
             "6.1.0",
             "6.1.1",
             "6.1.2",
+            "develop",
         ]:
             depends_on(f"hipify-clang@{ver}", when=f"@{ver}")
 
@@ -121,13 +124,14 @@ class Hip(CMakePackage):
             "6.1.0",
             "6.1.1",
             "6.1.2",
+            "develop",
         ]:
             depends_on(f"rocm-core@{ver}", when=f"@{ver}")
         # hipcc likes to add `-lnuma` by default :(
         # ref https://github.com/ROCm/HIP/pull/2202
         depends_on("numactl", when="@3.7.0:")
 
-    for ver in ["6.0.0", "6.0.2", "6.1.0", "6.1.1", "6.1.2"]:
+    for ver in ["6.0.0", "6.0.2", "6.1.0", "6.1.1", "6.1.2", "develop"]:
         depends_on(f"hipcc@{ver}", when=f"@{ver}")
 
     # roc-obj-ls requirements
@@ -208,21 +212,30 @@ class Hip(CMakePackage):
             placement="clr",
             when=f"@{d_version}",
         )
+    resource(
+        name="clr",
+        git="ssh://gerritgit/compute/ec/clr.git",
+        expand=True,
+        destination="",
+        branch="amd-staging",
+        placement="clr",
+        when="@develop",
+    )
 
-        # For avx build, the start address of values_ buffer in KernelParameters is not
-        # correct as it is computed based on 16-byte alignment.
-        patch(
-            "https://github.com/ROCm/clr/commit/c4f773db0b4ccbbeed4e3d6c0f6bff299c2aa3f0.patch?full_index=1",
-            sha256="5bb9b0e08888830ccf3a0a658529fe25f4ee62b5b8890f349bf2cc914236eb2f",
-            working_dir="clr",
-            when="@5.7:6.0",
-        )
-        patch(
-            "https://github.com/ROCm/clr/commit/7868876db742fb4d44483892856a66d2993add03.patch?full_index=1",
-            sha256="7668b2a710baf4cb063e6b00280fb75c4c3e0511575e8298a9c7ae5143f60b33",
-            working_dir="clr",
-            when="@5.7:6.0",
-        )
+    # For avx build, the start address of values_ buffer in KernelParameters is not
+    # correct as it is computed based on 16-byte alignment.
+    patch(
+        "https://github.com/ROCm/clr/commit/c4f773db0b4ccbbeed4e3d6c0f6bff299c2aa3f0.patch?full_index=1",
+        sha256="5bb9b0e08888830ccf3a0a658529fe25f4ee62b5b8890f349bf2cc914236eb2f",
+        working_dir="clr",
+        when="@5.7:6.0",
+    )
+    patch(
+        "https://github.com/ROCm/clr/commit/7868876db742fb4d44483892856a66d2993add03.patch?full_index=1",
+        sha256="7668b2a710baf4cb063e6b00280fb75c4c3e0511575e8298a9c7ae5143f60b33",
+        working_dir="clr",
+        when="@5.7:6.0",
+    )
 
     # Add hipcc sources thru the below
     for d_version, d_shasum in [
@@ -240,6 +253,15 @@ class Hip(CMakePackage):
             placement="hipcc",
             when=f"@{d_version}",
         )
+    resource(
+        name="hipcc",
+        git="ssh://gerritgit/compute/ec/hipcc.git",
+        expand=True,
+        destination="",
+        branch="amd-stg-open",
+        placement="hipcc",
+        when="@develop",
+    )
     # Add hipother sources thru the below
     for d_version, d_shasum in [
         ("6.1.2", "2740d1e3dcf1f2d07d2a8db6acf4c972941ae392172b83fd8ddcfe8706a40d0b"),
@@ -279,6 +301,15 @@ class Hip(CMakePackage):
             placement="hip-tests",
             when=f"@{d_version}",
         )
+    resource(
+        name="hip-tests",
+        git="ssh://gerritgit/compute/ec/hip-tests.git",
+        expand=True,
+        destination="",
+        branch="amd-staging",
+        placement="hip-tests",
+        when="@develop",
+    )
 
     # Improve compilation without git repo and remove compiler rt linkage
     # for host and correction in CMake target path variable and
@@ -288,6 +319,8 @@ class Hip(CMakePackage):
     patch("0016-hip-sample-fix-hipMalloc-call.patch", when="@5.4.3:5.5")
     patch("0014-remove-compiler-rt-linkage-for-host.5.5.0.patch", when="@5.5")
     patch("0014-remove-compiler-rt-linkage-for-host.5.6.0.patch", when="@5.6.0:5.6")
+    patch("0015-reverting-operator-mixup-fix-for-slate.patch", when="@5.6")
+    # See https://github.com/ROCm-Developer-Tools/HIP/pull/3206
     patch("0014-Remove-compiler-rt-linkage-for-host-for-5.7.0.patch", when="@5.7.0:5.7")
     patch("0014-remove-compiler-rt-linkage-for-host.6.0.patch", when="@6.0")
     patch("0014-remove-compiler-rt-linkage-for-host.6.1.patch", when="@6.1")
@@ -492,13 +525,21 @@ class Hip(CMakePackage):
                 "clr/hipamd/hip-config.cmake.in",
                 string=True,
             )
-        if self.spec.satisfies("@5.7: +rocm"):
+        if self.spec.satisfies("@5.7:6.2 +rocm"):
             filter_file(
                 '"${ROCM_PATH}/llvm"',
                 self.spec["llvm-amdgpu"].prefix,
                 "clr/hipamd/hip-config-amd.cmake",
                 string=True,
             )
+        if self.spec.satisfies("@develop +rocm"):
+            filter_file(
+                '"${ROCM_PATH}/llvm"',
+                self.spec["llvm-amdgpu"].prefix,
+                "clr/hipamd/hip-config-amd.cmake.in",
+                string=True,
+            )
+
             filter_file(
                 '"${ROCM_PATH}/llvm"',
                 self.spec["llvm-amdgpu"].prefix,
@@ -578,6 +619,9 @@ class Hip(CMakePackage):
             args.append(self.define("AMD_OPENCL_PATH", self.stage.source_path + "/clr/opencl"))
             args.append(self.define("CLR_BUILD_HIP", True)),
             args.append(self.define("CLR_BUILD_OCL", False)),
+            args.append(self.define("HIP_LLVM_ROOT", self.spec["llvm-amdgpu"].prefix))
+        if "@develop" in self.spec:
+            args.append("-DHIP_ENABLE_ROCPROFILER_REGISTER=OFF")
         if "@5.6:5.7" in self.spec:
             args.append(self.define("HIPCC_BIN_DIR", self.stage.source_path + "/hipcc/bin")),
         if "@6.0:" in self.spec:

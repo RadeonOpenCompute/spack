@@ -11,9 +11,9 @@ class RocmCmake(CMakePackage):
     """rocm-cmake provides CMake modules for common build tasks
     in the ROCm software stack"""
 
-    homepage = "https://github.com/ROCm/rocm-cmake"
-    git = "https://github.com/ROCm/rocm-cmake.git"
-    url = "https://github.com/ROCm/rocm-cmake/archive/rocm-6.1.2.tar.gz"
+    homepage = "https://github.com/RadeonOpenCompute/rocm-cmake"
+    git = "ssh://gerritgit/compute/ec/packaging/rocm-cmake.git"
+    url = "https://github.com/RadeonOpenCompute/rocm-cmake/archive/rocm-5.6.0.tar.gz"
     tags = ["rocm"]
 
     maintainers("srekolam", "renjithravindrankannath")
@@ -21,6 +21,7 @@ class RocmCmake(CMakePackage):
     license("MIT")
 
     version("master", branch="master")
+    version("develop", branch="amd-master")
     version("6.1.2", sha256="0757bb90f25d6f1e6bc93bdd1e238f76bbaddf154d66f94f37e40c425dc6d259")
     version("6.1.1", sha256="0eb81245f7573a3cadf9e91a854d9a0a014ce93610e4e7ea4d8309867a470bf6")
     version("6.1.0", sha256="8b37d458e801b486521f12d18ca2103125173dd0f1130d37c8c36e795d34772b")
@@ -54,6 +55,7 @@ class RocmCmake(CMakePackage):
         "6.1.0",
         "6.1.1",
         "6.1.2",
+        "develop",
     ]:
         depends_on(f"rocm-core@{ver}", when=f"@{ver}")
 
