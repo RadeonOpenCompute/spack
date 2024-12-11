@@ -36,7 +36,7 @@ class RocmOpencl(CMakePackage):
     license("MIT")
 
     version("master", branch="main")
-    version("develop", branch="amd-staging-closed")
+    version("develop", branch="amd-staging")
     version("6.1.2", sha256="1a1e21640035d957991559723cd093f0c7e202874423667d2ba0c7662b01fea4")
     version("6.1.1", sha256="2db02f335c9d6fa69befcf7c56278e5cecfe3db0b457eaaa41206c2585ef8256")
     version("6.1.0", sha256="49b23eef621f4e8e528bb4de8478a17436f42053a2f7fde21ff221aa683205c7")

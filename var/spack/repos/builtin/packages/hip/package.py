@@ -319,7 +319,6 @@ class Hip(CMakePackage):
     patch("0016-hip-sample-fix-hipMalloc-call.patch", when="@5.4.3:5.5")
     patch("0014-remove-compiler-rt-linkage-for-host.5.5.0.patch", when="@5.5")
     patch("0014-remove-compiler-rt-linkage-for-host.5.6.0.patch", when="@5.6.0:5.6")
-    patch("0014-remove-compiler-rt-linkage-for-host.develop.patch", when="@develop")
     patch("0015-reverting-operator-mixup-fix-for-slate.patch", when="@5.6")
     # See https://github.com/ROCm-Developer-Tools/HIP/pull/3206
     patch("0014-Remove-compiler-rt-linkage-for-host-for-5.7.0.patch", when="@5.7.0:5.7")
@@ -526,13 +525,21 @@ class Hip(CMakePackage):
                 "clr/hipamd/hip-config.cmake.in",
                 string=True,
             )
-        if self.spec.satisfies("@5.7: +rocm"):
+        if self.spec.satisfies("@5.7:6.2 +rocm"):
             filter_file(
                 '"${ROCM_PATH}/llvm"',
                 self.spec["llvm-amdgpu"].prefix,
                 "clr/hipamd/hip-config-amd.cmake",
                 string=True,
             )
+        if self.spec.satisfies("@develop +rocm"):
+            filter_file(
+                '"${ROCM_PATH}/llvm"',
+                self.spec["llvm-amdgpu"].prefix,
+                "clr/hipamd/hip-config-amd.cmake.in",
+                string=True,
+            )
+
             filter_file(
                 '"${ROCM_PATH}/llvm"',
                 self.spec["llvm-amdgpu"].prefix,

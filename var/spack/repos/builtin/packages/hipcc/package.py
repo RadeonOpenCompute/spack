@@ -56,7 +56,7 @@ class Hipcc(CMakePackage):
                 filter_shebang("hipconfig")
         if self.spec.satisfies("@develop"):
             with working_dir("amd/hipcc/bin"):
-                filter_shebang("hipconfig")
+                filter_shebang("hipconfig.pl")
         else:
             with working_dir("amd/hipcc/bin"):
                 filter_shebang("hipconfig")

@@ -25,7 +25,7 @@ class LlvmAmdgpu(CMakePackage, CompilerPackage):
     license("Apache-2.0")
 
     version("master", branch="amd-stg-open")
-    version("develop", branch="amd-staging")
+    version("develop", branch="amd-mainline")
     version("6.2.0", sha256="12ce17dc920ec6dac0c5484159b3eec00276e4a5b301ab1250488db3b2852200")
     version("6.1.2", sha256="300e9d6a137dcd91b18d5809a316fddb615e0e7f982dc7ef1bb56876dff6e097")
     version("6.1.1", sha256="f1a67efb49f76a9b262e9735d3f75ad21e3bd6a05338c9b15c01e6c625c4460d")
@@ -72,6 +72,8 @@ class LlvmAmdgpu(CMakePackage, CompilerPackage):
     provides("libllvm@16", when="@5.5:5.6")
     provides("libllvm@17", when="@5.7:6.1")
     provides("libllvm@18", when="@develop")
+    provides("libllvm@18", when="@6.2:")
+    #provides("libllvm@18", when="@develop")
 
     depends_on("cmake@3.13.4:", type="build")
     depends_on("python", type="build")

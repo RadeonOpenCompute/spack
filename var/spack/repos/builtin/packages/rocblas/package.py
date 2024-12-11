@@ -77,7 +77,7 @@ class Rocblas(CMakePackage):
     depends_on("rocm-cmake@develop", type="build", when="@develop")
     depends_on("comgr@develop", type="build", when="@develop")
     depends_on("hsa-rocr-dev@develop", type="build", when="@develop")
-    depends_on("rocm-cmake@master", type="build", when="@master:")
+    depends_on("rocm-cmake@master", type="build", when="@master")
 
     for ver in [
         "5.3.0",
