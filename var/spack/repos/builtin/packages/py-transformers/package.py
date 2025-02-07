@@ -1,5 +1,4 @@
-# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
-# Spack Project Developers. See the top-level COPYRIGHT file for details.
+# Copyright Spack Project Developers. See COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -39,8 +38,8 @@ class PyTransformers(PythonPackage):
         depends_on("py-huggingface-hub@0.14.1:0", when="@4.26:")
         depends_on("py-huggingface-hub@0.10:0", when="@4.24:")
         depends_on("py-huggingface-hub@0.0.8", when="@4.6.1")
-        depends_on("py-numpy@1.17:", when="@4.6:")
-        depends_on("py-numpy")
+        depends_on("py-numpy@1.17:1", when="@4.6:")
+        depends_on("py-numpy@:1")
         depends_on("py-packaging@20:", when="@4.24:")
         depends_on("py-packaging", when="@4.6.1")
         depends_on("py-pyyaml@5.1:", when="@4.24:")

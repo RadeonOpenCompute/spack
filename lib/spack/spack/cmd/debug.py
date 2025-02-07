@@ -1,5 +1,4 @@
-# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
-# Spack Project Developers. See the top-level COPYRIGHT file for details.
+# Copyright Spack Project Developers. See COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -13,11 +12,12 @@ from glob import glob
 import llnl.util.tty as tty
 from llnl.util.filesystem import working_dir
 
-import spack.config
+import spack
 import spack.paths
 import spack.platforms
+import spack.spec
+import spack.store
 import spack.util.git
-from spack.main import get_version
 from spack.util.executable import which
 
 description = "debugging commands for troubleshooting Spack"
@@ -86,10 +86,10 @@ def create_db_tarball(args):
 
 def report(args):
     host_platform = spack.platforms.host()
-    host_os = host_platform.operating_system("frontend")
-    host_target = host_platform.target("frontend")
+    host_os = host_platform.default_operating_system()
+    host_target = host_platform.default_target()
     architecture = spack.spec.ArchSpec((str(host_platform), str(host_os), str(host_target)))
-    print("* **Spack:**", get_version())
+    print("* **Spack:**", spack.get_version())
     print("* **Python:**", platform.python_version())
     print("* **Platform:**", architecture)
 
