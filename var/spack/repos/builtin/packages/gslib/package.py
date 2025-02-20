@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -31,7 +32,6 @@ class Gslib(Package):
     depends_on("mpi", when="+mpi")
     depends_on("mpi", when="+mpiio")
     depends_on("blas", when="+blas")
-    depends_on("gmake", type="build")
 
     conflicts("~mpi", when="+mpiio")
 
@@ -50,7 +50,7 @@ class Gslib(Package):
         if "+mpiio" not in spec:
             filter_file(r"MPIIO.*?=.*1", "MPIIO = 0", makefile)
 
-        if spec.satisfies("+mpi"):
+        if "+mpi" in spec:
             cc = spec["mpi"].mpicc
         else:
             filter_file(r"MPI.*?=.*1", "MPI = 0", makefile)
@@ -58,7 +58,7 @@ class Gslib(Package):
 
         make_cmd = "CC=" + cc
 
-        if spec.satisfies("+blas"):
+        if "+blas" in spec:
             filter_file(r"BLAS.*?=.*0", "BLAS = 1", makefile)
             blas = spec["blas"].libs
             ld_flags = blas.ld_flags

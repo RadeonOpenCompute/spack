@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -123,11 +124,11 @@ class IntelXed(Package):
             "--no-werror",
             f"--prefix={prefix}",
         )
-        if spec.satisfies("+optimize"):
+        if "+optimize" in spec:
             mfile.add_default_arg("--opt=2")
-        if spec.satisfies("+debug"):
+        if "+debug" in spec:
             mfile.add_default_arg("--debug")
-        if spec.satisfies("+pic"):
+        if "+pic" in spec:
             mfile.add_default_arg(
                 f"--extra-ccflags={self.compiler.cc_pic_flag}",
                 f"--extra-cxxflags={self.compiler.cxx_pic_flag}",
@@ -143,11 +144,11 @@ class IntelXed(Package):
         mfile(
             f"--install-dir={shared_kit}",
             "--shared",
-            *(["examples"] if spec.satisfies("+examples") else []),
+            *(["examples"] if "+examples" in spec else []),
             "install",
         )
 
-        if self.spec.satisfies("+examples"):
+        if "+examples" in self.spec:
             # Install the example binaries to share/xed/examples
             install_tree(join_path(shared_kit, "bin"), prefix.share.xed.examples)
 

@@ -1,12 +1,15 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
 import codecs
+import concurrent.futures
 import email.message
 import errno
 import json
 import os
+import os.path
 import re
 import shutil
 import ssl
@@ -24,11 +27,9 @@ import llnl.url
 from llnl.util import lang, tty
 from llnl.util.filesystem import mkdirp, rename, working_dir
 
-import spack
 import spack.config
 import spack.error
 import spack.util.executable
-import spack.util.parallel
 import spack.util.path
 import spack.util.url as url_util
 
@@ -208,7 +209,7 @@ def read_from_url(url, accept_content_type=None):
 
     try:
         response = urlopen(request)
-    except OSError as e:
+    except (TimeoutError, URLError) as e:
         raise SpackWebError(f"Download of {url.geturl()} failed: {e.__class__.__name__}: {e}")
 
     if accept_content_type:
@@ -226,7 +227,7 @@ def read_from_url(url, accept_content_type=None):
             tty.debug(msg)
             return None, None, None
 
-    return response.url, response.headers, response
+    return response.geturl(), response.headers, response
 
 
 def push_to_url(local_file_path, remote_path, keep_original=True, extra_args=None):
@@ -404,16 +405,22 @@ def fetch_url_text(url, curl: Optional[Executable] = None, dest_dir="."):
         try:
             _, _, response = read_from_url(url)
 
+            returncode = response.getcode()
+            if returncode and returncode != 200:
+                raise spack.error.FetchError(
+                    "Urllib failed with error code {0}".format(returncode)
+                )
+
             output = codecs.getreader("utf-8")(response).read()
             if output:
                 with working_dir(dest_dir, create=True):
-                    with open(filename, "w", encoding="utf-8") as f:
+                    with open(filename, "w") as f:
                         f.write(output)
 
                 return path
 
-        except (SpackWebError, OSError, ValueError) as err:
-            raise spack.error.FetchError(f"Urllib fetch failed: {err}")
+        except SpackWebError as err:
+            raise spack.error.FetchError("Urllib fetch failed to verify url: {0}".format(str(err)))
 
     return None
 
@@ -457,7 +464,7 @@ def url_exists(url, curl=None):
             timeout=spack.config.get("config:connect_timeout", 10),
         )
         return True
-    except OSError as e:
+    except (TimeoutError, URLError) as e:
         tty.debug(f"Failure reading {url}: {e}")
         return False
 
@@ -634,7 +641,7 @@ def spider(
         root = urllib.parse.urlparse(root_str)
         spider_args.append((root, go_deeper, _visited))
 
-    with spack.util.parallel.make_concurrent_executor(concurrency, require_fork=False) as tp:
+    with concurrent.futures.ProcessPoolExecutor(max_workers=concurrency) as tp:
         while current_depth <= depth:
             tty.debug(
                 f"SPIDER: [depth={current_depth}, max_depth={depth}, urls={len(spider_args)}]"
@@ -739,7 +746,7 @@ def _spider(url: urllib.parse.ParseResult, collect_nested: bool, _visited: Set[s
                 subcalls.append(abs_link)
                 _visited.add(abs_link)
 
-    except OSError as e:
+    except (TimeoutError, URLError) as e:
         tty.debug(f"[SPIDER] Unable to read: {url}")
         tty.debug(str(e), level=2)
         if isinstance(e, URLError) and isinstance(e.reason, ssl.SSLError):

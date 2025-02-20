@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -16,8 +17,9 @@ class Xbae(AutotoolsPackage):
 
     version("4.60.4", sha256="eb72702ed0a36d043f2075a9d5a4545556da1b8dab4d67d85fca92f37aeb04a8")
 
-    depends_on("c", type="build")
+    depends_on("c", type="build")  # generated
 
+    depends_on("libtool", type="build")
     depends_on("libxext")
     depends_on("libxmu")
     depends_on("libxpm")

@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -259,7 +260,8 @@ def _system_7zip(archive_file):
     _7z = which("7z")
     if not _7z:
         raise CommandNotFoundError(
-            "7z unavailable, unable to extract %s files. 7z can be installed via Spack"
+            "7z unavailable,\
+unable to extract %s files. 7z can be installed via Spack"
             % llnl.url.extension_from_path(archive_file)
         )
     _7z.add_default_arg("e")

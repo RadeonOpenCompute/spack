@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 import warnings
@@ -114,11 +115,15 @@ def audit(parser, args):
 def _process_reports(reports):
     for check, errors in reports:
         if errors:
-            status = f"{len(errors)} issue{'' if len(errors) == 1 else 's'} found"
-            print(cl.colorize(f"{check}: @*r{{{status}}}"))
-            numdigits = len(str(len(errors)))
+            msg = "{0}: {1} issue{2} found".format(
+                check, len(errors), "" if len(errors) == 1 else "s"
+            )
+            header = "@*b{" + msg + "}"
+            print(cl.colorize(header))
             for idx, error in enumerate(errors):
-                print(f"{idx + 1:>{numdigits}}. {error}")
+                print(str(idx + 1) + ". " + str(error))
             raise SystemExit(1)
         else:
-            print(cl.colorize(f"{check}: @*g{{passed}}"))
+            msg = "{0}: 0 issues found.".format(check)
+            header = "@*b{" + msg + "}"
+            print(cl.colorize(header))

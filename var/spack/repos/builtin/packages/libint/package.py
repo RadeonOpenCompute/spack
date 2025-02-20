@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -127,7 +128,7 @@ class Libint(AutotoolsPackage):
 
         # Change AR to xiar if we compile with Intel and we
         # find the executable
-        if self.spec.satisfies("%intel") and which("xiar"):
+        if "%intel" in self.spec and which("xiar"):
             env.set("AR", "xiar")
 
     def configure_args(self):
@@ -157,7 +158,7 @@ class Libint(AutotoolsPackage):
         if self.version < Version("2.0.0"):
             config_args.extend(["--with-libint-max-am=5", "--with-libderiv-max-am1=4"])
 
-        if self.spec.satisfies("@2.6.0:"):
+        if "@2.6.0:" in self.spec:
             config_args += ["--with-libint-exportdir=generated"]
             config_args += self.enable_or_disable("debug", activation_value=lambda x: "opt")
             config_args += self.enable_or_disable("fma")
@@ -203,7 +204,7 @@ class Libint(AutotoolsPackage):
 
     @property
     def build_targets(self):
-        if self.spec.satisfies("@2.6.0:"):
+        if "@2.6.0:" in self.spec:
             return ["export"]
 
         return []
@@ -243,9 +244,9 @@ class Libint(AutotoolsPackage):
                     f"-DCMAKE_INSTALL_PREFIX={prefix}",
                     "-DLIBINT2_BUILD_SHARED_AND_STATIC_LIBS=ON",
                 ]
-                if spec.satisfies("+fortran"):
+                if "+fortran" in spec:
                     cmake_args.append("-DENABLE_FORTRAN=ON")
-                if spec.satisfies("+debug"):
+                if "+debug" in spec:
                     cmake_args.append("CMAKE_BUILD_TYPE=Debug")
                 cmake = Executable("cmake")
                 mkdirp("build")
@@ -273,7 +274,7 @@ class Libint(AutotoolsPackage):
     def patch(self):
         # Use Fortran compiler to link the Fortran example, not the C++
         # compiler
-        if self.spec.satisfies("+fortran"):
+        if "+fortran" in self.spec:
             if not self.spec.satisfies("%fj"):
                 filter_file(
                     "$(CXX) $(CXXFLAGS)",

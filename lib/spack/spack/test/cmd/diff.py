@@ -1,13 +1,14 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
 import pytest
 
 import spack.cmd.diff
-import spack.concretize
+import spack.config
 import spack.main
-import spack.repo
+import spack.store
 import spack.util.spack_json as sjson
 from spack.test.conftest import create_test_repo
 
@@ -19,8 +20,6 @@ find_cmd = spack.main.SpackCommand("find")
 _p1 = (
     "p1",
     """\
-from spack.package import *
-
 class P1(Package):
     version("1.0")
 
@@ -36,8 +35,6 @@ class P1(Package):
 _p2 = (
     "p2",
     """\
-from spack.package import *
-
 class P2(Package):
     version("1.0")
 
@@ -51,8 +48,6 @@ class P2(Package):
 _p3 = (
     "p3",
     """\
-from spack.package import *
-
 class P3(Package):
     version("1.0")
 
@@ -63,8 +58,6 @@ class P3(Package):
 _i1 = (
     "i1",
     """\
-from spack.package import *
-
 class I1(Package):
     version("1.0")
 
@@ -80,8 +73,6 @@ class I1(Package):
 _i2 = (
     "i2",
     """\
-from spack.package import *
-
 class I2(Package):
     version("1.0")
 
@@ -98,8 +89,6 @@ class I2(Package):
 _p4 = (
     "p4",
     """\
-from spack.package import *
-
 class P4(Package):
     version("1.0")
 
@@ -133,8 +122,8 @@ def test_repo(_create_test_repo, monkeypatch, mock_stage):
 
 
 def test_diff_ignore(test_repo):
-    specA = spack.concretize.concretize_one("p1+usev1")
-    specB = spack.concretize.concretize_one("p1~usev1")
+    specA = spack.spec.Spec("p1+usev1").concretized()
+    specB = spack.spec.Spec("p1~usev1").concretized()
 
     c1 = spack.cmd.diff.compare_specs(specA, specB, to_string=False)
 
@@ -154,8 +143,8 @@ def test_diff_ignore(test_repo):
 
     # Check ignoring changes on multiple packages
 
-    specA = spack.concretize.concretize_one("p1+usev1 ^p3+p3var")
-    specA = spack.concretize.concretize_one("p1~usev1 ^p3~p3var")
+    specA = spack.spec.Spec("p1+usev1 ^p3+p3var").concretized()
+    specA = spack.spec.Spec("p1~usev1 ^p3~p3var").concretized()
 
     c3 = spack.cmd.diff.compare_specs(specA, specB, to_string=False)
     assert find(c3["a_not_b"], "variant_value", ["p3", "p3var"])
@@ -168,8 +157,8 @@ def test_diff_ignore(test_repo):
 def test_diff_cmd(install_mockery, mock_fetch, mock_archive, mock_packages):
     """Test that we can install two packages and diff them"""
 
-    specA = spack.concretize.concretize_one("mpileaks")
-    specB = spack.concretize.concretize_one("mpileaks+debug")
+    specA = spack.spec.Spec("mpileaks").concretized()
+    specB = spack.spec.Spec("mpileaks+debug").concretized()
 
     # Specs should be the same as themselves
     c = spack.cmd.diff.compare_specs(specA, specA, to_string=True)

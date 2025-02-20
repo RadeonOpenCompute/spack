@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 """Schema for compilers.yaml configuration file.
@@ -60,10 +61,7 @@ properties: Dict[str, Any] = {
                         "target": {"type": "string"},
                         "alias": {"anyOf": [{"type": "string"}, {"type": "null"}]},
                         "modules": {
-                            "anyOf": [
-                                {"type": "null"},
-                                {"type": "array", "items": {"type": "string"}},
-                            ]
+                            "anyOf": [{"type": "string"}, {"type": "null"}, {"type": "array"}]
                         },
                         "implicit_rpaths": implicit_rpaths,
                         "environment": spack.schema.environment.definition,

@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -36,7 +37,7 @@ class HhSuite(CMakePackage):
 
     def build_args(self, spec, prefix):
         args = []
-        if self.spec.satisfies("+mpi"):
+        if "+mpi" in self.spec:
             args.append("-DCHECK_MPI=1")
         else:
             args.append("-DCHECK_MPI=0")

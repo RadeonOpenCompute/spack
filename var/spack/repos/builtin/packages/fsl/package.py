@@ -1,12 +1,13 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
 import glob
 import os
 
-import spack.util.environment
 from spack.package import *
+from spack.util.environment import EnvironmentModifications
 
 
 class Fsl(Package, CudaPackage):
@@ -110,7 +111,7 @@ class Fsl(Package, CudaPackage):
         vtk_settings.filter(r"(^VTKDIR_LIB)\s*=.*", r"\1 = {0}".format(vtk_lib_dir))
         vtk_settings.filter(r"(^VTKSUFFIX)\s*=.*", r"\1 = -{0}".format(vtk_suffix))
 
-        if self.spec.satisfies("+cuda"):
+        if "+cuda" in self.spec:
             cuda_arch = self.spec.variants["cuda_arch"].value
             cuda_gencode = " ".join(self.cuda_flags(cuda_arch))
             cuda_installation = self.spec["cuda"].prefix

@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -188,6 +189,9 @@ class Siesta(MakefilePackage, CMakePackage):
                                     "-L{0}/lib -lnetcdff -lnetcdf".format(
                                         spec["netcdf-fortran"].prefix
                                     )
+                                )
+                                libs_arg.append(
+                                    "-L{0}/lib -lhdf5_fortran -lhdf5".format(spec["hdf5"].prefix)
                                 )
 
                         if "+metis" in spec:

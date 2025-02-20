@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 import functools
@@ -6,7 +7,6 @@ import functools
 import spack.cmd.common.arguments
 import spack.cmd.modules
 import spack.config
-import spack.modules
 import spack.modules.tcl
 
 

@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -8,9 +9,9 @@ from spack.package import *
 class PyTriton(PythonPackage):
     """A language and compiler for custom Deep Learning operations."""
 
-    homepage = "https://github.com/triton-lang/triton"
-    url = "https://github.com/triton-lang/triton/archive/refs/tags/v2.1.0.tar.gz"
-    git = "https://github.com/triton-lang/triton.git"
+    homepage = "https://github.com/openai/triton"
+    url = "https://github.com/openai/triton/archive/refs/tags/v2.1.0.tar.gz"
+    git = "https://github.com/openai/triton.git"
 
     license("MIT")
 

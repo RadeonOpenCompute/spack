@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -131,7 +132,7 @@ def spec_from_entry(entry):
         variant_strs = list()
         for name, value in entry["parameters"].items():
             # TODO: also ensure that the variant value is valid?
-            if not pkg_cls.has_variant(name):
+            if not (name in pkg_cls.variants):
                 tty.debug(
                     "Omitting variant {0} for entry {1}/{2}".format(
                         name, entry["name"], entry["hash"][:7]
@@ -210,7 +211,7 @@ def entries_to_specs(entries):
 def read(path, apply_updates):
     decode_exception_type = json.decoder.JSONDecodeError
     try:
-        with open(path, "r", encoding="utf-8") as json_file:
+        with open(path, "r") as json_file:
             json_data = json.load(json_file)
 
         jsonschema.validate(json_data, manifest_schema)

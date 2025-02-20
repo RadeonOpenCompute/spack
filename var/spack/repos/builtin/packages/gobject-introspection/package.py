@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 import spack.build_systems.autotools
@@ -55,10 +56,6 @@ class GobjectIntrospection(MesonPackage, AutotoolsPackage):
     # https://gitlab.gnome.org/GNOME/gobject-introspection/-/merge_requests/283
     depends_on("libffi@:3.3", when="@:1.72")  # libffi 3.4 caused seg faults
     depends_on("python")
-    with when("^python@3.12:"):
-        depends_on("py-setuptools@48:", type=("build", "run"))
-        # https://gitlab.gnome.org/GNOME/gobject-introspection/-/merge_requests/490
-        depends_on("py-setuptools@:73", type=("build", "run"), when="@:1.81.0")
 
     # This package creates several scripts from
     # toosl/g-ir-tool-template.in.  In their original form these
@@ -95,16 +92,6 @@ class GobjectIntrospection(MesonPackage, AutotoolsPackage):
         when="@:1.63.1",
     )
 
-    # g-ir-scanner uses distutils
-    # - https://gitlab.gnome.org/GNOME/gobject-introspection/-/issues/361
-    # - https://gitlab.gnome.org/GNOME/gobject-introspection/-/issues/395
-    # for new enough versions we import setuptools first
-    patch("setuptools.patch", when="@1.78: ^python@3.12:")
-    # for older versions we conflict with newer python
-    conflicts(
-        "@:1.77 ^python@3.12:",
-        msg="gobject-introspection still uses distutils which was removed in Python 3.12",
-    )
     conflicts(
         "^python@3.11:",
         when="@:1.60",
@@ -119,7 +106,6 @@ class GobjectIntrospection(MesonPackage, AutotoolsPackage):
         # Only needed for sbang.patch above
         if self.spec.satisfies("@:1.60"):
             env.set("SPACK_SBANG", sbang.sbang_install_path())
-        env.set("GI_SCANNER_DISABLE_CACHE", "1")
 
     def setup_run_environment(self, env):
         env.prepend_path("GI_TYPELIB_PATH", join_path(self.prefix.lib, "girepository-1.0"))
@@ -127,7 +113,6 @@ class GobjectIntrospection(MesonPackage, AutotoolsPackage):
     def setup_dependent_build_environment(self, env, dependent_spec):
         env.prepend_path("XDG_DATA_DIRS", self.prefix.share)
         env.prepend_path("GI_TYPELIB_PATH", join_path(self.prefix.lib, "girepository-1.0"))
-        env.set("GI_SCANNER_DISABLE_CACHE", "1")
 
     def setup_dependent_run_environment(self, env, dependent_spec):
         env.prepend_path("XDG_DATA_DIRS", self.prefix.share)

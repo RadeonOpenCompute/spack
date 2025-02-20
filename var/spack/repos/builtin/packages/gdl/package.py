@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 import os
@@ -86,42 +87,42 @@ class Gdl(CMakePackage):
         # only version 6 of ImageMagick is supported (version 7 is packaged)
         args += ["-DMAGICK=OFF"]
 
-        if self.spec.satisfies("+graphicsmagick"):
+        if "+graphicsmagick" in self.spec:
             args += ["-DGRAPHICSMAGICK=ON"]
         else:
             args += ["-DGRAPHICSMAGICK=OFF"]
 
-        if self.spec.satisfies("+hdf4"):
+        if "+hdf4" in self.spec:
             args += ["-DHDF=ON"]
         else:
             args += ["-DHDF=OFF"]
 
-        if self.spec.satisfies("+hdf5"):
+        if "+hdf5" in self.spec:
             args += ["-DHDF5=ON"]
         else:
             args += ["-DHDF5=OFF"]
 
-        if self.spec.satisfies("+openmp"):
+        if "+openmp" in self.spec:
             args += ["-DOPENMP=ON"]
         else:
             args += ["-DOPENMP=OFF"]
 
-        if self.spec.satisfies("+proj"):
+        if "+proj" in self.spec:
             args += ["-DLIBPROJ4=ON", "-DLIBPROJ4DIR={0}".format(self.spec["proj"].prefix)]
         else:
             args += ["-DLIBPROJ4=OFF"]
 
-        if self.spec.satisfies("+python"):
+        if "+python" in self.spec:
             args += ["-DPYTHON_MODULE=ON"]
         else:
             args += ["-DPYTHON_MODULE=OFF"]
 
-        if self.spec.satisfies("+wx"):
+        if "+wx" in self.spec:
             args += ["-DWXWIDGETS=ON"]
         else:
             args += ["-DWXWIDGETS=OFF"]
 
-        if self.spec.satisfies("+x11"):
+        if "+x11" in self.spec:
             args += ["-DX11=ON"]
         else:
             args += ["-DX11=OFF"]
@@ -130,7 +131,7 @@ class Gdl(CMakePackage):
 
     @run_after("install")
     def post_install(self):
-        if self.spec.satisfies("+python"):
+        if "+python" in self.spec:
             # gdl installs the python module into prefix/lib/site-python
             # move it to the standard location
             src = os.path.join(self.spec.prefix.lib, "site-python")

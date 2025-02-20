@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -32,6 +33,8 @@ import glob
 import os
 import re
 
+import llnl.util.tty as tty
+
 from spack.package import *
 from spack.pkg.builtin.openfoam import (
     OpenfoamArch,
@@ -39,6 +42,7 @@ from spack.pkg.builtin.openfoam import (
     rewrite_environ_files,
     write_environ,
 )
+from spack.util.environment import EnvironmentModifications
 
 
 class FoamExtend(Package):
@@ -170,7 +174,7 @@ class FoamExtend(Package):
         if minimal:
             # pre-build or minimal environment
             tty.info("foam-extend minimal env {0}".format(self.prefix))
-            env.set("FOAM_INST_DIR", os.path.dirname(self.projectdir))
+            env.set("FOAM_INST_DIR", os.path.dirname(self.projectdir)),
             env.set("FOAM_PROJECT_DIR", self.projectdir)
             env.set("WM_PROJECT_DIR", self.projectdir)
             for d in ["wmake", self.archbin]:  # bin added automatically
@@ -294,7 +298,7 @@ class FoamExtend(Package):
         # Adjust configuration via prefs - sort second
         self.etc_prefs["001"].update(self.foam_arch.foam_dict())
 
-        if spec.satisfies("+scotch") or spec.satisfies("+ptscotch"):
+        if "+scotch" in spec or "+ptscotch" in spec:
             pkg = spec["scotch"].prefix
             self.etc_prefs["scotch"] = {
                 "SCOTCH_SYSTEM": 1,
@@ -304,7 +308,7 @@ class FoamExtend(Package):
                 "SCOTCH_INCLUDE_DIR": pkg.include,
             }
 
-        if spec.satisfies("+metis"):
+        if "+metis" in spec:
             pkg = spec["metis"].prefix
             self.etc_prefs["metis"] = {
                 "METIS_SYSTEM": 1,
@@ -314,7 +318,7 @@ class FoamExtend(Package):
                 "METIS_INCLUDE_DIR": pkg.include,
             }
 
-        if spec.satisfies("+parmetis"):
+        if "+parmetis" in spec:
             pkg = spec["parmetis"].prefix
             self.etc_prefs["parametis"] = {
                 "PARMETIS_SYSTEM": 1,
@@ -324,7 +328,7 @@ class FoamExtend(Package):
                 "PARMETIS_INCLUDE_DIR": pkg.include,
             }
 
-        if spec.satisfies("+parmgridgen"):
+        if "+parmgridgen" in spec:
             pkg = spec["parmgridgen"].prefix
             self.etc_prefs["parmgridgen"] = {
                 "PARMGRIDGEN_SYSTEM": 1,
@@ -334,7 +338,7 @@ class FoamExtend(Package):
                 "PARMGRIDGEN_INCLUDE_DIR": pkg.include,
             }
 
-        if self.spec.satisfies("+paraview"):
+        if "+paraview" in self.spec:
             self.etc_prefs["paraview"] = {
                 "PARAVIEW_SYSTEM": 1,
                 "PARAVIEW_DIR": spec["paraview"].prefix,
@@ -382,7 +386,7 @@ class FoamExtend(Package):
         }
 
         # All top-level files, except spack build info and possibly Allwmake
-        if spec.satisfies("+source"):
+        if "+source" in spec:
             ignored = re.compile(r"^spack-.*")
         else:
             ignored = re.compile(r"^(Allclean|Allwmake|spack-).*")
@@ -396,7 +400,7 @@ class FoamExtend(Package):
         for d in ["etc", "bin", "wmake", "lib", join_path(appdir, "bin")]:
             install_tree(d, join_path(self.projectdir, d), symlinks=True)
 
-        if spec.satisfies("+source"):
+        if "+source" in spec:
             subitem = join_path(appdir, "Allwmake")
             install(subitem, join_path(self.projectdir, subitem))
 

@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -11,10 +12,7 @@ package to enable optional features.
 
 
 class Resource:
-    """Represents any resource to be fetched by a package.
-
-    This includes the main tarball or source archive, as well as extra archives defined
-    by the resource() directive.
+    """Represents an optional resource to be fetched by a package.
 
     Aggregates a name, a fetcher, a destination and a placement.
     """

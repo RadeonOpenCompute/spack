@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -6,7 +7,6 @@ import os
 import platform
 import re
 
-from spack.build_environment import optimization_flags
 from spack.package import *
 
 
@@ -85,7 +85,7 @@ class Hpcc(MakefilePackage):
     }
 
     def patch(self):
-        if self.spec.satisfies("^fftw"):
+        if "fftw" in self.spec:
             # spack's fftw2 prefix headers with floating point type
             filter_file(r"^\s*#include <fftw.h>", "#include <sfftw.h>", "FFT/wrapfftw.h")
             filter_file(
@@ -161,7 +161,7 @@ class Hpcc(MakefilePackage):
         if spec.satisfies("%intel"):
             # with intel-parallel-studio+mpi the '-march' arguments
             # are not passed to icc
-            arch_opt = optimization_flags(self.compiler, spec.target)
+            arch_opt = spec.architecture.target.optimization_flags(spec.compiler)
             self.config["@CCFLAGS@"] = f"-O3 -restrict -ansi-alias -ip {arch_opt}"
             self.config["@CCNOOPT@"] = "-restrict"
         self._write_make_arch(spec, prefix)

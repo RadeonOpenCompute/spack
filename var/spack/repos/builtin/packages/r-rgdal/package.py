@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -22,7 +23,6 @@ class RRgdal(RPackage):
 
     cran = "rgdal"
 
-    version("1.6-7", sha256="555cedfdadb05db90b061d4b056f96d8b7010c00ea54bc6c1bbcc7684fadae33")
     version(
         "1.6-6",
         sha256="d742d7aadfc004771e61cac28a1faffeb4dbda981dea19115be11c541087399a",

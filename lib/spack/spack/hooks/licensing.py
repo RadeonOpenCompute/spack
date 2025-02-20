@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -141,7 +142,7 @@ def write_license_file(pkg, license_path):
         os.makedirs(os.path.dirname(license_path))
 
     # Output
-    with open(license_path, "w", encoding="utf-8") as f:
+    with open(license_path, "w") as f:
         for line in txt.splitlines():
             f.write("{0}{1}\n".format(pkg.license_comment, line))
         f.close()

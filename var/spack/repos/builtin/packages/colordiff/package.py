@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -18,7 +19,6 @@ class Colordiff(Package):
     version("1.0.18", sha256="29cfecd8854d6e19c96182ee13706b84622d7b256077df19fbd6a5452c30d6e0")
 
     depends_on("perl")
-    depends_on("gmake", type="build")
 
     def install(self, spec, prefix):
         make(

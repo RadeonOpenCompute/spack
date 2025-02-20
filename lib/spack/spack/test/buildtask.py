@@ -1,59 +1,42 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
 import pytest
 
-import spack.concretize
-import spack.error
 import spack.installer as inst
 import spack.repo
 import spack.spec
 
 
 def test_build_task_errors(install_mockery):
-    """Check expected errors when instantiating a BuildTask."""
+    with pytest.raises(ValueError, match="must be a package"):
+        inst.BuildTask("abc", None, False, 0, 0, 0, set())
+
     spec = spack.spec.Spec("trivial-install-test-package")
     pkg_cls = spack.repo.PATH.get_pkg_class(spec.name)
-
-    # The value of the request argument is expected to not be checked.
-    for pkg in [None, "abc"]:
-        with pytest.raises(TypeError, match="must be a package"):
-            inst.BuildTask(pkg, None)
-
     with pytest.raises(ValueError, match="must have a concrete spec"):
-        inst.BuildTask(pkg_cls(spec), None)
+        inst.BuildTask(pkg_cls(spec), None, False, 0, 0, 0, set())
 
-    # Using a concretized package now means the request argument is checked.
-    spec = spack.concretize.concretize_one(spec)
+    spec.concretize()
     assert spec.concrete
+    with pytest.raises(ValueError, match="must have a build request"):
+        inst.BuildTask(spec.package, None, False, 0, 0, 0, set())
 
-    with pytest.raises(TypeError, match="is not a valid build request"):
-        inst.BuildTask(spec.package, None)
-
-    # Using a valid package and spec, the next check is the status argument.
     request = inst.BuildRequest(spec.package, {})
-
-    with pytest.raises(TypeError, match="is not a valid build status"):
-        inst.BuildTask(spec.package, request, status="queued")
-
-    # Now we can check that build tasks cannot be create when the status
-    # indicates the task is/should've been removed.
-    with pytest.raises(spack.error.InstallError, match="Cannot create a task"):
-        inst.BuildTask(spec.package, request, status=inst.BuildStatus.REMOVED)
-
-    # Also make sure to not accept an incompatible installed argument value.
-    with pytest.raises(TypeError, match="'installed' be a 'set', not 'str'"):
-        inst.BuildTask(spec.package, request, installed="mpileaks")
+    with pytest.raises(inst.InstallError, match="Cannot create a build task"):
+        inst.BuildTask(spec.package, request, False, 0, 0, inst.STATUS_REMOVED, set())
 
 
 def test_build_task_basics(install_mockery):
-    spec = spack.concretize.concretize_one("dependent-install")
+    spec = spack.spec.Spec("dependent-install")
+    spec.concretize()
     assert spec.concrete
 
     # Ensure key properties match expectations
     request = inst.BuildRequest(spec.package, {})
-    task = inst.BuildTask(spec.package, request=request, status=inst.BuildStatus.QUEUED)
+    task = inst.BuildTask(spec.package, request, False, 0, 0, inst.STATUS_ADDED, set())
     assert not task.explicit
     assert task.priority == len(task.uninstalled_deps)
     assert task.key == (task.priority, task.sequence)
@@ -69,21 +52,22 @@ def test_build_task_basics(install_mockery):
 def test_build_task_strings(install_mockery):
     """Tests of build_task repr and str for coverage purposes."""
     # Using a package with one dependency
-    spec = spack.concretize.concretize_one("dependent-install")
+    spec = spack.spec.Spec("dependent-install")
+    spec.concretize()
     assert spec.concrete
 
     # Ensure key properties match expectations
     request = inst.BuildRequest(spec.package, {})
-    task = inst.BuildTask(spec.package, request=request, status=inst.BuildStatus.QUEUED)
+    task = inst.BuildTask(spec.package, request, False, 0, 0, inst.STATUS_ADDED, set())
 
     # Cover __repr__
     irep = task.__repr__()
     assert irep.startswith(task.__class__.__name__)
-    assert "BuildStatus.QUEUED" in irep
+    assert "status='queued'" in irep  # == STATUS_ADDED
     assert "sequence=" in irep
 
     # Cover __str__
     istr = str(task)
-    assert "status=queued" in istr  # == BuildStatus.QUEUED
+    assert "status=queued" in istr  # == STATUS_ADDED
     assert "#dependencies=1" in istr
     assert "priority=" in istr

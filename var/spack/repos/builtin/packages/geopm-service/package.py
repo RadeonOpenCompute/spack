@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -40,7 +41,7 @@ class GeopmService(AutotoolsPackage):
     )
     variant("gnu-ld", default=False, description="Assume C compiler uses gnu-ld")
 
-    variant("level_zero", default=False, description="Enables the use of oneAPI Level Zero loader")
+    variant("levelzero", default=False, description="Enables the use of oneAPI Level Zero loader")
     variant("nvml", default=False, description="Enable NVML support")
 
     variant(
@@ -50,7 +51,7 @@ class GeopmService(AutotoolsPackage):
         when="@develop",
     )
 
-    conflicts("+nvml", when="+level_zero", msg="LevelZero and NVML support are mutually exclusive")
+    conflicts("+nvml", when="+levelzero", msg="LevelZero and NVML support are mutually exclusive")
 
     conflicts("%gcc@:7.2", msg="Requires C++17 support")
     conflicts("%clang@:4", msg="Requires C++17 support")
@@ -66,7 +67,6 @@ class GeopmService(AutotoolsPackage):
 
     # Autotools dependencies
     depends_on("automake", type="build")
-    depends_on("autoconf", type="build")
     depends_on("libtool", type="build")
     depends_on("file")
 
@@ -99,7 +99,7 @@ class GeopmService(AutotoolsPackage):
     depends_on("systemd", when="+systemd")
     depends_on("libcap", when="+libcap")
     depends_on("liburing", when="+liburing")
-    depends_on("oneapi-level-zero", when="+level_zero")
+    depends_on("oneapi-level-zero", when="+levelzero")
     depends_on("cuda", when="+nvml")
 
     extends("python")
@@ -128,20 +128,20 @@ class GeopmService(AutotoolsPackage):
     def configure_args(self):
         args = [
             "--with-bash-completion-dir="
-            + join_path(self.spec.prefix, "share", "bash-completion", "completions"),
-            *self.enable_or_disable("debug"),
-            *self.enable_or_disable("docs"),
-            *self.enable_or_disable("systemd"),
-            *self.enable_or_disable("liburing"),
-            *self.with_or_without("liburing", activation_value="prefix"),
-            *self.enable_or_disable("libcap"),
-            *self.with_or_without("gnu-ld"),
-            *self.enable_or_disable("levelzero", variant="level_zero"),
-            *self.enable_or_disable("nvml"),
-            *self.enable_or_disable("rawmsr"),
+            + join_path(self.spec.prefix, "share", "bash-completion", "completions")
         ]
 
-        if self.spec.satisfies("+nvml"):
+        args += self.enable_or_disable("debug")
+        args += self.enable_or_disable("docs")
+        args += self.enable_or_disable("systemd")
+        args += self.enable_or_disable("liburing")
+        args += self.with_or_without("liburing", activation_value="prefix")
+        args += self.enable_or_disable("libcap")
+        args += self.with_or_without("gnu-ld")
+
+        args += self.enable_or_disable("levelzero")
+        args += self.enable_or_disable("nvml")
+        if "+nvml" in self.spec:
             args += [
                 "--with-nvml="
                 + join_path(
@@ -149,8 +149,10 @@ class GeopmService(AutotoolsPackage):
                 )
             ]
 
-        if self.spec.satisfies("@develop") and self.spec.target.family != "x86_64":
-            args.append("--disable-cpuid")
+        args += self.enable_or_disable("rawmsr")
+        with when("@develop"):
+            if self.spec.target.family != "x86_64":
+                args += ["--disable-cpuid"]
         return args
 
     def setup_run_environment(self, env):

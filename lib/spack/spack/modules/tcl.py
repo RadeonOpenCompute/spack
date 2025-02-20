@@ -1,11 +1,12 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
 """This module implements the classes necessary to generate Tcl
 non-hierarchical modules.
 """
-import os
+import os.path
 from typing import Dict, Optional, Tuple
 
 import spack.config

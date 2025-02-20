@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -71,22 +72,22 @@ class LibflameBase(AutotoolsPackage):
         # https://github.com/flame/libflame/issues/24
         config_args = ["LIBS=" + self.spec["blas"].libs.ld_flags]
 
-        if self.spec.satisfies("+lapack2flame"):
+        if "+lapack2flame" in self.spec:
             config_args.append("--enable-lapack2flame")
         else:
             config_args.append("--disable-lapack2flame")
 
-        if self.spec.satisfies("+static"):
+        if "+static" in self.spec:
             config_args.append("--enable-static-build")
         else:
             config_args.append("--disable-static-build")
 
-        if self.spec.satisfies("+shared"):
+        if "+shared" in self.spec:
             config_args.append("--enable-dynamic-build")
         else:
             config_args.append("--disable-dynamic-build")
 
-        if self.spec.satisfies("+debug"):
+        if "+debug" in self.spec:
             config_args.append("--enable-debug")
         else:
             config_args.append("--disable-debug")

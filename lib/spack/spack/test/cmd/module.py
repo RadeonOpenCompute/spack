@@ -1,20 +1,18 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
-import os
+import os.path
 import re
 
 import pytest
 
-import spack.concretize
 import spack.config
 import spack.main
 import spack.modules
-import spack.modules.lmod
-import spack.repo
+import spack.spec
 import spack.store
-from spack.installer import PackageInstaller
 
 module = spack.main.SpackCommand("module")
 
@@ -33,7 +31,7 @@ def ensure_module_files_are_there(mock_repo_path, mock_store, mock_configuration
 
 
 def _module_files(module_type, *specs):
-    specs = [spack.concretize.concretize_one(x) for x in specs]
+    specs = [spack.spec.Spec(x).concretized() for x in specs]
     writer_cls = spack.modules.module_types[module_type]
     return [writer_cls(spec, "default").layout.filename for spec in specs]
 
@@ -184,15 +182,12 @@ def test_setdefault_command(mutable_database, mutable_config):
     # Install two different versions of pkg-a
     other_spec, preferred = "pkg-a@1.0", "pkg-a@2.0"
 
-    specs = [
-        spack.concretize.concretize_one(other_spec),
-        spack.concretize.concretize_one(preferred),
-    ]
-    PackageInstaller([s.package for s in specs], explicit=True, fake=True).install()
+    spack.spec.Spec(other_spec).concretized().package.do_install(fake=True)
+    spack.spec.Spec(preferred).concretized().package.do_install(fake=True)
 
     writers = {
-        preferred: writer_cls(specs[1], "default"),
-        other_spec: writer_cls(specs[0], "default"),
+        preferred: writer_cls(spack.spec.Spec(preferred).concretized(), "default"),
+        other_spec: writer_cls(spack.spec.Spec(other_spec).concretized(), "default"),
     }
 
     # Create two module files for the same software

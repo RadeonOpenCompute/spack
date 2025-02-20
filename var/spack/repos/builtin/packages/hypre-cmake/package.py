@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -81,7 +82,7 @@ class HypreCmake(CMakePackage, CudaPackage):
         return args
 
     def setup_build_environment(self, env):
-        if self.spec.satisfies("+cuda"):
+        if "+cuda" in self.spec:
             env.set("CUDA_HOME", self.spec["cuda"].prefix)
             env.set("CUDA_PATH", self.spec["cuda"].prefix)
             cuda_arch = self.spec.variants["cuda_arch"].value
@@ -89,7 +90,7 @@ class HypreCmake(CMakePackage, CudaPackage):
                 arch_sorted = list(sorted(cuda_arch, reverse=True))
                 env.set("HYPRE_CUDA_SM", arch_sorted[0])
             # In CUDA builds hypre currently doesn't handle flags correctly
-            env.append_flags("CXXFLAGS", "-O2" if self.spec.satisfies("~debug") else "-g")
+            env.append_flags("CXXFLAGS", "-O2" if "~debug" in self.spec else "-g")
 
     extra_install_tests = join_path("src", "examples")
 
@@ -151,6 +152,6 @@ class HypreCmake(CMakePackage, CudaPackage):
         """Export the hypre library.
         Sample usage: spec['hypre'].libs.ld_flags
         """
-        is_shared = self.spec.satisfies("+shared")
+        is_shared = "+shared" in self.spec
         libs = find_libraries("libHYPRE", root=self.prefix, shared=is_shared, recursive=True)
         return libs or None

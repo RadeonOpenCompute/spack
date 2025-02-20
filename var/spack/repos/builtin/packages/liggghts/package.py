@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -66,7 +67,7 @@ class Liggghts(MakefilePackage):
         )
         makefile.filter(r"^#(VTK_LIB_USR=-L).*", r"\1{0}".format(vtk.prefix.lib))
 
-        if spec.satisfies("+mpi"):
+        if "+mpi" in spec:
             mpi = spec["mpi"]
             makefile.filter(r"^#(MPICXX_USR=).*", r"\1{0}".format(mpi.mpicxx))
             makefile.filter(r"^#(MPI_INC_USR=).*", r"\1{0}".format(mpi.prefix.include))
@@ -80,19 +81,19 @@ class Liggghts(MakefilePackage):
             # builds using its own target!
             makefile_auto.filter(r"^(.+)(EXTRA_ADDLIBS.*mpi_stubs.*)", r"\1#\2")
 
-        if spec.satisfies("+jpeg"):
+        if "+jpeg" in spec:
             jpeg = spec["jpeg"]
             makefile.filter(r"^(USE_JPG = ).*", r'\1"ON"')
             makefile.filter(r"^#(JPG_INC_USR=-I).*", r"\1{0}".format(jpeg.prefix.include))
             makefile.filter(r"^#(JPG_LIB_USR=-L).*", r"\1{0}".format(jpeg.prefix.lib))
 
-        if spec.satisfies("+gzip"):
+        if "+gzip" in spec:
             makefile.filter(r"^(USE_GZIP = ).*", r'\1"ON"')
 
-        if spec.satisfies("+debug"):
+        if "+debug" in spec:
             makefile.filter(r"^(USE_DEBUG = ).*", r'\1"ON"')
 
-        if spec.satisfies("+profile"):
+        if "+profile" in spec:
             makefile.filter(r"^(USE_PROFILE = ).*", r'\1"ON"')
 
         # Enable debug output of Makefile.auto in the log file

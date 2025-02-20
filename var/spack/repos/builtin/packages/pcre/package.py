@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -55,10 +56,6 @@ class Pcre(AutotoolsPackage, CMakePackage):
 
     variant("pic", default=True, description="Enable position-independent code (PIC)")
     requires("+pic", when="+shared build_system=autotools")
-
-    with when("build_system=cmake"):
-        depends_on("zlib")
-        depends_on("bzip2")
 
 
 class AutotoolsBuilder(spack.build_systems.autotools.AutotoolsBuilder):

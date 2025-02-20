@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -15,7 +16,6 @@ class Silo(AutotoolsPackage):
     url = "https://wci.llnl.gov/sites/wci/files/2021-01/silo-4.10.2.tgz"
     maintainers("patrickb314")
 
-    version("main", branch="main")
     version(
         "4.11.1",
         preferred=True,
@@ -64,7 +64,6 @@ class Silo(AutotoolsPackage):
     variant("hzip", default=True, description="Enable hzip support")
     variant("fpzip", default=True, description="Enable fpzip support")
 
-    depends_on("python", type=("build", "link"), when="+python")
     depends_on("perl", type="build")
     depends_on("m4", type="build", when="+shared")
     depends_on("autoconf", type="build", when="+shared")
@@ -129,8 +128,6 @@ class Silo(AutotoolsPackage):
             if spec.satisfies("%oneapi"):
                 flags.append("-Wno-error=int")
                 flags.append("-Wno-error=int-conversion")
-            if spec.satisfies("+python"):
-                flags.append(f"-I {spec['python'].headers.directories[0]}")
             if "+hdf5" in spec:
                 # @:4.10 can use up to the 1.10 API
                 if "@:4.10" in spec:
@@ -145,18 +142,12 @@ class Silo(AutotoolsPackage):
                     # presented with an HDF5 API consistent with the HDF5 version.
                     # Use the latest even-numbered API version, i.e. v1.13.1 uses
                     # API v1.12
-
-                    # hdf5 support branches have a `develop` prefix
-                    if "develop" in str(spec["hdf5"].version):
-                        maj_ver = int(spec["hdf5"].version[1])
-                        min_ver = int(spec["hdf5"].version[2])
-                    else:
-                        maj_ver = int(spec["hdf5"].version[0])
-                        min_ver = int(spec["hdf5"].version[1])
+                    maj_ver = int(spec["hdf5"].version[0])
+                    min_ver = int(spec["hdf5"].version[1])
                     min_apiver = int(min_ver / 2) * 2
                     flags.append("-DH5_USE_{0}{1}_API".format(maj_ver, min_apiver))
 
-            if spec.satisfies("%clang") or spec.satisfies("%apple-clang"):
+            if spec.compiler.name in ["clang", "apple-clang"]:
                 flags.append("-Wno-implicit-function-declaration")
         return (flags, None, None)
 

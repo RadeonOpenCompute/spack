@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -13,7 +14,7 @@ class Metkit(CMakePackage):
     git = "https://github.com/ecmwf/metkit.git"
     url = "https://github.com/ecmwf/metkit/archive/refs/tags/1.7.0.tar.gz"
 
-    maintainers("skosukhin", "victoria-cherkas")
+    maintainers("skosukhin", "victoria-cherkas", "dominichofer")
 
     license("Apache-2.0")
 

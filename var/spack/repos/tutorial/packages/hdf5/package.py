@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -460,7 +461,7 @@ HDF5 version {version} {version}
 """.format(
                 version=str(spec.version.up_to(3))
             )
-            with open("check.c", "w", encoding="utf-8") as f:
+            with open("check.c", "w") as f:
                 f.write(source)
             if "+mpi" in spec:
                 cc = Executable(spec["mpi"].mpicc)

@@ -1,4 +1,5 @@
-.. Copyright Spack Project Developers. See COPYRIGHT file for details.
+.. Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+   Spack Project Developers. See the top-level COPYRIGHT file for details.
 
    SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -48,14 +49,14 @@ following phases:
 #. ``install`` - install the package
 
 Package developers often add unit tests that can be invoked with
-``scons test`` or ``scons check``. Spack provides a ``build_test`` method
+``scons test`` or ``scons check``. Spack provides a ``test`` method
 to handle this. Since we don't know which one the package developer
-chose, the ``build_test`` method does nothing by default, but can be easily
+chose, the ``test`` method does nothing by default, but can be easily
 overridden like so:
 
 .. code-block:: python
 
-   def build_test(self):
+   def test(self):
        scons("check")
 
 

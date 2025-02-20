@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -66,5 +67,4 @@ class Pthreadpool(CMakePackage):
             self.define("PTHREADPOOL_BUILD_BENCHMARKS", False),
             self.define("PTHREADPOOL_LIBRARY_TYPE", "static"),
             self.define("PTHREADPOOL_ALLOW_DEPRECATED_API", True),
-            self.define("CMAKE_POSITION_INDEPENDENT_CODE", True),
         ]

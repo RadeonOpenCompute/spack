@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -14,6 +15,7 @@ import spack.cmd
 import spack.repo
 import spack.spec
 import spack.stage
+import spack.util.crypto
 import spack.util.web as web_util
 from spack.cmd.common import arguments
 from spack.package_base import (
@@ -252,7 +254,7 @@ def add_versions_to_package(pkg: PackageBase, version_lines: str, is_batch: bool
         if match:
             new_versions.append((Version(match.group(1)), ver_line))
 
-    with open(filename, "r+", encoding="utf-8") as f:
+    with open(filename, "r+") as f:
         contents = f.read()
         split_contents = version_statement_re.split(contents)
 

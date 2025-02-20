@@ -1,11 +1,14 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
-import os
+import os.path
 import re
 import shutil
 from textwrap import dedent
+
+import llnl.util.tty as tty
 
 from spack.package import *
 
@@ -134,20 +137,20 @@ class LinuxPerf(Package):
         if version >= Version("6.4"):
             args.append("BUILD_NONDISTRO=1")
 
-        if spec.satisfies("+libaudit"):
+        if "+libaudit" in spec:
             checks.add("libaudit")
             args.append("NO_SYSCALL_TABLE=1")  # will look for libaudit
         else:
             checks.add("syscall_table")
             args.append("NO_LIBAUDIT=1")
 
-        if spec.satisfies("+debuginfod"):
+        if "+debuginfod" in spec:
             if version >= Version("5.19"):  # Not in --build-options before that
                 checks.add("debuginfod")
         else:
             args.append("NO_LIBDEBUGINFOD=1")
 
-        if spec.satisfies("+python"):
+        if "+python" in spec:
             checks.add("libpython")
             args.extend(
                 [
@@ -158,22 +161,22 @@ class LinuxPerf(Package):
         else:
             args.append("NO_LIBPYTHON=1")
 
-        if spec.satisfies("+perl"):
+        if "+perl" in spec:
             checks.add("libperl")
         else:
             args.append("NO_LIBPERL=1")
 
-        if spec.satisfies("+openssl"):
+        if "+openssl" in spec:
             checks.add("libcrypto")
         else:
             args.append("NO_LIBCRYPTO=1")
 
-        if spec.satisfies("+slang"):
+        if "+slang" in spec:
             checks.add("libslang")
         else:
             args.append("NO_SLANG=1")
 
-        if spec.satisfies("+libpfm4"):
+        if "+libpfm4" in spec:
             checks.add("libpfm4")
             if version < Version("6.4"):
                 args.append("LIBPFM4=1")
@@ -181,35 +184,35 @@ class LinuxPerf(Package):
             if version >= Version("6.4"):
                 args.append("NO_LIBPFM4=1")
 
-        if spec.satisfies("+babeltrace"):
+        if "+babeltrace" in spec:
             # checks.add("babeltrace")  # Not in --build-options ?
             args.append("LIBBABELTRACE_DIR={}".format(spec["babeltrace"].prefix))
         else:
             args.append("NO_LIBBABELTRACE=1")
 
-        if spec.satisfies("+libcap"):
+        if "+libcap" in spec:
             # checks.add("libcap")  # Not in --build-options ?
             pass
         else:
             args.append("NO_LIBCAP=1")
 
-        if spec.satisfies("+numactl"):
+        if "+numactl" in spec:
             checks.add("libnuma")
         else:
             args.append("NO_LIBNUMA=1")
 
-        if spec.satisfies("+xz"):
+        if "+xz" in spec:
             checks.add("lzma")
         else:
             args.append("NO_LZMA=1")
 
-        if spec.satisfies("+zstd"):
+        if "+zstd" in spec:
             checks.add("zstd")
             args.append("LIBZSTD_DIR={}".format(spec["zstd"].prefix))
         else:
             args.append("NO_LIBZSTD=1")
 
-        if spec.satisfies("+libtraceevent"):
+        if "+libtraceevent" in spec:
             if version >= Version("6.2"):  # Not in --build-options before that
                 checks.add("libtraceevent")
             if version >= Version("6.10"):
@@ -220,7 +223,7 @@ class LinuxPerf(Package):
             if version >= Version("6.2"):
                 args.append("NO_LIBTRACEEVENT=1")
 
-        if spec.satisfies("+jvmti"):
+        if "+jvmti" in spec:
             # checks.add("jvmti")  # Not in --build-options ?
             args.append("JDIR={}".format(spec["java"].prefix))
         else:

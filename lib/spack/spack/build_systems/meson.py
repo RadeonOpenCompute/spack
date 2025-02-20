@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 import os
@@ -8,13 +9,10 @@ import llnl.util.filesystem as fs
 
 import spack.builder
 import spack.package_base
-import spack.phase_callbacks
-import spack.spec
-import spack.util.prefix
 from spack.directives import build_system, conflicts, depends_on, variant
 from spack.multimethod import when
 
-from ._checks import BuilderWithDefaults, execute_build_time_tests
+from ._checks import BaseBuilder, execute_build_time_tests
 
 
 class MesonPackage(spack.package_base.PackageBase):
@@ -64,7 +62,7 @@ class MesonPackage(spack.package_base.PackageBase):
 
 
 @spack.builder.builder("meson")
-class MesonBuilder(BuilderWithDefaults):
+class MesonBuilder(BaseBuilder):
     """The Meson builder encodes the default way to build software with Meson.
     The builder has three phases that can be overridden, if need be:
 
@@ -114,7 +112,7 @@ class MesonBuilder(BuilderWithDefaults):
         return [os.path.join(self.build_directory, "meson-logs", "meson-log.txt")]
 
     @property
-    def root_mesonlists_dir(self) -> str:
+    def root_mesonlists_dir(self):
         """Relative path to the directory containing meson.build
 
         This path is relative to the root of the extracted tarball,
@@ -123,7 +121,7 @@ class MesonBuilder(BuilderWithDefaults):
         return self.pkg.stage.source_path
 
     @property
-    def std_meson_args(self) -> List[str]:
+    def std_meson_args(self):
         """Standard meson arguments provided as a property for convenience
         of package writers.
         """
@@ -134,7 +132,7 @@ class MesonBuilder(BuilderWithDefaults):
         return std_meson_args
 
     @staticmethod
-    def std_args(pkg) -> List[str]:
+    def std_args(pkg):
         """Standard meson arguments for a generic package."""
         try:
             build_type = pkg.spec.variants["buildtype"].value
@@ -174,7 +172,7 @@ class MesonBuilder(BuilderWithDefaults):
         """Directory to use when building the package."""
         return os.path.join(self.pkg.stage.path, self.build_dirname)
 
-    def meson_args(self) -> List[str]:
+    def meson_args(self):
         """List of arguments that must be passed to meson, except:
 
         * ``--prefix``
@@ -187,9 +185,7 @@ class MesonBuilder(BuilderWithDefaults):
         """
         return []
 
-    def meson(
-        self, pkg: MesonPackage, spec: spack.spec.Spec, prefix: spack.util.prefix.Prefix
-    ) -> None:
+    def meson(self, pkg, spec, prefix):
         """Run ``meson`` in the build directory"""
         options = []
         if self.spec["meson"].satisfies("@0.64:"):
@@ -200,25 +196,21 @@ class MesonBuilder(BuilderWithDefaults):
         with fs.working_dir(self.build_directory, create=True):
             pkg.module.meson(*options)
 
-    def build(
-        self, pkg: MesonPackage, spec: spack.spec.Spec, prefix: spack.util.prefix.Prefix
-    ) -> None:
+    def build(self, pkg, spec, prefix):
         """Make the build targets"""
         options = ["-v"]
         options += self.build_targets
         with fs.working_dir(self.build_directory):
             pkg.module.ninja(*options)
 
-    def install(
-        self, pkg: MesonPackage, spec: spack.spec.Spec, prefix: spack.util.prefix.Prefix
-    ) -> None:
+    def install(self, pkg, spec, prefix):
         """Make the install targets"""
         with fs.working_dir(self.build_directory):
             pkg.module.ninja(*self.install_targets)
 
-    spack.phase_callbacks.run_after("build")(execute_build_time_tests)
+    spack.builder.run_after("build")(execute_build_time_tests)
 
-    def check(self) -> None:
+    def check(self):
         """Search Meson-generated files for the target ``test`` and run it if found."""
         with fs.working_dir(self.build_directory):
             self.pkg._if_ninja_target_execute("test")

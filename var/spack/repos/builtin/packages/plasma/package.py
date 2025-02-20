@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 import spack.build_systems.cmake
@@ -81,6 +82,7 @@ class Plasma(CMakePackage):
     conflicts("%clang")
     conflicts("%intel")
     conflicts("%nag")
+    conflicts("%pgi")
     conflicts("%xl")
     conflicts("%xl_r")
 

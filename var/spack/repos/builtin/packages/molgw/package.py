@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -100,7 +101,7 @@ class Molgw(MakefilePackage):
         if "+scalapack" in spec:
             flags["FC"] = "{0}".format(spec["mpi"].mpifc)
         else:
-            flags["FC"] = self.compiler.fc
+            flags["FC"] = self.compiler.fc_names[0]
 
         # Set FCFLAGS
         if self.compiler.flags.get("fflags") is not None:

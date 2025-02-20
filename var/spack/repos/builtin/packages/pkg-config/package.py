@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -27,6 +28,9 @@ class PkgConfig(AutotoolsPackage):
 
     # The following patch is needed for gcc-6.1
     patch("g_date_strftime.patch", when="@:0.29.1")
+
+    # https://github.com/spack/spack/issues/3525
+    conflicts("%pgi")
 
     parallel = False
 

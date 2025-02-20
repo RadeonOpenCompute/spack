@@ -1,11 +1,10 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
-import os
+import os.path
 
-import spack.build_systems.autotools
-import spack.build_systems.meson
 from spack.package import *
 from spack.util.environment import is_system_path
 
@@ -29,14 +28,7 @@ class Glib(MesonPackage, AutotoolsPackage):
 
     license("LGPL-2.1-or-later")
 
-    # Even minor versions are stable, odd minor versions are development, only add even numbers
-    version("2.82.2", sha256="ab45f5a323048b1659ee0fbda5cecd94b099ab3e4b9abf26ae06aeb3e781fd63")
-    # No real reason to prefer older versions, `preferred` should be removed after testing
-    version(
-        "2.78.3",
-        sha256="609801dd373796e515972bf95fc0b2daa44545481ee2f465c4f204d224b2bc21",
-        preferred=True,
-    )
+    version("2.78.3", sha256="609801dd373796e515972bf95fc0b2daa44545481ee2f465c4f204d224b2bc21")
     version("2.78.0", sha256="44eaab8b720877ce303c5540b657b126f12dc94972d9880b52959f43fb537b30")
     version("2.76.6", sha256="1136ae6987dcbb64e0be3197a80190520f7acab81e2bfb937dc85c11c8aa9f04")
     version("2.76.4", sha256="5a5a191c96836e166a7771f7ea6ca2b0069c603c7da3cba1cd38d1694a395dda")
@@ -145,8 +137,6 @@ class Glib(MesonPackage, AutotoolsPackage):
     )
 
     with when("build_system=meson"):
-        depends_on("meson@1.4:", when="@2.83:", type="build")
-        depends_on("meson@1.2:", when="@2.79:", type="build")
         depends_on("meson@0.60.0:", when="@2.73:", type="build")
         depends_on("meson@0.52.0:", when="@2.71:2.72", type="build")
         depends_on("meson@0.49.2:", when="@2.61.2:2.70", type="build")
@@ -157,9 +147,8 @@ class Glib(MesonPackage, AutotoolsPackage):
     depends_on("zlib-api")
     depends_on("gettext")
     depends_on("perl", type=("build", "run"))
-    depends_on("python", type=("build", "run"), when="@2.53.4:")
     # Uses distutils in gio/gdbus-2.0/codegen/utils.py
-    depends_on("python@:3.11", type=("build", "run"), when="@2.53.4:2.78")
+    depends_on("python@:3.11", type=("build", "run"), when="@2.53.4:")
     depends_on("pcre2", when="@2.73.2:")
     depends_on("pcre2@10.34:", when="@2.74:")
     depends_on("pcre+utf", when="@2.48:2.73.1")
@@ -219,7 +208,7 @@ class Glib(MesonPackage, AutotoolsPackage):
         return find_libraries(["libglib*"], root=self.prefix, recursive=True)
 
 
-class AnyBuilder(BaseBuilder):
+class BaseBuilder(metaclass=spack.builder.PhaseCallbacksMeta):
     @property
     def dtrace_copy_path(self):
         return join_path(self.stage.source_path, "dtrace-copy")
@@ -299,24 +288,24 @@ class AnyBuilder(BaseBuilder):
             filter_file(pattern, repl, myfile, backup=False)
 
 
-class MesonBuilder(AnyBuilder, spack.build_systems.meson.MesonBuilder):
+class MesonBuilder(BaseBuilder, spack.build_systems.meson.MesonBuilder):
     def meson_args(self):
         args = []
         if self.spec.satisfies("@2.63.5:"):
-            if self.spec.satisfies("+libmount"):
+            if "+libmount" in self.spec:
                 args.append("-Dlibmount=enabled")
             else:
                 args.append("-Dlibmount=disabled")
         else:
-            if self.spec.satisfies("+libmount"):
+            if "+libmount" in self.spec:
                 args.append("-Dlibmount=true")
             else:
                 args.append("-Dlibmount=false")
-        if self.spec.satisfies("tracing=dtrace"):
+        if "tracing=dtrace" in self.spec:
             args.append("-Ddtrace=true")
         else:
             args.append("-Ddtrace=false")
-        if self.spec.satisfies("tracing=systemtap"):
+        if "tracing=systemtap" in self.spec:
             args.append("-Dsystemtap=true")
         else:
             args.append("-Dsystemtap=false")
@@ -341,10 +330,10 @@ class MesonBuilder(AnyBuilder, spack.build_systems.meson.MesonBuilder):
         return args
 
 
-class AutotoolsBuilder(AnyBuilder, spack.build_systems.autotools.AutotoolsBuilder):
+class AutotoolsBuilder(BaseBuilder, spack.build_systems.autotools.AutotoolsBuilder):
     def configure_args(self):
         args = []
-        if self.spec.satisfies("+libmount"):
+        if "+libmount" in self.spec:
             args.append("--enable-libmount")
         else:
             args.append("--disable-libmount")
@@ -363,7 +352,7 @@ class AutotoolsBuilder(AnyBuilder, spack.build_systems.autotools.AutotoolsBuilde
                 else:
                     args.append("--disable-" + value)
         else:
-            if self.spec.satisfies("tracing=dtrace") or self.spec.satisfies("tracing=systemtap"):
+            if "tracing=dtrace" in self.spec or "tracing=systemtap" in self.spec:
                 args.append("--enable-tracing")
             else:
                 args.append("--disable-tracing")

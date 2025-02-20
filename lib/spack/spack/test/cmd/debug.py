@@ -1,17 +1,17 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
 import os
+import os.path
 import platform
 
 import pytest
 
-import spack
+import spack.config
 import spack.platforms
-import spack.spec
-from spack.database import INDEX_JSON_FILE
-from spack.main import SpackCommand
+from spack.main import SpackCommand, get_version
 from spack.util.executable import which
 
 debug = SpackCommand("debug")
@@ -36,7 +36,7 @@ def test_create_db_tarball(tmpdir, database):
         contents = tar("tzf", tarball_name, output=str)
 
         # DB file is included
-        assert INDEX_JSON_FILE in contents
+        assert "index.json" in contents
 
         # specfiles from all installs are included
         for spec in database.query():
@@ -51,10 +51,10 @@ def test_create_db_tarball(tmpdir, database):
 def test_report():
     out = debug("report")
     host_platform = spack.platforms.host()
-    host_os = host_platform.default_operating_system()
-    host_target = host_platform.default_target()
+    host_os = host_platform.operating_system("frontend")
+    host_target = host_platform.target("frontend")
     architecture = spack.spec.ArchSpec((str(host_platform), str(host_os), str(host_target)))
 
-    assert spack.get_version() in out
+    assert get_version() in out
     assert platform.python_version() in out
     assert str(architecture) in out

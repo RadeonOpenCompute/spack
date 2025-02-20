@@ -1,8 +1,7 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
-import sys
-
 from spack.package import *
 
 
@@ -180,11 +179,5 @@ class Meson(PythonPackage):
         if self.spec.satisfies("platform=darwin"):
             env.set("STRIP", "strip -x")
 
-    def _meson_bin_dir(self):
-        bin_dir = self.spec.prefix.bin
-        if sys.platform == "win32":
-            bin_dir = self.spec.prefix.scripts
-        return bin_dir
-
     def setup_dependent_package(self, module, dspec):
-        module.meson = Executable(self._meson_bin_dir().meson)
+        module.meson = Executable(self.spec.prefix.bin.meson)

@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -23,9 +24,9 @@ class LinuxExternalModules(MakefilePackage):
     # linux-external-modules.
     how_to = "https://docs.kernel.org/kbuild/modules.html"
 
-    maintainers("kyotsukete", "rountree")
+    maintainers("fleshling", "rountree")
 
-    license("GPL-2.0-only", checked_by="kyotsukete")
+    license("GPL-2.0-only", checked_by="fleshling")
 
     version("6.10.3", sha256="fa5f22fd67dd05812d39dca579320c493048e26c4a556048a12385e7ae6fc698")
     version("6.10.2", sha256="73d8520dd9cba5acfc5e7208e76b35d9740b8aae38210a9224e32ec4c0d29b70")

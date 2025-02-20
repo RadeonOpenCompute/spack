@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -23,6 +24,6 @@ class NeedsRelocation(Package):
         mkdirp(prefix.bin)
 
         exe = join_path(prefix.bin, "exe")
-        with open(exe, "w", encoding="utf-8") as f:
+        with open(exe, "w") as f:
             f.write(prefix)
         set_executable(exe)

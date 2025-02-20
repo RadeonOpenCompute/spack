@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -167,11 +168,13 @@ class Augustus(MakefilePackage):
             pattern = "^#!.*"
             repl = f"#!{self.spec['perl'].command.path}"
             files = glob.glob("*.pl")
-            filter_file(pattern, repl, *files, backup=False)
+            for file in files:
+                filter_file(pattern, repl, *files, backup=False)
 
             repl = f"#!{self.spec['python'].command.path}"
             files = glob.glob("*.py")
-            filter_file(pattern, repl, *files, backup=False)
+            for file in files:
+                filter_file(pattern, repl, *files, backup=False)
 
     def setup_build_environment(self, env):
         htslib = self.spec["htslib"].prefix

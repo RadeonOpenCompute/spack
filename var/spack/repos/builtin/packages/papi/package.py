@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -6,7 +7,8 @@ import glob
 import os
 import sys
 
-import spack.util.environment
+import llnl.util.filesystem as fs
+
 from spack.package import *
 
 
@@ -57,12 +59,6 @@ class Papi(AutotoolsPackage, ROCmPackage):
     variant("cuda", default=False, description="Enable CUDA support")
     variant("nvml", default=False, description="Enable NVML support")
     variant("rocm_smi", default=False, description="Enable ROCm SMI support")
-    variant(
-        "rdpmc",
-        default=True,
-        when="@6.0.0:",
-        description="Enable use of rdpmc for reading counters, when possible",
-    )
 
     variant("shared", default=True, description="Build shared libraries")
     # PAPI requires building static libraries, so there is no "static" variant
@@ -74,7 +70,6 @@ class Papi(AutotoolsPackage, ROCmPackage):
     depends_on("lm-sensors", when="+lmsensors")
     depends_on("cuda", when="+cuda")
     depends_on("cuda", when="+nvml")
-    depends_on("bc", when="+cuda", type="build")
     depends_on("hsa-rocr-dev", when="+rocm")
     depends_on("rocprofiler-dev", when="+rocm")
     depends_on("llvm-amdgpu", when="+rocm")
@@ -84,8 +79,6 @@ class Papi(AutotoolsPackage, ROCmPackage):
     conflicts("%gcc@8:", when="@5.3.0", msg="Requires GCC version less than 8.0")
     conflicts("+sde", when="@:5", msg="Software defined events (SDE) added in 6.0.0")
     conflicts("^cuda", when="@:5", msg="CUDA support for versions < 6.0.0 not implemented")
-    # https://github.com/icl-utk-edu/papi/pull/205
-    conflicts("^cuda@12.4:", when="@:7.1")
     conflicts("%cce", when="@7.1:", msg="-ffree-form flag not recognized")
 
     conflicts("@=6.0.0", when="+static_tools", msg="Static tools cannot build on version 6.0.0")
@@ -100,7 +93,7 @@ class Papi(AutotoolsPackage, ROCmPackage):
     # 7.1.0 erroneously adds -ffree-form for all fortran compilers
     patch("sysdetect-free-form-fix.patch", when="@7.1.0")
     patch("crayftn-fixes.patch", when="@6.0.0:%cce@9:")
-    patch("intel-oneapi-compiler-fixes.patch", when="@6.0.0:7.0.1%oneapi")
+    patch("intel-oneapi-compiler-fixes.patch", when="@6.0.0:%oneapi")
     patch("intel-cray-freeform.patch", when="@7.0.1")
     patch("spack-hip-path.patch", when="@7.0.1")
 
@@ -166,9 +159,6 @@ class Papi(AutotoolsPackage, ROCmPackage):
         build_shared = "yes" if "+shared" in spec else "no"
         options.append("--with-shared-lib=" + build_shared)
 
-        build_rdpmc_support = "yes" if "+rdpmc" in spec else "no"
-        options.append("--enable-perfevent-rdpmc=" + build_rdpmc_support)
-
         if "+static_tools" in spec:
             options.append("--with-static-tools")
 
@@ -209,7 +199,7 @@ class Papi(AutotoolsPackage, ROCmPackage):
                 join_path(self.prefix.lib, "libpapi.so"),
                 join_path(self.prefix.lib, "libpapi.dylib"),
             )
-            fix_darwin_install_name(self.prefix.lib)
+            fs.fix_darwin_install_name(self.prefix.lib)
 
     test_src_dir = "src/smoke_tests"
     test_requires_compiler = True
@@ -228,7 +218,6 @@ class Papi(AutotoolsPackage, ROCmPackage):
             raise SkipTest("Skipping smoke tests, directory doesn't exist")
         with working_dir(test_dir, create=False):
             with spack.util.environment.set_env(PAPIROOT=self.prefix):
-                make = self.spec["gmake"].command
                 make()
                 exe_simple = which("simple")
                 exe_simple()

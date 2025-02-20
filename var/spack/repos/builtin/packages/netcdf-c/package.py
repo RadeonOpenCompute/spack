@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -8,6 +9,7 @@ import sys
 
 from llnl.util.lang import dedupe
 
+import spack.builder
 from spack.build_systems import autotools, cmake
 from spack.package import *
 from spack.util.environment import filter_system_paths
@@ -289,7 +291,7 @@ class NetcdfC(CMakePackage, AutotoolsPackage):
             env.append_path("HDF5_PLUGIN_PATH", self.prefix.plugins)
 
     def flag_handler(self, name, flags):
-        if self.spec.satisfies("build_system=autotools"):
+        if self.builder.build_system == "autotools":
             if name == "cflags":
                 if "+pic" in self.spec:
                     flags.append(self.compiler.cc_pic_flag)
@@ -303,7 +305,7 @@ class NetcdfC(CMakePackage, AutotoolsPackage):
         return find_libraries("libnetcdf", root=self.prefix, shared=shared, recursive=True)
 
 
-class AnyBuilder(BaseBuilder):
+class BaseBuilder(metaclass=spack.builder.PhaseCallbacksMeta):
     def setup_dependent_build_environment(self, env, dependent_spec):
         # Some packages, e.g. ncview, refuse to build if the compiler path returned by nc-config
         # differs from the path to the compiler that the package should be built with. Therefore,
@@ -327,7 +329,7 @@ class AnyBuilder(BaseBuilder):
     filter_compiler_wrappers("nc-config", relative_root="bin")
 
 
-class CMakeBuilder(AnyBuilder, cmake.CMakeBuilder):
+class CMakeBuilder(BaseBuilder, cmake.CMakeBuilder):
     def cmake_args(self):
         base_cmake_args = [
             self.define_from_variant("BUILD_SHARED_LIBS", "shared"),
@@ -374,7 +376,7 @@ class CMakeBuilder(AnyBuilder, cmake.CMakeBuilder):
         filter_file(f"hdf5_hl-{config}", "hdf5_hl", *files, ignore_absent=True)
 
 
-class AutotoolsBuilder(AnyBuilder, autotools.AutotoolsBuilder):
+class AutotoolsBuilder(BaseBuilder, autotools.AutotoolsBuilder):
     @property
     def force_autoreconf(self):
         return any(self.spec.satisfies(s) for s in self.pkg._force_autoreconf_when)

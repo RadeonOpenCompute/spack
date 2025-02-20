@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -56,13 +57,13 @@ class IqTree(CMakePackage):
         args = []
         iqflags = []
 
-        if spec.satisfies("+lsd2"):
+        if "+lsd2" in spec:
             args.append("-DUSE_LSD2=ON")
 
-        if spec.satisfies("+openmp"):
+        if "+openmp" in spec:
             iqflags.append("omp")
 
-        if spec.satisfies("+mpi"):
+        if "+mpi" in spec:
             iqflags.append("mpi")
 
         if not iqflags:

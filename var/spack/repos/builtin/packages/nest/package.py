@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -52,7 +53,7 @@ class Nest(CMakePackage):
 
     depends_on("gsl", when="+gsl")
     depends_on("readline")
-    depends_on("libtool", type="link")  # links against libltdl
+    depends_on("libtool")
     depends_on("pkgconfig", type="build")
 
     extends("python", when="+python")

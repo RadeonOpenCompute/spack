@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 from typing import Tuple
@@ -6,11 +7,8 @@ from typing import Tuple
 import spack.builder
 import spack.directives
 import spack.package_base
-import spack.phase_callbacks
-import spack.spec
-import spack.util.prefix
 
-from ._checks import BuilderWithDefaults, apply_macos_rpath_fixups, execute_install_time_tests
+from ._checks import BaseBuilder, apply_macos_rpath_fixups, execute_install_time_tests
 
 
 class Package(spack.package_base.PackageBase):
@@ -28,7 +26,7 @@ class Package(spack.package_base.PackageBase):
 
 
 @spack.builder.builder("generic")
-class GenericBuilder(BuilderWithDefaults):
+class GenericBuilder(BaseBuilder):
     """A builder for a generic build system, that require packagers
     to implement an "install" phase.
     """
@@ -46,12 +44,7 @@ class GenericBuilder(BuilderWithDefaults):
     install_time_test_callbacks = []
 
     # On macOS, force rpaths for shared library IDs and remove duplicate rpaths
-    spack.phase_callbacks.run_after("install", when="platform=darwin")(apply_macos_rpath_fixups)
+    spack.builder.run_after("install", when="platform=darwin")(apply_macos_rpath_fixups)
 
     # unconditionally perform any post-install phase tests
-    spack.phase_callbacks.run_after("install")(execute_install_time_tests)
-
-    def install(
-        self, pkg: Package, spec: spack.spec.Spec, prefix: spack.util.prefix.Prefix
-    ) -> None:
-        raise NotImplementedError
+    spack.builder.run_after("install")(execute_install_time_tests)

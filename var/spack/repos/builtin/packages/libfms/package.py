@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -32,7 +33,7 @@ class Libfms(CMakePackage):
     def cmake_args(self):
         args = []
         args.extend([self.define_from_variant("BUILD_SHARED_LIBS", "shared")])
-        if self.spec.satisfies("+conduit"):
+        if "+conduit" in self.spec:
             args.extend([self.define("CONDUIT_DIR", self.spec["conduit"].prefix)])
 
         return args
@@ -51,6 +52,6 @@ class Libfms(CMakePackage):
         """Export the FMS library.
         Sample usage: spec['libfms'].libs.ld_flags
         """
-        is_shared = self.spec.satisfies("+shared")
+        is_shared = "+shared" in self.spec
         libs = find_libraries("libfms", root=self.prefix, shared=is_shared, recursive=True)
         return libs or None  # Raise an error if no libs are found

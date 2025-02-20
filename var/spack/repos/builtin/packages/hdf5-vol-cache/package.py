@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 from spack.package import *
@@ -26,7 +27,7 @@ class Hdf5VolCache(CMakePackage):
 
     def flag_handler(self, name, flags):
         if name == "cflags":
-            if self.spec.satisfies("%oneapi") or self.spec.satisfies("%cce"):
+            if self.spec.satisfies("%oneapi"):
                 flags.append("-Wno-error=incompatible-function-pointer-types")
         return (flags, None, None)
 

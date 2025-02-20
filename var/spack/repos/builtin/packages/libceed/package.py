@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -75,12 +76,12 @@ class Libceed(MakefilePackage, CudaPackage, ROCmPackage):
         # Use verbose building output
         makeopts = ["V=1"]
 
-        if spec.satisfies("@:0.2"):
-            makeopts += ["NDEBUG=%s" % ("" if spec.satisfies("+debug") else "1")]
+        if "@:0.2" in spec:
+            makeopts += ["NDEBUG=%s" % ("" if "+debug" in spec else "1")]
 
-        elif spec.satisfies("@0.4:"):
+        elif "@0.4:" in spec:
             # Determine options based on the compiler:
-            if spec.satisfies("+debug"):
+            if "+debug" in spec:
                 opt = "-g"
             elif compiler.name == "gcc":
                 opt = "-O3 -g -ffp-contract=fast"
@@ -113,7 +114,7 @@ class Libceed(MakefilePackage, CudaPackage, ROCmPackage):
             if spec.satisfies("@:0.7") and "avx" in self.spec.target:
                 makeopts.append("AVX=1")
 
-            if spec.satisfies("+cuda"):
+            if "+cuda" in spec:
                 makeopts += ["CUDA_DIR=%s" % spec["cuda"].prefix]
                 makeopts += ["CUDA_ARCH=sm_%s" % spec.variants["cuda_arch"].value]
                 if spec.satisfies("@:0.4"):
@@ -127,17 +128,17 @@ class Libceed(MakefilePackage, CudaPackage, ROCmPackage):
                 # Disable CUDA auto-detection:
                 makeopts += ["CUDA_DIR=/disable-cuda"]
 
-            if spec.satisfies("+rocm"):
+            if "+rocm" in spec:
                 makeopts += ["HIP_DIR=%s" % spec["hip"].prefix]
                 amdgpu_target = ",".join(spec.variants["amdgpu_target"].value)
                 makeopts += ["HIP_ARCH=%s" % amdgpu_target]
                 if spec.satisfies("@0.8"):
                     makeopts += ["HIPBLAS_DIR=%s" % spec["hipblas"].prefix]
 
-            if spec.satisfies("+libxsmm"):
+            if "+libxsmm" in spec:
                 makeopts += ["XSMM_DIR=%s" % spec["libxsmm"].prefix]
 
-            if spec.satisfies("+magma"):
+            if "+magma" in spec:
                 makeopts += ["MAGMA_DIR=%s" % spec["magma"].prefix]
 
         return makeopts

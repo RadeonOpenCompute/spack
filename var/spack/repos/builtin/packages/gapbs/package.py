@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -31,7 +32,7 @@ class Gapbs(MakefilePackage):
     def build(self, spec, prefix):
         cxx_flags = ["-O3", self.compiler.cxx11_flag]
 
-        if spec.satisfies("-serial"):
+        if "-serial" in spec:
             cxx_flags.append(self.compiler.openmp_flag)
 
         make("CXX_FLAGS=" + " ".join(cxx_flags))

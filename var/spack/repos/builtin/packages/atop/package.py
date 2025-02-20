@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -23,7 +24,6 @@ class Atop(Package):
 
     depends_on("zlib-api")
     depends_on("ncurses")
-    depends_on("gmake", type="build")
 
     def setup_build_environment(self, env):
         env.append_flags("LDFLAGS", "-ltinfo")

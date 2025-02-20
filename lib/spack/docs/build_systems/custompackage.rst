@@ -1,4 +1,5 @@
-.. Copyright Spack Project Developers. See COPYRIGHT file for details.
+.. Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+   Spack Project Developers. See the top-level COPYRIGHT file for details.
 
    SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -56,13 +57,13 @@ If you look at the ``perl`` package, you'll see:
 
 .. code-block:: python
 
-   phases = ("configure", "build", "install")
+   phases = ["configure", "build", "install"]
 
 Similarly, ``cmake`` defines:
 
 .. code-block:: python
 
-   phases = ("bootstrap", "build", "install")
+   phases = ["bootstrap", "build", "install"]
 
 If we look at the ``cmake`` example, this tells Spack's ``PackageBase``
 class to run the ``bootstrap``, ``build``, and ``install`` functions
@@ -129,19 +130,14 @@ before or after a particular phase. For example, in ``perl``, we see:
 
    @run_after("install")
    def install_cpanm(self):
-        spec = self.spec
-        maker = make
-        cpan_dir = join_path("cpanm", "cpanm")
-        if sys.platform == "win32":
-            maker = nmake
-            cpan_dir = join_path(self.stage.source_path, cpan_dir)
-            cpan_dir = windows_sfn(cpan_dir)
-        if "+cpanm" in spec:
-            with working_dir(cpan_dir):
-                perl = spec["perl"].command
-                perl("Makefile.PL")
-                maker()
-                maker("install")
+       spec = self.spec
+
+       if spec.satisfies("+cpanm"):
+           with working_dir(join_path("cpanm", "cpanm")):
+               perl = spec["perl"].command
+               perl("Makefile.PL")
+               make()
+               make("install")
 
 This extra step automatically installs ``cpanm`` in addition to the
 base Perl installation.
@@ -180,14 +176,8 @@ In the ``perl`` package, we can see:
 
    @run_after("build")
    @on_package_attributes(run_tests=True)
-   def build_test(self):
-        if sys.platform == "win32":
-            win32_dir = os.path.join(self.stage.source_path, "win32")
-            win32_dir = windows_sfn(win32_dir)
-            with working_dir(win32_dir):
-                nmake("test", ignore_quotes=True)
-        else:
-            make("test")
+   def test(self):
+       make("test")
 
 As you can guess, this runs ``make test`` *after* building the package,
 if and only if testing is requested. Again, this is not specific to

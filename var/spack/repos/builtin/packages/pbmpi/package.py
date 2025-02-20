@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -8,7 +9,7 @@ from spack.package import *
 class Pbmpi(MakefilePackage):
     """A Bayesian software for phylogenetic reconstruction using mixture models"""
 
-    homepage = "https://github.com/bayesiancook/pbmpi"
+    homepage = "https://megasun.bch.umontreal.ca/People/lartillot/www/index.htm"
     url = "https://github.com/bayesiancook/pbmpi/archive/refs/tags/v1.8c.tar.gz"
     git = "https://github.com/bayesiancook/pbmpi.git"
 

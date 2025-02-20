@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 import os
@@ -7,6 +8,7 @@ import sys
 
 import spack.build_environment
 import spack.config
+import spack.error
 import spack.spec
 import spack.util.environment as environment
 from spack import traverse

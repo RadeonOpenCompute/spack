@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -235,7 +236,6 @@ class KokkosLegacy(Package):
 
     # generate_makefile.bash calls cmake
     depends_on("cmake@3.10:", type="build")
-    depends_on("gmake", type="build")
 
     def install(self, spec, prefix):
         generate = which(join_path(self.stage.source_path, "generate_makefile.bash"))
@@ -246,7 +246,7 @@ class KokkosLegacy(Package):
             cuda_options_args = []
 
             # PIC
-            if spec.satisfies("+pic"):
+            if "+pic" in spec:
                 g_args.append("--cxxflags=-fPIC")
 
             # C++ standard
@@ -255,19 +255,19 @@ class KokkosLegacy(Package):
                 g_args.append(f"--cxxstandard={cxxstandard}")
 
             # Build Debug
-            if spec.satisfies("+debug"):
+            if "+debug" in spec:
                 g_args.append("--debug")
 
             # Backends
-            if spec.satisfies("+serial"):
+            if "+serial" in spec:
                 g_args.append("--with-serial")
-            if spec.satisfies("+openmp"):
+            if "+openmp" in spec:
                 g_args.append("--with-openmp")
-            if spec.satisfies("+pthreads"):
+            if "+pthreads" in spec:
                 g_args.append("--with-pthread")
-            if spec.satisfies("+qthreads"):
+            if "+qthreads" in spec:
                 g_args.append(f"--with-qthreads={spec['qthreads'].prefix}")
-            if spec.satisfies("+cuda"):
+            if "+cuda" in spec:
                 g_args.append(f"--with-cuda={spec['cuda'].prefix}")
             # Host architectures
             host_arch = spec.variants["host_arch"].value
@@ -282,31 +282,31 @@ class KokkosLegacy(Package):
                 g_args.append(f"--arch={','.join(arch_args)}")
 
             # CUDA options
-            if spec.satisfies("+force_uvm"):
+            if "+force_uvm" in spec:
                 cuda_options_args.append("force_uvm")
-            if spec.satisfies("+use_ldg"):
+            if "+use_ldg" in spec:
                 cuda_options_args.append("use_ldg")
-            if spec.satisfies("+rdc"):
+            if "+rdc" in spec:
                 cuda_options_args.append("rdc")
-            if spec.satisfies("+enable_lambda"):
+            if "+enable_lambda" in spec:
                 cuda_options_args.append("enable_lambda")
             if cuda_options_args:
                 g_args.append(f"--with-cuda-options={','.join(cuda_options_args)}")
 
             # Kokkos options
-            if spec.satisfies("+aggressive_vectorization"):
+            if "+aggressive_vectorization" in spec:
                 kokkos_options_args.append("aggressive_vectorization")
-            if spec.satisfies("+disable_profiling"):
+            if "+disable_profiling" in spec:
                 kokkos_options_args.append("disable_profiling")
-            if spec.satisfies("+disable_dualview_modify_check"):
+            if "+disable_dualview_modify_check" in spec:
                 kokkos_options_args.append("disable_dualview_modify_check")
-            if spec.satisfies("+enable_profile_load_print"):
+            if "+enable_profile_load_print" in spec:
                 kokkos_options_args.append("enable_profile_load_print")
-            if spec.satisfies("+compiler_warnings"):
+            if "+compiler_warnings" in spec:
                 kokkos_options_args.append("compiler_warnings")
-            if spec.satisfies("+disable_deprecated_code"):
+            if "+disable_deprecated_code" in spec:
                 kokkos_options_args.append("disable_deprecated_code")
-            if spec.satisfies("+enable_eti"):
+            if "+enable_eti" in spec:
                 kokkos_options_args.append("enable_eti")
             if kokkos_options_args:
                 g_args.append(f"--with-options={','.join(kokkos_options_args)}")

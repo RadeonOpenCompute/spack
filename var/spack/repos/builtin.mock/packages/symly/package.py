@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -26,7 +27,7 @@ int main() {
 }
 """
         mkdirp("%s/symly" % self.stage.source_path)
-        with open("%s/symly/symly.c" % self.stage.source_path, "w", encoding="utf-8") as f:
+        with open("%s/symly/symly.c" % self.stage.source_path, "w") as f:
             f.write(symly_c)
         gcc = which("/usr/bin/gcc")
         if sys.platform == "darwin":

@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 import os
@@ -30,15 +31,7 @@ class Metis(CMakePackage, MakefilePackage):
     version("5.1.0", sha256="76faebe03f6c963127dbb73c13eab58c9a3faeae48779f049066a21c087c5db2")
     version("4.0.3", sha256="5efa35de80703c1b2c4d0de080fafbcf4e0d363a21149a1ad2f96e0144841a55")
 
-    depends_on("c", type="build")
-    depends_on("cxx", type="build")
-
-    variant(
-        "no_warning",
-        default=False,
-        description="Disable failed partition warning print on all ranks",
-    )
-    patch("no_warning.patch", when="@5:+no_warning")
+    depends_on("c", type="build")  # generated
 
     build_system(
         conditional("cmake", when="@5:"), conditional("makefile", when="@:4"), default="cmake"

@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -77,7 +78,6 @@ class Cpmd(MakefilePackage):
         install_tree(".", prefix)
 
     def test_cpmd(self):
-        """check cpmd.x outputs"""
         test_dir = self.test_suite.current_test_data_dir
         test_file = join_path(test_dir, "1-h2o-pbc-geoopt.inp")
         opts = []

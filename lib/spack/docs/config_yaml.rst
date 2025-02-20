@@ -1,4 +1,5 @@
-.. Copyright Spack Project Developers. See COPYRIGHT file for details.
+.. Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+   Spack Project Developers. See the top-level COPYRIGHT file for details.
 
    SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -25,23 +26,14 @@ These settings can be overridden in ``etc/spack/config.yaml`` or
 The location where Spack will install packages and their dependencies.
 Default is ``$spack/opt/spack``.
 
----------------
-``projections``
----------------
+---------------------------------------------------
+``install_hash_length`` and ``install_path_scheme``
+---------------------------------------------------
 
-.. warning::
-
-   Modifying projections of the install tree is strongly discouraged.
-
-By default Spack installs all packages into a unique directory relative to the install
-tree root with the following layout:
-
-.. code-block::
-
-   {architecture}/{compiler.name}-{compiler.version}/{name}-{version}-{hash}
-
-In very rare cases, it may be necessary to reduce the length of this path. For example,
-very old versions of the Intel compiler are known to segfault when input paths are too long:
+The default Spack installation path can be very long and can create problems
+for scripts with hardcoded shebangs. Additionally, when using the Intel
+compiler, and if there is also a long list of dependencies, the compiler may
+segfault. If you see the following:
 
      .. code-block:: console
 
@@ -49,25 +41,36 @@ very old versions of the Intel compiler are known to segfault when input paths a
        ** Segmentation violation signal raised. **
        Access violation or stack overflow. Please contact Intel Support for assistance.
 
-Another case is Python and R packages with many runtime dependencies, which can result
-in very large ``PYTHONPATH`` and ``R_LIBS`` environment variables. This can cause the
-``execve`` system call to fail with ``E2BIG``, preventing processes from starting.
+it may be because variables containing dependency specs may be too long. There
+are two parameters to help with long path names. Firstly, the
+``install_hash_length`` parameter can set the length of the hash in the
+installation path from 1 to 32. The default path uses the full 32 characters.
 
-For this reason, Spack allows users to modify the installation layout through custom
-projections. For example
+Secondly, it is also possible to modify the entire installation
+scheme. By default Spack uses
+``{architecture}/{compiler.name}-{compiler.version}/{name}-{version}-{hash}``
+where the tokens that are available for use in this directive are the
+same as those understood by the :meth:`~spack.spec.Spec.format`
+method. Using this parameter it is possible to use a different package
+layout or reduce the depth of the installation paths. For example
 
      .. code-block:: yaml
 
        config:
-         install_tree:
-           root: $spack/opt/spack
-           projections:
-             all: "{name}/{version}/{hash:16}"
+         install_path_scheme: '{name}/{version}/{hash:7}'
 
-would install packages into sub-directories using only the package name, version and a
-hash length of 16 characters.
+would install packages into sub-directories using only the package
+name, version and a hash length of 7 characters.
 
-Notice that reducing the hash length increases the likelihood of hash collisions.
+When using either parameter to set the hash length it only affects the
+representation of the hash in the installation directory. You
+should be aware that the smaller the hash length the more likely
+naming conflicts will occur. These parameters are independent of those
+used to configure module names.
+
+.. warning:: Modifying the installation hash length or path scheme after
+   packages have been installed will prevent Spack from being
+   able to find the old installation directories.
 
 --------------------
 ``build_stage``

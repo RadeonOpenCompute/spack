@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -51,6 +52,7 @@ class NlohmannJson(CMakePackage):
     # https://github.com/nlohmann/json/releases/tag/v3.3.0
     conflicts("%gcc@:4.8", when="@:3.2.9")
     conflicts("%intel@:16")
+    conflicts("%pgi@:14")
 
     def cmake_args(self):
         return [

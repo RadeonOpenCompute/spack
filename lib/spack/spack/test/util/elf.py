@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -35,9 +36,9 @@ def test_elf_parsing_shared_linking(linker_flag, is_runpath, tmpdir):
 
     with fs.working_dir(str(tmpdir)):
         # Create a library to link to so we can force a dynamic section in an ELF file
-        with open("foo.c", "w", encoding="utf-8") as f:
+        with open("foo.c", "w") as f:
             f.write("int foo(){return 0;}")
-        with open("bar.c", "w", encoding="utf-8") as f:
+        with open("bar.c", "w") as f:
             f.write("int foo(); int _start(){return foo();}")
 
         # Create library and executable linking to it.

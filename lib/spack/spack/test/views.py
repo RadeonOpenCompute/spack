@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -6,10 +7,8 @@ import os
 
 import pytest
 
-import spack.concretize
 from spack.directory_layout import DirectoryLayout
 from spack.filesystem_view import SimpleFilesystemView, YamlFilesystemView
-from spack.installer import PackageInstaller
 from spack.spec import Spec
 
 
@@ -17,8 +16,8 @@ def test_remove_extensions_ordered(install_mockery, mock_fetch, tmpdir):
     view_dir = str(tmpdir.join("view"))
     layout = DirectoryLayout(view_dir)
     view = YamlFilesystemView(view_dir, layout)
-    e2 = spack.concretize.concretize_one("extension2")
-    PackageInstaller([e2.package], explicit=True).install()
+    e2 = Spec("extension2").concretized()
+    e2.package.do_install()
     view.add_specs(e2)
 
     e1 = e2["extension1"]
@@ -47,10 +46,10 @@ def test_view_with_spec_not_contributing_files(mock_packages, tmpdir):
     os.makedirs(os.path.join(b.prefix, ".spack"))
 
     # Add files to b's prefix, but not to a's
-    with open(b.prefix.file, "w", encoding="utf-8") as f:
+    with open(b.prefix.file, "w") as f:
         f.write("file 1")
 
-    with open(b.prefix.subdir.file, "w", encoding="utf-8") as f:
+    with open(b.prefix.subdir.file, "w") as f:
         f.write("file 2")
 
     # In previous versions of Spack we incorrectly called add_files_to_view

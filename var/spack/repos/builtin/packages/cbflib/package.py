@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -48,7 +49,8 @@ class Cbflib(MakefilePackage):
         mf.filter(r"^C\+\+.+", "C++ = {0}".format(spack_cxx))
         mf.filter("gfortran", spack_fc)
         mf.filter(r"^INSTALLDIR .+", "INSTALLDIR = {0}".format(prefix))
-        if self.spec.satisfies("%gcc@10:"):
+        real_version = Version(self.compiler.get_real_version())
+        if real_version >= Version("10"):
             mf.filter(r"^F90FLAGS[ \t]*=[ \t]*(.+)", "F90FLAGS = \\1 -fallow-invalid-boz")
 
     def build(self, spec, prefix):

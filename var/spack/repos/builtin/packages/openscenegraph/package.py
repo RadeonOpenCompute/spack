@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -57,8 +58,8 @@ class Openscenegraph(CMakePackage):
     )  # Qt windowing system was moved into separate osgQt project
     depends_on("qt@4:", when="@3.2:3.5.4")
     depends_on("qt@:4", when="@:3.1")
-    depends_on("libxinerama", when="platform=linux")
-    depends_on("libxrandr", when="platform=linux")
+    depends_on("libxinerama")
+    depends_on("libxrandr")
     depends_on("libpng")
     depends_on("jasper")
     depends_on("libtiff")

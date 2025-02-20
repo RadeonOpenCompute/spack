@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -47,7 +48,7 @@ class Libbeagle(AutotoolsPackage, CudaPackage):
 
     def patch(self):
         # update cuda architecture if necessary
-        if self.spec.satisfies("+cuda"):
+        if "+cuda" in self.spec:
             cuda_arch = self.spec.variants["cuda_arch"].value
             archflag = "-arch=compute_{0}".format(cuda_arch)
 
@@ -72,12 +73,12 @@ class Libbeagle(AutotoolsPackage, CudaPackage):
             "--disable-march-native"
         ]
 
-        if self.spec.satisfies("+cuda"):
+        if "+cuda" in self.spec:
             args.append("--with-cuda={0}".format(self.spec["cuda"].prefix))
         else:
             args.append("--without-cuda")
 
-        if self.spec.satisfies("+opencl"):
+        if "+opencl" in self.spec:
             args.append("--with-opencl={0}".format(self.spec["opencl"].prefix))
         else:
             args.append("--without-opencl")

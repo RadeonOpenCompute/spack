@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -104,17 +105,17 @@ class Gpi2(AutotoolsPackage):
         self.set_specific_cflags(spec)
 
         config_args = ["-p {0}".format(prefix)]
-        if spec.satisfies("fabrics=ethernet"):
+        if "fabrics=ethernet" in spec:
             config_args += ["--with-ethernet"]
-        elif spec.satisfies("fabrics=infiniband"):
+        elif "fabrics=infiniband" in spec:
             config_args += ["--with-infiniband={0}".format(spec["rdma-core"].prefix)]
-        if spec.satisfies("schedulers=loadleveler"):
+        if "schedulers=loadleveler" in spec:
             config_args += ["--with-ll"]
-        if spec.satisfies("+fortran"):
+        if "+fortran" in spec:
             config_args += ["--with-fortran=true"]
         else:
             config_args += ["--with-fortran=false"]
-        if spec.satisfies("+mpi"):
+        if "+mpi" in spec:
             config_args += ["--with-mpi={0}".format(spec["mpi"].prefix)]
 
         with working_dir(self.build_directory):
@@ -146,7 +147,7 @@ class Gpi2(AutotoolsPackage):
 
         config_args.extend(self.with_or_without("fortran"))
         # Mpi
-        if spec.satisfies("+mpi"):
+        if "+mpi" in spec:
             config_args += ["--with-mpi={0}".format(spec["mpi"].prefix)]
         # Fabrics
         if "fabrics=none" not in spec:

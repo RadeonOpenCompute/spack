@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -12,7 +13,7 @@ class PyGpyopt(PythonPackage):
     Learning algorithms. It is able to handle large data sets via sparse
     Gaussian process models."""
 
-    homepage = "https://sheffieldml.github.io/GPyOpt/"
+    homepage = "http://sheffieldml.github.io/GPyOpt/"
     pypi = "GPyOpt/GPyOpt-1.2.6.tar.gz"
 
     license("BSD-3-Clause")

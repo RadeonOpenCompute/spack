@@ -1,12 +1,12 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
-from spack.build_systems import autotools, cmake
 from spack.package import *
 
 
-class Libxc(AutotoolsPackage, CudaPackage, CMakePackage):
+class Libxc(AutotoolsPackage, CudaPackage):
     """Libxc is a library of exchange-correlation functionals for
     density-functional theory."""
 
@@ -15,11 +15,6 @@ class Libxc(AutotoolsPackage, CudaPackage, CMakePackage):
 
     license("MPL-2.0-no-copyleft-exception")
 
-    maintainers("RMeli")
-
-    build_system(conditional("cmake", when="@7.0.0:"), "autotools", default="cmake")
-
-    version("7.0.0", sha256="8d4e343041c9cd869833822f57744872076ae709a613c118d70605539fb13a77")
     version("6.2.2", sha256="d1b65ef74615a1e539d87a0e6662f04baf3a2316706b4e2e686da3193b26b20f")
     version("6.2.1", sha256="da96fc4f6e4221734986f49758b410ffe1d406efd3538761062a4af57a2bd272")
     version("6.2.0", sha256="31edb72c69157b6c0beaff1f10cbbb6348ce7579ef81d8f286764e5ab61194d1")
@@ -39,21 +34,12 @@ class Libxc(AutotoolsPackage, CudaPackage, CMakePackage):
     version("2.2.2", sha256="6ffaad40505dbe8f155049448554b54ea31d31babf74ccf6b7935bfe55eeafd8")
     version("2.2.1", sha256="c8577ba1ddd5c28fd0aa7c579ae65ab990eb7cb51ecf9f8175f9251f6deb9a06")
 
+    depends_on("c", type="build")  # generated
+    depends_on("fortran", type="build")  # generated
+
     variant("shared", default=True, description="Build shared libraries")
     variant("kxc", default=False, when="@5:", description="Build with third derivatives")
     variant("lxc", default=False, when="@5:", description="Build with fourth derivatives")
-    variant(
-        "fortran",
-        default=True,
-        description="Build Fortran 2003 interface",
-        when="build_system=cmake",
-    )
-
-    generator("ninja")
-
-    depends_on("c", type="build")
-    depends_on("fortran", type="build", when="build_system=autotools")
-    depends_on("fortran", type="build", when="build_system=cmake +fortran")
 
     conflicts("+shared +cuda", msg="Only ~shared supported with +cuda")
     conflicts("+cuda", when="@:4", msg="CUDA support only in libxc 5.0.0 and above")
@@ -101,9 +87,6 @@ class Libxc(AutotoolsPackage, CudaPackage, CMakePackage):
 
         return find_libraries(libraries, root=self.prefix, shared=shared, recursive=True)
 
-
-class AutotoolsBuilder(autotools.AutotoolsBuilder):
-
     def setup_build_environment(self, env):
         # microarchitecture-specific optimization flags should be controlled
         # by Spack, otherwise we may end up with contradictory or invalid flags
@@ -111,15 +94,15 @@ class AutotoolsBuilder(autotools.AutotoolsBuilder):
 
         # https://gitlab.com/libxc/libxc/-/issues/430 (configure script does not ensure C99)
         # TODO: Switch to cmake since this is better supported
-        env.append_flags("CFLAGS", self.pkg.compiler.c99_flag)
-        if self.spec.satisfies("%intel"):
+        env.append_flags("CFLAGS", self.compiler.c99_flag)
+        if "%intel" in self.spec:
             if which("xiar"):
                 env.set("AR", "xiar")
 
-        if self.spec.satisfies("%aocc"):
+        if "%aocc" in self.spec:
             env.append_flags("FCFLAGS", "-fPIC")
 
-        if self.spec.satisfies("+cuda"):
+        if "+cuda" in self.spec:
             nvcc = self.spec["cuda"].prefix.bin.nvcc
             env.set("CCLD", "{0} -ccbin {1}".format(nvcc, spack_cc))
             env.set("CC", "{0} -x cu -ccbin {1}".format(nvcc, spack_cc))
@@ -133,16 +116,16 @@ class AutotoolsBuilder(autotools.AutotoolsBuilder):
         args = []
         args += self.enable_or_disable("shared")
         args += self.enable_or_disable("cuda")
-        if self.spec.satisfies("+kxc"):
+        if "+kxc" in self.spec:
             args.append("--enable-kxc")
-        if self.spec.satisfies("+lxc"):
+        if "+lxc" in self.spec:
             args.append("--enable-lxc")
         return args
 
     @run_after("configure")
     def patch_libtool(self):
         """AOCC support for LIBXC"""
-        if self.spec.satisfies("%aocc"):
+        if "%aocc" in self.spec:
             filter_file(
                 r"\$wl-soname \$wl\$soname",
                 r"-fuse-ld=ld -Wl,-soname,\$soname",
@@ -154,18 +137,3 @@ class AutotoolsBuilder(autotools.AutotoolsBuilder):
         # libxc provides a testsuite, but many tests fail
         # http://www.tddft.org/pipermail/libxc/2013-February/000032.html
         pass
-
-
-class CMakeBuilder(cmake.CMakeBuilder):
-
-    def cmake_args(self):
-        spec = self.spec
-        args = [
-            self.define_from_variant("BUILD_SHARED_LIBS", "shared"),
-            self.define_from_variant("ENABLE_FORTRAN", "fortran"),
-            self.define_from_variant("ENABLE_CUDA", "cuda"),
-            self.define("DISABLE_KXC", spec.satisfies("~kxc")),
-            self.define("DISABLE_LXC", spec.satisfies("~lxc")),
-            self.define("BUILD_TESTING", self.pkg.run_tests),
-        ]
-        return args

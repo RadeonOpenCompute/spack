@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -90,12 +91,12 @@ class Gnuplot(AutotoolsPackage):
 
         options += self.with_or_without("readline", "prefix")
 
-        if spec.satisfies("+pbm"):
+        if "+pbm" in spec:
             options.append("--with-bitmap-terminals")
         else:
             options.append("--without-bitmap-terminals")
 
-        if spec.satisfies("+X"):
+        if "+X" in spec:
             # It seems there's an open bug for wxWidgets support
             # See : http://sourceforge.net/p/gnuplot/bugs/1694/
             os.environ["TERMLIBS"] = "-lX11"
@@ -103,7 +104,7 @@ class Gnuplot(AutotoolsPackage):
         else:
             options.append("--without-x")
 
-        if spec.satisfies("+qt"):
+        if "+qt" in spec:
             options.append("--with-qt=qt5")
             # QT needs C++11 compiler:
             os.environ["CXXFLAGS"] = "{0}".format(self.compiler.cxx11_flag)
@@ -133,22 +134,22 @@ class Gnuplot(AutotoolsPackage):
         else:
             options.append("--with-qt=no")
 
-        if spec.satisfies("+wx"):
+        if "+wx" in spec:
             options.append("--with-wx=%s" % spec["wxwidgets"].prefix)
         else:
             options.append("--disable-wxwidgets")
 
-        if spec.satisfies("+gd"):
+        if "+gd" in spec:
             options.append("--with-gd=%s" % spec["libgd"].prefix)
         else:
             options.append("--without-gd")
 
-        if spec.satisfies("+cairo"):
+        if "+cairo" in spec:
             options.append("--with-cairo")
         else:
             options.append("--without-cairo")
 
-        if spec.satisfies("+libcerf"):
+        if "+libcerf" in spec:
             options.append("--with-libcerf")
         else:
             options.append("--without-libcerf")

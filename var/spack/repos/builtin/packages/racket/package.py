@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 import spack.build_systems.makefile
@@ -21,6 +22,7 @@ class Racket(MakefilePackage):
 
     depends_on("libffi", type=("build", "link", "run"))
     depends_on("patchutils")
+    depends_on("libtool", type=("build"))
 
     variant("cs", default=True, description="Build Racket CS (new ChezScheme VM)")
     variant("bc", default=False, description="Build Racket BC (old MZScheme VM)")

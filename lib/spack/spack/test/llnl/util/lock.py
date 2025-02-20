@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -93,26 +94,28 @@ except ImportError:
     pass
 
 
-#: This is a list of filesystem locations to test locks in.  Paths are
-#: expanded so that %u is replaced with the current username. '~' is also
-#: legal and will be expanded to the user's home directory.
-#:
-#: Tests are skipped for directories that don't exist, so you'll need to
-#: update this with the locations of NFS, Lustre, and other mounts on your
-#: system.
+"""This is a list of filesystem locations to test locks in.  Paths are
+expanded so that %u is replaced with the current username. '~' is also
+legal and will be expanded to the user's home directory.
+
+Tests are skipped for directories that don't exist, so you'll need to
+update this with the locations of NFS, Lustre, and other mounts on your
+system.
+"""
 locations = [
     tempfile.gettempdir(),
     os.path.join("/nfs/tmp2/", getpass.getuser()),
     os.path.join("/p/lscratch*/", getpass.getuser()),
 ]
 
-#: This is the longest a failed multiproc test will take.
-#: Barriers will time out and raise an exception after this interval.
-#: In MPI mode, barriers don't time out (they hang).  See mpi_multiproc_test.
+"""This is the longest a failed multiproc test will take.
+Barriers will time out and raise an exception after this interval.
+In MPI mode, barriers don't time out (they hang).  See mpi_multiproc_test.
+"""
 barrier_timeout = 5
 
-#: This is the lock timeout for expected failures.
-#: This may need to be higher for some filesystems.
+"""This is the lock timeout for expected failures.
+This may need to be higher for some filesystems."""
 lock_fail_timeout = 0.1
 
 
@@ -284,8 +287,9 @@ def mpi_multiproc_test(*functions):
     comm.Barrier()  # barrier after each MPI test.
 
 
-#: ``multiproc_test()`` should be called by tests below.
-#: ``multiproc_test()`` will work for either MPI runs or for local runs.
+"""``multiproc_test()`` should be called by tests below.
+``multiproc_test()`` will work for either MPI runs or for local runs.
+"""
 multiproc_test = mpi_multiproc_test if mpi else local_multiproc_test
 
 
@@ -645,17 +649,17 @@ def test_upgrade_read_to_write(private_lock_path):
     lock.acquire_read()
     assert lock._reads == 1
     assert lock._writes == 0
-    assert lock._file.mode == "rb+"
+    assert lock._file.mode == "r+"
 
     lock.acquire_write()
     assert lock._reads == 1
     assert lock._writes == 1
-    assert lock._file.mode == "rb+"
+    assert lock._file.mode == "r+"
 
     lock.release_write()
     assert lock._reads == 1
     assert lock._writes == 0
-    assert lock._file.mode == "rb+"
+    assert lock._file.mode == "r+"
 
     lock.release_read()
     assert lock._reads == 0
@@ -677,7 +681,7 @@ def test_upgrade_read_to_write_fails_with_readonly_file(private_lock_path):
         lock.acquire_read()
         assert lock._reads == 1
         assert lock._writes == 0
-        assert lock._file.mode == "rb"
+        assert lock._file.mode == "r"
 
         # upgrade to write here
         with pytest.raises(lk.LockROFileError):
@@ -1336,7 +1340,7 @@ def test_poll_lock_exception(tmpdir, monkeypatch, err_num, err_msg):
     """Test poll lock exception handling."""
 
     def _lockf(fd, cmd, len, start, whence):
-        raise OSError(err_num, err_msg)
+        raise IOError(err_num, err_msg)
 
     with tmpdir.as_cwd():
         lockfile = "lockfile"
@@ -1348,7 +1352,7 @@ def test_poll_lock_exception(tmpdir, monkeypatch, err_num, err_msg):
         if err_num in [errno.EAGAIN, errno.EACCES]:
             assert not lock._poll_lock(fcntl.LOCK_EX)
         else:
-            with pytest.raises(OSError, match=err_msg):
+            with pytest.raises(IOError, match=err_msg):
                 lock._poll_lock(fcntl.LOCK_EX)
 
         monkeypatch.undo()

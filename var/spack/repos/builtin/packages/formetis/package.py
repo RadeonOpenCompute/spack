@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -66,7 +67,7 @@ class Formetis(CMakePackage):
             self.define("CMAKE_Fortran_COMPILER", self.compiler.fc),
             self.define("METIS_ROOT", self.spec["metis"].prefix),
         ]
-        if self.spec.satisfies("+mpi"):
+        if "+mpi" in self.spec:
             cmake_args.append(self.define("ParMETIS_ROOT", self.spec["parmetis"].prefix))
         cmake_args.append(self.cached_tests_work_dir)
         cmake = which(self.spec["cmake"].prefix.bin.cmake)

@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -163,7 +164,7 @@ class Graphviz(AutotoolsPackage):
         # Set MACOSX_DEPLOYMENT_TARGET to 10.x due to old configure
         super().setup_build_environment(env)
 
-        if self.spec.satisfies("+quartz"):
+        if "+quartz" in self.spec:
             env.set("OBJC", self.compiler.cc)
 
     @when("%clang platform=darwin")
@@ -208,7 +209,7 @@ class Graphviz(AutotoolsPackage):
                 args.append("--with-{0}includedir={1}".format(var, spec[var].prefix.include))
                 args.append("--with-{0}libdir={1}".format(var, spec[var].prefix.lib))
 
-        if spec.satisfies("+zlib"):
+        if "+zlib" in spec:
             args.append("--with-zlibincludedir={}".format(spec["zlib-api"].prefix.include))
             args.append("--with-zliblibdir={}".format(spec["zlib-api"].prefix.lib))
 

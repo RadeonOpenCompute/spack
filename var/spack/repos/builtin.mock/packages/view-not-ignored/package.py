@@ -1,8 +1,9 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
-import os
+import os.path
 
 from spack.package import *
 
@@ -29,7 +30,7 @@ class ViewNotIgnored(Package):
         for test_file in self.install_test_files:
             path = os.path.join(prefix, test_file)
             mkdirp(os.path.dirname(path))
-            with open(path, "w", encoding="utf-8") as f:
+            with open(path, "w") as f:
                 f.write(test_file)
 
     @classmethod

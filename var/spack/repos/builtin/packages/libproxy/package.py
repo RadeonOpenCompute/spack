@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -39,12 +40,12 @@ class Libproxy(CMakePackage):
             self.define("WITH_PYTHON2", False),
             self.define("WITH_VALA", False),
         ]
-        if self.spec.satisfies("+python"):
+        if "+python" in self.spec:
             args.append(self.define("PYTHON3_SITEPKG_DIR", python_platlib))
         return args
 
     def setup_run_environment(self, env):
-        if self.spec.satisfies("+python"):
+        if "+python" in self.spec:
             libs = self.spec["libproxy"].libs.directories[0]
             if self.spec.satisfies("platform=darwin"):
                 env.prepend_path("DYLD_FALLBACK_LIBRARY_PATH", libs)

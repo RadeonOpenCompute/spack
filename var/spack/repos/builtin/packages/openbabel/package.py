@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -11,7 +12,7 @@ class Openbabel(CMakePackage):
     search, convert, analyze, or store data from molecular modeling, chemistry,
     solid-state materials, biochemistry, or related areas."""
 
-    homepage = "https://openbabel.org/index.html"
+    homepage = "https://openbabel.org/wiki/Main_Page"
     url = "https://github.com/openbabel/openbabel/archive/openbabel-3-0-0.tar.gz"
     git = "https://github.com/openbabel/openbabel.git"
 

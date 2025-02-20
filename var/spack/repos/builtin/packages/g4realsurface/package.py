@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -24,11 +25,11 @@ class G4realsurface(Package):
 
     def install(self, spec, prefix):
         mkdirp(join_path(prefix.share, "data"))
-        install_path = join_path(prefix.share, "data", self.g4datasetname)
+        install_path = join_path(prefix.share, "data", "RealSurface{0}".format(self.version))
         install_tree(self.stage.source_path, install_path)
 
     def setup_dependent_run_environment(self, env, dependent_spec):
-        install_path = join_path(self.prefix.share, "data", self.g4datasetname)
+        install_path = join_path(self.prefix.share, "data", "RealSurface{0}".format(self.version))
         env.set("G4REALSURFACEDATA", install_path)
 
     def url_for_version(self, version):
@@ -38,8 +39,3 @@ class G4realsurface(Package):
                 "G4" if version > Version("1.0") else "", version
             )
         )
-
-    @property
-    def g4datasetname(self):
-        spec = self.spec
-        return "RealSurface{0}".format(spec.version)

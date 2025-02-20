@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 from typing import List  # novm
@@ -7,11 +8,9 @@ import llnl.util.filesystem as fs
 
 import spack.builder
 import spack.package_base
-import spack.spec
-import spack.util.prefix
 from spack.directives import build_system, conflicts
 
-from ._checks import BuilderWithDefaults
+from ._checks import BaseBuilder
 
 
 class MSBuildPackage(spack.package_base.PackageBase):
@@ -27,7 +26,7 @@ class MSBuildPackage(spack.package_base.PackageBase):
 
 
 @spack.builder.builder("msbuild")
-class MSBuildBuilder(BuilderWithDefaults):
+class MSBuildBuilder(BaseBuilder):
     """The MSBuild builder encodes the most common way of building software with
     Mircosoft's MSBuild tool. It has two phases that can be overridden, if need be:
 
@@ -101,9 +100,7 @@ class MSBuildBuilder(BuilderWithDefaults):
         as `msbuild_args` by default."""
         return self.msbuild_args()
 
-    def build(
-        self, pkg: MSBuildPackage, spec: spack.spec.Spec, prefix: spack.util.prefix.Prefix
-    ) -> None:
+    def build(self, pkg, spec, prefix):
         """Run "msbuild" on the build targets specified by the builder."""
         with fs.working_dir(self.build_directory):
             pkg.module.msbuild(
@@ -112,9 +109,7 @@ class MSBuildBuilder(BuilderWithDefaults):
                 self.define_targets(*self.build_targets),
             )
 
-    def install(
-        self, pkg: MSBuildPackage, spec: spack.spec.Spec, prefix: spack.util.prefix.Prefix
-    ) -> None:
+    def install(self, pkg, spec, prefix):
         """Run "msbuild" on the install targets specified by the builder.
         This is INSTALL by default"""
         with fs.working_dir(self.build_directory):

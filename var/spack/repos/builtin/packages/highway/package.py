@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -35,6 +36,7 @@ class Highway(CMakePackage):
     depends_on("googletest", type="test")
 
     def cmake_args(self):
+        spec = self.spec
         define = self.define
         from_variant = self.define_from_variant
 
@@ -44,6 +46,9 @@ class Highway(CMakePackage):
             define("HWY_ENABLE_TESTS", self.run_tests),
             define("BUILD_TESTING", self.run_tests),
             define("HWY_SYSTEM_GTEST", self.run_tests),
+            define(
+                "HWY_CMAKE_ARM7", spec.satisfies("%gcc@:6.1.0") or spec.satisfies("%clang@:16")
+            ),
         ]
 
         return args

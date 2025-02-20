@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -62,7 +63,7 @@ class Kassiopeia(CMakePackage):
         )
 
     def cmake_args(self):
-        if self.spec.satisfies("+root"):
+        if "+root" in self.spec:
             cxxstd = self.spec["root"].variants["cxxstd"].value
         else:
             if self.spec.satisfies("@:3.8.1"):

@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -41,7 +42,7 @@ class GridlabD(AutotoolsPackage):
     def configure_args(self):
         args = []
 
-        if self.spec.satisfies("+helics"):
+        if "+helics" in self.spec:
             # Taken from
             # https://github.com/GMLC-TDC/HELICS-Tutorial/tree/master/setup
             args.append("--with-helics=" + self.spec["helics"].prefix)

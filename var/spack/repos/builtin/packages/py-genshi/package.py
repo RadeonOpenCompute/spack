@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -20,5 +21,4 @@ class PyGenshi(PythonPackage):
     depends_on("py-six", type=("build", "run", "test"))
 
     def test_testsuite(self):
-        """run unittest suite"""
         python("-m", "unittest", "-v", "genshi.tests.suite")
