@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -140,7 +141,6 @@ class Charmpp(Package):
     # Git versions of Charm++ require automake and autoconf
     depends_on("automake", when="@develop")
     depends_on("autoconf", when="@develop")
-    depends_on("gmake", type="build")
 
     conflicts("~tracing", "+papi")
 
@@ -276,10 +276,12 @@ class Charmpp(Package):
     #            build-target=LIBS backend={0}'.format(b))
 
     def install(self, spec, prefix):
-        if "backend=mpi" not in self.spec or "backend=netlrts" not in self.spec:
+        if not ("backend=mpi" in self.spec) or not ("backend=netlrts" in self.spec):
             if self.spec.satisfies("+pthreads"):
                 raise InstallError(
-                    "The pthreads option is only available on the Netlrts and MPI network layers."
+                    "The pthreads option is only\
+                                    available on the Netlrts and MPI \
+                                    network layers."
                 )
 
         if (
@@ -289,8 +291,10 @@ class Charmpp(Package):
         ):
             if self.spec.satisfies("pmi=none"):
                 raise InstallError(
-                    "The UCX/OFI/GNI backends need PMI to run. Please add pmi=... "
-                    "Note that PMIx is the preferred option."
+                    "The UCX/OFI/GNI backends need \
+                                    PMI to run. Please add pmi=... \
+                                    Note that PMIx is the preferred \
+                                    option."
                 )
 
         if (
@@ -300,8 +304,10 @@ class Charmpp(Package):
         ):
             if self.spec.satisfies("^openmpi"):
                 raise InstallError(
-                    "To use any process management interface other than PMIx, "
-                    "a non OpenMPI based MPI must be present on the system"
+                    "To use any process management \
+                                    interface other than PMIx, \
+                                    a non OpenMPI based MPI must be \
+                                    present on the system"
                 )
 
         target = spec.variants["build-target"].value
@@ -368,13 +374,6 @@ class Charmpp(Package):
         if spec.satisfies("+tracing"):
             options.append("--enable-tracing")
 
-        # charmpp build was failing with clang based compilers for -DNETWORK=mpi as discussed in
-        # https://github.com/charmplusplus/charm/issues/3645
-        # Fix was suggested in https://github.com/charmplusplus/charm/pull/3646 and the same has
-        # been implemented in v8.0.0
-        if self.spec.satisfies("@8.0.0: %aocc"):
-            options.append("--disable-fortran")
-
         # Call "make" via the build script
         # Note: This builds Charm++ in the "tmp" subdirectory of the
         # install directory. Maybe we could set up a symbolic link
@@ -396,7 +395,7 @@ class Charmpp(Package):
                         copy(filepath, tmppath)
                         os.remove(filepath)
                         os.rename(tmppath, filepath)
-                    except OSError:
+                    except (IOError, OSError):
                         pass
 
         tmp_path = join_path(builddir, "tmp")

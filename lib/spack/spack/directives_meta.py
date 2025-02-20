@@ -1,15 +1,15 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
 import collections.abc
 import functools
-from typing import Any, Callable, Dict, List, Optional, Sequence, Set, Type, Union
+from typing import List, Set
 
 import llnl.util.lang
 
 import spack.error
-import spack.repo
 import spack.spec
 
 #: Names of possible directives. This list is mostly populated using the @directive decorator.
@@ -24,13 +24,11 @@ class DirectiveMeta(type):
 
     # Set of all known directives
     _directive_dict_names: Set[str] = set()
-    _directives_to_be_executed: List[Callable] = []
-    _when_constraints_from_context: List[spack.spec.Spec] = []
+    _directives_to_be_executed: List[str] = []
+    _when_constraints_from_context: List[str] = []
     _default_args: List[dict] = []
 
-    def __new__(
-        cls: Type["DirectiveMeta"], name: str, bases: tuple, attr_dict: dict
-    ) -> "DirectiveMeta":
+    def __new__(cls, name, bases, attr_dict):
         # Initialize the attribute containing the list of directives
         # to be executed. Here we go reversed because we want to execute
         # commands:
@@ -61,11 +59,11 @@ class DirectiveMeta(type):
 
         return super(DirectiveMeta, cls).__new__(cls, name, bases, attr_dict)
 
-    def __init__(cls: "DirectiveMeta", name: str, bases: tuple, attr_dict: dict):
+    def __init__(cls, name, bases, attr_dict):
         # The instance is being initialized: if it is a package we must ensure
         # that the directives are called to set it up.
 
-        if cls.__module__.startswith(spack.repo.ROOT_PYTHON_NAMESPACE):
+        if "spack.pkg" in cls.__module__:
             # Ensure the presence of the dictionaries associated with the directives.
             # All dictionaries are defaultdicts that create lists for missing keys.
             for d in DirectiveMeta._directive_dict_names:
@@ -82,27 +80,27 @@ class DirectiveMeta(type):
         super(DirectiveMeta, cls).__init__(name, bases, attr_dict)
 
     @staticmethod
-    def push_to_context(when_spec: spack.spec.Spec) -> None:
+    def push_to_context(when_spec):
         """Add a spec to the context constraints."""
         DirectiveMeta._when_constraints_from_context.append(when_spec)
 
     @staticmethod
-    def pop_from_context() -> spack.spec.Spec:
+    def pop_from_context():
         """Pop the last constraint from the context"""
         return DirectiveMeta._when_constraints_from_context.pop()
 
     @staticmethod
-    def push_default_args(default_args: Dict[str, Any]) -> None:
+    def push_default_args(default_args):
         """Push default arguments"""
         DirectiveMeta._default_args.append(default_args)
 
     @staticmethod
-    def pop_default_args() -> dict:
+    def pop_default_args():
         """Pop default arguments"""
         return DirectiveMeta._default_args.pop()
 
     @staticmethod
-    def directive(dicts: Optional[Union[Sequence[str], str]] = None) -> Callable:
+    def directive(dicts=None):
         """Decorator for Spack directives.
 
         Spack directives allow you to modify a package while it is being
@@ -157,7 +155,7 @@ class DirectiveMeta(type):
         DirectiveMeta._directive_dict_names |= set(dicts)
 
         # This decorator just returns the directive functions
-        def _decorator(decorated_function: Callable) -> Callable:
+        def _decorator(decorated_function):
             directive_names.append(decorated_function.__name__)
 
             @functools.wraps(decorated_function)

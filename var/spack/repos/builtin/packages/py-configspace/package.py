@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -11,7 +12,7 @@ class PyConfigspace(PythonPackage):
 
     maintainers("Kerilk", "mdorier")
 
-    homepage = "https://automl.github.io/ConfigSpace/latest/"
+    homepage = "https://automl.github.io/ConfigSpace/master/"
     pypi = "configspace/configspace-1.0.0.tar.gz"
 
     license("BSD-3-Clause")

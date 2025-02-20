@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 import os
@@ -9,12 +10,10 @@ import llnl.util.lang as lang
 import llnl.util.tty as tty
 
 import spack.builder
-import spack.spec
-import spack.util.prefix
 from spack.build_environment import SPACK_NO_PARALLEL_MAKE
-from spack.config import determine_number_of_jobs
 from spack.directives import build_system, extends, maintainers
 from spack.package_base import PackageBase
+from spack.util.cpus import determine_number_of_jobs
 from spack.util.environment import env_flag
 from spack.util.executable import Executable, ProcessError
 
@@ -76,22 +75,18 @@ class RacketBuilder(spack.builder.Builder):
             ret = os.path.join(ret, self.subdirectory)
         return ret
 
-    def install(
-        self, pkg: RacketPackage, spec: spack.spec.Spec, prefix: spack.util.prefix.Prefix
-    ) -> None:
+    def install(self, pkg, spec, prefix):
         """Install everything from build directory."""
         raco = Executable("raco")
         with fs.working_dir(self.build_directory):
-            parallel = pkg.parallel and (not env_flag(SPACK_NO_PARALLEL_MAKE))
-            name = pkg.racket_name
-            assert name is not None, "Racket package name is not set"
+            parallel = self.pkg.parallel and (not env_flag(SPACK_NO_PARALLEL_MAKE))
             args = [
                 "pkg",
                 "install",
                 "-t",
                 "dir",
                 "-n",
-                name,
+                self.pkg.racket_name,
                 "--deps",
                 "fail",
                 "--ignore-implies",
@@ -107,7 +102,8 @@ class RacketBuilder(spack.builder.Builder):
             except ProcessError:
                 args.insert(-2, "--skip-installed")
                 raco(*args)
-                tty.warn(
-                    f"Racket package {name} was already installed, uninstalling via "
+                msg = (
+                    "Racket package {0} was already installed, uninstalling via "
                     "Spack may make someone unhappy!"
                 )
+                tty.warn(msg.format(self.pkg.racket_name))

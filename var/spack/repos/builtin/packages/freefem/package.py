@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -74,7 +75,7 @@ class Freefem(AutotoolsPackage):
             "CXXFLAGS=%s" % " ".join(spec.compiler_flags["cxxflags"]),
         ]
 
-        if spec.satisfies("+petsc"):
+        if "+petsc" in spec:
             options.append("--with-petsc=%s" % spec["petsc"].prefix.lib.petsc.conf.petscvariables)
             options.append("--with-slepc-ldflags=%s" % spec["slepc"].libs.ld_flags)
             options.append("--with-slepc-include=%s" % spec["slepc"].headers.include_flags)

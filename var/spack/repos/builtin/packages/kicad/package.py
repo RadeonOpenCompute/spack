@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -129,5 +130,6 @@ class Kicad(CMakePackage):
         for ver, lib, checksum in self.resource_list:
             if self.spec.version == Version(ver):
                 with working_dir("kicad-{0}-{1}".format(lib, ver)):
-                    cmake(*self.std_cmake_args)
+                    args = std_cmake_args
+                    cmake(*args)
                     make("install")

@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -87,7 +88,8 @@ class Gunrock(CMakePackage, CudaPackage):
     conflicts(
         "cuda_arch=none",
         when="+cuda",
-        msg='Must specify CUDA compute capabilities of your GPU. See "spack info gunrock"',
+        msg='Must specify CUDA compute capabilities of your GPU. \
+See "spack info gunrock"',
     )
 
     def cmake_args(self):
@@ -161,5 +163,5 @@ class Gunrock(CMakePackage, CudaPackage):
         with working_dir(self.build_directory):
             install_tree("lib", prefix.lib)
             # bin dir is created only if tests/examples are built
-            if spec.satisfies("+tests"):
+            if "+tests" in spec:
                 install_tree("bin", prefix.bin)

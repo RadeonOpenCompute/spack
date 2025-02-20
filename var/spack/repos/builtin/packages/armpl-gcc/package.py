@@ -1,11 +1,10 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
 import os
 
-import spack.error
-import spack.platforms
 from spack.package import *
 
 _os_map_before_23 = {
@@ -55,11 +54,6 @@ _os_pkg_map = {
 }
 
 _versions = {
-    "24.10": {
-        "deb": ("2be772d41c0e8646e24c4f57e188e96f2dd8934966ae560c74fa905cbde5e1bc"),
-        "macOS": ("04e794409867e6042ed0f487bbaf47cc6edd527dc6ddad67160f1dba83906969"),
-        "rpm": ("055d4b3c63d990942d453a8720d029be7e604646218ffc3262321683f51f23aa"),
-    },
     "24.04": {
         "deb": ("a323074cd08af82f4d79988cc66088b18e47dea4b93323b1b8a0f994f769f2f0"),
         "macOS": ("228bf3a2c25dbd45c2f89c78f455ee3c7dfb25e121c20d2765138b5174e688dc"),
@@ -267,8 +261,7 @@ def get_os_or_pkg_manager(ver):
         return _os_pkg_map.get(platform.default_os, "rpm")
 
 
-def get_package_url_before_24(version):
-    base_url = "https://developer.arm.com/-/media/Files/downloads/hpc/arm-performance-libraries"
+def get_package_url_before_24(base_url, version):
     armpl_version = version.split("_")[0]
     armpl_version_dashed = armpl_version.replace(".", "-")
     compiler_version = version.split("_", 1)[1]
@@ -277,7 +270,7 @@ def get_package_url_before_24(version):
         if armpl_version.startswith("23.06"):
             return (
                 f"{base_url}/{armpl_version_dashed}/"
-                f"armpl_{armpl_version}_{compiler_version}.dmg"
+                + f"armpl_{armpl_version}_{compiler_version}.dmg"
             )
         else:
             filename = f"arm-performance-libraries_{armpl_version}_macOS.dmg"
@@ -293,11 +286,9 @@ def get_package_url_before_24(version):
     return f"{base_url}/{armpl_version_dashed}/{os_short}/{filename}"
 
 
-def get_package_url_from_24(version):
-    base_url = (
-        "https://developer.arm.com/-/cdn-downloads/permalink/Arm-Performance-Libraries/Version"
-    )
+def get_package_url_from_24(base, version):
     pkg_system = get_os_or_pkg_manager(version)
+    os = "macOS" if pkg_system == "macOS" else "linux"
 
     extension = "tgz" if pkg_system == "macOS" else "tar"
 
@@ -307,15 +298,17 @@ def get_package_url_from_24(version):
         full_name_library = f"{full_name_library}_gcc"
     file_name = f"{full_name_library}.{extension}"
 
-    url_parts = f"{base_url}_{version}/{file_name}"
+    vn = version.replace(".", "-")
+    url_parts = f"{base}/{vn}/{os}/{file_name}"
     return url_parts
 
 
 def get_package_url(version):
+    base_url = "https://developer.arm.com/-/media/Files/downloads/hpc/arm-performance-libraries"
     if version[:2] >= "24":
-        return get_package_url_from_24(version)
+        return get_package_url_from_24(base_url, version)
     else:
-        return get_package_url_before_24(version)
+        return get_package_url_before_24(base_url, version)
 
 
 def get_armpl_prefix(spec):
@@ -342,6 +335,8 @@ class ArmplGcc(Package):
     high-performance computing applications on Arm processors."""
 
     homepage = "https://developer.arm.com/tools-and-software/server-and-hpc/downloads/arm-performance-libraries"
+    url = "https://developer.arm.com/-/media/Files/downloads/hpc/arm-performance-libraries/24-04/linux/arm-performance-libraries_24.04_deb_gcc.tar"
+
     maintainers("paolotricerri")
 
     for ver, packages in _versions.items():
@@ -406,8 +401,6 @@ class ArmplGcc(Package):
     provides("lapack")
     provides("fftw-api@3")
 
-    depends_on("gmake", type="build")
-
     # Run the installer with the desired install directory
     def install(self, spec, prefix):
         if spec.platform == "darwin":
@@ -441,7 +434,7 @@ class ArmplGcc(Package):
 
         exe = Executable(
             f"./arm-performance-libraries_{armpl_version}_"
-            f"{get_os_or_pkg_manager(armpl_version)}.sh"
+            + f"{get_os_or_pkg_manager(armpl_version)}.sh"
         )
         exe("--accept", "--force", "--install-to", prefix)
 

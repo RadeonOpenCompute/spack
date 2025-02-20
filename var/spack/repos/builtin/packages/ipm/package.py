@@ -1,8 +1,10 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
 from spack.package import *
+from spack.util.executable import Executable
 
 
 class Ipm(AutotoolsPackage):
@@ -77,25 +79,25 @@ class Ipm(AutotoolsPackage):
     def configure_args(self):
         args = []
         spec = self.spec
-        if spec.satisfies("+papi"):
+        if "+papi" in spec:
             args.append("--with-papi={0}".format(spec["papi"].prefix))
 
-        if spec.satisfies("+cuda"):
+        if "+cuda" in spec:
             args.append("--with-cudapath={0}".format(spec["cuda"].prefix))
 
-        if spec.satisfies("+libunwind"):
+        if "+libunwind" in spec:
             args.append("--with-libunwind={0}".format(spec["libunwind"].prefix))
 
-        if spec.satisfies("+papi_multiplexing"):
+        if "+papi_multiplexing" in spec:
             args.append("--enable-papi-multiplexing")
 
-        if spec.satisfies("+posixio"):
+        if "+posixio" in spec:
             args.append("--enable-posixio")
 
-        if spec.satisfies("+pmon"):
+        if "+pmon" in spec:
             args.append("--enable-pmon")
 
-        if spec.satisfies("+coll_details"):
+        if "+coll_details" in spec:
             args.append("--enable-coll-details")
 
         args.extend(

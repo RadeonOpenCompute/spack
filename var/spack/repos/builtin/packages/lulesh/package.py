@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -32,19 +33,19 @@ class Lulesh(MakefilePackage):
         targets = []
         cxxflag = " -g -O3 -I. "
         ldflags = " -g -O3 "
-        if self.spec.satisfies("~mpi"):
+        if "~mpi" in self.spec:
             targets.append("CXX = {0} {1}".format(spack_cxx, " -DUSE_MPI=0 "))
         else:
             targets.append("CXX = {0} {1}".format(self.spec["mpi"].mpicxx, " -DUSE_MPI=1"))
             targets.append("MPI_INC = {0}".format(self.spec["mpi"].prefix.include))
             targets.append("MPI_LIB = {0}".format(self.spec["mpi"].prefix.lib))
-        if self.spec.satisfies("+visual"):
+        if "+visual" in self.spec:
             targets.append("SILO_INCDIR = {0}".format(self.spec["silo"].prefix.include))
             targets.append("SILO_LIBDIR = {0}".format(self.spec["silo"].prefix.lib))
             cxxflag = " -g -DVIZ_MESH -I${SILO_INCDIR} "
             ldflags = " -g -L${SILO_LIBDIR} -Wl,-rpath=${SILO_LIBDIR} -lsiloh5 -lhdf5 "
 
-        if self.spec.satisfies("+openmp"):
+        if "+openmp" in self.spec:
             cxxflag += self.compiler.openmp_flag
             ldflags += self.compiler.openmp_flag
 

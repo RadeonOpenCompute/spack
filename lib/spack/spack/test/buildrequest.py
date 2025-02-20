@@ -1,10 +1,10 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
 import pytest
 
-import spack.concretize
 import spack.deptypes as dt
 import spack.installer as inst
 import spack.repo
@@ -22,7 +22,8 @@ def test_build_request_errors(install_mockery):
 
 
 def test_build_request_basics(install_mockery):
-    spec = spack.concretize.concretize_one("dependent-install")
+    spec = spack.spec.Spec("dependent-install")
+    spec.concretize()
     assert spec.concrete
 
     # Ensure key properties match expectations
@@ -39,7 +40,8 @@ def test_build_request_basics(install_mockery):
 def test_build_request_strings(install_mockery):
     """Tests of BuildRequest repr and str for coverage purposes."""
     # Using a package with one dependency
-    spec = spack.concretize.concretize_one("dependent-install")
+    spec = spack.spec.Spec("dependent-install")
+    spec.concretize()
     assert spec.concrete
 
     # Ensure key properties match expectations
@@ -71,7 +73,7 @@ def test_build_request_deptypes(
     package_deptypes,
     dependencies_deptypes,
 ):
-    s = spack.concretize.concretize_one("dependent-install")
+    s = spack.spec.Spec("dependent-install").concretized()
 
     build_request = inst.BuildRequest(
         s.package,

@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -46,17 +47,17 @@ class H5utils(AutotoolsPackage):
         spec = self.spec
         args = []
 
-        if spec.satisfies("+vis5d"):
+        if "+vis5d" in spec:
             args.append(f"--with-v5d={spec['vis5d'].prefix}")
         else:
             args.append("--without-v5d")
 
-        if spec.satisfies("+octave"):
+        if "+octave" in spec:
             args.append("--with-octave")
         else:
             args.append("--without-octave")
 
-        if spec.satisfies("+hdf"):
+        if "+hdf" in spec:
             args.append("--with-hdf4")
         else:
             args.append("--without-hdf4")

@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -13,11 +14,7 @@ class PyShiboken(PythonPackage):
     homepage = "https://shiboken.readthedocs.org/"
     pypi = "Shiboken/Shiboken-1.2.2.tar.gz"
 
-    version(
-        "1.2.2",
-        sha256="0baee03c6244ab56e42e4200d0cb5e234682b11cc296ed0a192fe457d054972f",
-        deprecated=True,
-    )
+    version("1.2.2", sha256="0baee03c6244ab56e42e4200d0cb5e234682b11cc296ed0a192fe457d054972f")
 
     depends_on("cxx", type="build")  # generated
 

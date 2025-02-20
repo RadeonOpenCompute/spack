@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -62,6 +63,9 @@ class P3dfft3(AutotoolsPackage):
 
         if "%cce" in self.spec:
             args.append("--enable-cray")
+
+        if "%pgi" in self.spec:
+            args.append("--enable-pgi")
 
         if "+mpi" in self.spec:
             args.append("CC=%s" % self.spec["mpi"].mpicc)

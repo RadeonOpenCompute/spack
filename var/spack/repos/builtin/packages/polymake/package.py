@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 from spack.package import *
@@ -43,7 +44,6 @@ class Polymake(Package):
     depends_on("ppl")
     depends_on("ppl@1.2:", when="@3.2:")
     depends_on("readline")
-    depends_on("gmake", type="build")
 
     def install(self, spec, prefix):
         configure(

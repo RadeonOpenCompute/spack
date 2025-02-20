@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 import os
@@ -10,14 +11,11 @@ from llnl.util.filesystem import find, working_dir
 import spack.builder
 import spack.install_test
 import spack.package_base
-import spack.phase_callbacks
-import spack.spec
-import spack.util.prefix
 from spack.directives import build_system, depends_on, extends
 from spack.multimethod import when
 from spack.util.executable import Executable
 
-from ._checks import BuilderWithDefaults, execute_install_time_tests
+from ._checks import BaseBuilder, execute_install_time_tests
 
 
 class SIPPackage(spack.package_base.PackageBase):
@@ -43,7 +41,6 @@ class SIPPackage(spack.package_base.PackageBase):
     with when("build_system=sip"):
         extends("python", type=("build", "link", "run"))
         depends_on("py-sip", type="build")
-        depends_on("gmake", type="build")
 
     @property
     def import_modules(self):
@@ -106,7 +103,7 @@ class SIPPackage(spack.package_base.PackageBase):
 
 
 @spack.builder.builder("sip")
-class SIPBuilder(BuilderWithDefaults):
+class SIPBuilder(BaseBuilder):
     """The SIP builder provides the following phases that can be overridden:
 
     * configure
@@ -133,9 +130,7 @@ class SIPBuilder(BuilderWithDefaults):
 
     build_directory = "build"
 
-    def configure(
-        self, pkg: SIPPackage, spec: spack.spec.Spec, prefix: spack.util.prefix.Prefix
-    ) -> None:
+    def configure(self, pkg, spec, prefix):
         """Configure the package."""
 
         # https://www.riverbankcomputing.com/static/Docs/sip/command_line_tools.html
@@ -153,9 +148,7 @@ class SIPBuilder(BuilderWithDefaults):
         """Arguments to pass to configure."""
         return []
 
-    def build(
-        self, pkg: SIPPackage, spec: spack.spec.Spec, prefix: spack.util.prefix.Prefix
-    ) -> None:
+    def build(self, pkg, spec, prefix):
         """Build the package."""
         args = self.build_args()
 
@@ -166,9 +159,7 @@ class SIPBuilder(BuilderWithDefaults):
         """Arguments to pass to build."""
         return []
 
-    def install(
-        self, pkg: SIPPackage, spec: spack.spec.Spec, prefix: spack.util.prefix.Prefix
-    ) -> None:
+    def install(self, pkg, spec, prefix):
         """Install the package."""
         args = self.install_args()
 
@@ -179,4 +170,4 @@ class SIPBuilder(BuilderWithDefaults):
         """Arguments to pass to install."""
         return []
 
-    spack.phase_callbacks.run_after("install")(execute_install_time_tests)
+    spack.builder.run_after("install")(execute_install_time_tests)

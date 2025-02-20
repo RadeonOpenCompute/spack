@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -98,5 +99,5 @@ def deconcretize(parser, args):
             " Use `spack deconcretize --all` to deconcretize ALL specs.",
         )
 
-    specs = spack.cmd.parse_specs(args.specs) if args.specs else [None]
+    specs = spack.cmd.parse_specs(args.specs) if args.specs else [any]
     deconcretize_specs(args, specs)

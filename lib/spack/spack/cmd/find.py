@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -9,15 +10,13 @@ import llnl.util.lang
 import llnl.util.tty as tty
 import llnl.util.tty.color as color
 
+import spack.bootstrap
 import spack.cmd as cmd
-import spack.config
 import spack.environment as ev
 import spack.repo
-import spack.spec
 import spack.store
 from spack.cmd.common import arguments
-
-from ..enums import InstallRecordStatus
+from spack.database import InstallStatuses
 
 description = "list and search installed packages"
 section = "basic"
@@ -137,21 +136,20 @@ def setup_parser(subparser):
     subparser.add_argument(
         "--loaded", action="store_true", help="show only packages loaded in the user environment"
     )
-    only_missing_or_deprecated = subparser.add_mutually_exclusive_group()
-    only_missing_or_deprecated.add_argument(
+    subparser.add_argument(
         "-M",
         "--only-missing",
         action="store_true",
         dest="only_missing",
         help="show only missing dependencies",
     )
-    only_missing_or_deprecated.add_argument(
-        "--only-deprecated", action="store_true", help="show only deprecated packages"
-    )
     subparser.add_argument(
         "--deprecated",
         action="store_true",
         help="show deprecated packages as well as installed specs",
+    )
+    subparser.add_argument(
+        "--only-deprecated", action="store_true", help="show only deprecated packages"
     )
     subparser.add_argument(
         "--install-tree",
@@ -166,35 +164,26 @@ def setup_parser(subparser):
 
 
 def query_arguments(args):
-    if args.only_missing and (args.deprecated or args.missing):
-        raise RuntimeError("cannot use --only-missing with --deprecated, or --missing")
+    # Set up query arguments.
+    installed = []
+    if not (args.only_missing or args.only_deprecated):
+        installed.append(InstallStatuses.INSTALLED)
+    if (args.deprecated or args.only_deprecated) and not args.only_missing:
+        installed.append(InstallStatuses.DEPRECATED)
+    if (args.missing or args.only_missing) and not args.only_deprecated:
+        installed.append(InstallStatuses.MISSING)
 
-    if args.only_deprecated and (args.deprecated or args.missing):
-        raise RuntimeError("cannot use --only-deprecated with --deprecated, or --missing")
-
-    installed = InstallRecordStatus.INSTALLED
-    if args.only_missing:
-        installed = InstallRecordStatus.MISSING
-    elif args.only_deprecated:
-        installed = InstallRecordStatus.DEPRECATED
-
-    if args.missing:
-        installed |= InstallRecordStatus.MISSING
-
-    if args.deprecated:
-        installed |= InstallRecordStatus.DEPRECATED
-
-    predicate_fn = None
+    known = any
     if args.unknown:
-        predicate_fn = lambda x: not spack.repo.PATH.exists(x.spec.name)
+        known = False
 
-    explicit = None
+    explicit = any
     if args.explicit:
         explicit = True
     if args.implicit:
         explicit = False
 
-    q_args = {"installed": installed, "predicate_fn": predicate_fn, "explicit": explicit}
+    q_args = {"installed": installed, "known": known, "explicit": explicit}
 
     install_tree = args.install_tree
     upstreams = spack.config.get("upstreams", {})
@@ -232,9 +221,11 @@ def make_env_decorator(env):
 def display_env(env, args, decorator, results):
     """Display extra find output when running in an environment.
 
-    In an environment, `spack find` outputs a preliminary section
-    showing the root specs of the environment (this is in addition
-    to the section listing out specs matching the query parameters).
+    Find in an environment outputs 2 or 3 sections:
+
+    1. Root specs
+    2. Concretized roots (if asked for with -c)
+    3. Installed specs
 
     """
     tty.msg("In environment %s" % env.name)
@@ -307,56 +298,6 @@ def display_env(env, args, decorator, results):
         print()
 
 
-def _find_query(args, env):
-    q_args = query_arguments(args)
-    concretized_but_not_installed = list()
-    if env:
-        all_env_specs = env.all_specs()
-        if args.constraint:
-            init_specs = cmd.parse_specs(args.constraint)
-            env_specs = env.all_matching_specs(*init_specs)
-        else:
-            env_specs = all_env_specs
-
-        spec_hashes = set(x.dag_hash() for x in env_specs)
-        specs_meeting_q_args = set(spack.store.STORE.db.query(hashes=spec_hashes, **q_args))
-
-        results = list()
-        with spack.store.STORE.db.read_transaction():
-            for spec in env_specs:
-                if not spec.installed:
-                    concretized_but_not_installed.append(spec)
-                if spec in specs_meeting_q_args:
-                    results.append(spec)
-    else:
-        results = args.specs(**q_args)
-
-    # use groups by default except with format.
-    if args.groups is None:
-        args.groups = not args.format
-
-    # Exit early with an error code if no package matches the constraint
-    if concretized_but_not_installed and args.show_concretized:
-        pass
-    elif results:
-        pass
-    elif args.constraint:
-        raise cmd.NoSpecMatches()
-
-    # If tags have been specified on the command line, filter by tags
-    if args.tags:
-        packages_with_tags = spack.repo.PATH.packages_with_tags(*args.tags)
-        results = [x for x in results if x.name in packages_with_tags]
-        concretized_but_not_installed = [
-            x for x in concretized_but_not_installed if x.name in packages_with_tags
-        ]
-
-    if args.loaded:
-        results = cmd.filter_loaded_specs(results)
-
-    return results, concretized_but_not_installed
-
-
 def find(parser, args):
     env = ev.active_environment()
 
@@ -365,12 +306,34 @@ def find(parser, args):
     if not env and args.show_concretized:
         tty.die("-c / --show-concretized requires an active environment")
 
-    try:
-        results, concretized_but_not_installed = _find_query(args, env)
-    except cmd.NoSpecMatches:
-        # Note: this uses args.constraint vs. args.constraint_specs because
-        # the latter only exists if you call args.specs()
-        tty.die(f"No package matches the query: {' '.join(args.constraint)}")
+    if env:
+        if args.constraint:
+            init_specs = spack.cmd.parse_specs(args.constraint)
+            results = env.all_matching_specs(*init_specs)
+        else:
+            results = env.all_specs()
+    else:
+        q_args = query_arguments(args)
+        results = args.specs(**q_args)
+
+    decorator = make_env_decorator(env) if env else lambda s, f: f
+
+    # use groups by default except with format.
+    if args.groups is None:
+        args.groups = not args.format
+
+    # Exit early with an error code if no package matches the constraint
+    if not results and args.constraint:
+        constraint_str = " ".join(str(s) for s in args.constraint_specs)
+        tty.die(f"No package matches the query: {constraint_str}")
+
+    # If tags have been specified on the command line, filter by tags
+    if args.tags:
+        packages_with_tags = spack.repo.PATH.packages_with_tags(*args.tags)
+        results = [x for x in results if x.name in packages_with_tags]
+
+    if args.loaded:
+        results = spack.cmd.filter_loaded_specs(results)
 
     if args.install_status or args.show_concretized:
         status_fn = spack.spec.Spec.install_status
@@ -381,16 +344,14 @@ def find(parser, args):
     if args.json:
         cmd.display_specs_as_json(results, deps=args.deps)
     else:
-        decorator = make_env_decorator(env) if env else lambda s, f: f
-
         if not args.format:
             if env:
                 display_env(env, args, decorator, results)
 
         if not args.only_roots:
-            display_results = list(results)
-            if args.show_concretized:
-                display_results += concretized_but_not_installed
+            display_results = results
+            if not args.show_concretized:
+                display_results = list(x for x in results if x.installed)
             cmd.display_specs(
                 display_results, args, decorator=decorator, all_headers=True, status_fn=status_fn
             )
@@ -408,9 +369,13 @@ def find(parser, args):
                     concretized_suffix += " (show with `spack find -c`)"
 
             pkg_type = "loaded" if args.loaded else "installed"
-            cmd.print_how_many_pkgs(results, pkg_type, suffix=installed_suffix)
+            spack.cmd.print_how_many_pkgs(
+                list(x for x in results if x.installed), pkg_type, suffix=installed_suffix
+            )
 
             if env:
-                cmd.print_how_many_pkgs(
-                    concretized_but_not_installed, "concretized", suffix=concretized_suffix
+                spack.cmd.print_how_many_pkgs(
+                    list(x for x in results if not x.installed),
+                    "concretized",
+                    suffix=concretized_suffix,
                 )

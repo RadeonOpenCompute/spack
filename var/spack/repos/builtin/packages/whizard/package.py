@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -12,7 +13,7 @@ class Whizard(AutotoolsPackage):
     of multi-particle scattering cross sections
     and simulated event samples."""
 
-    homepage = "https://whizard.hepforge.org"
+    homepage = "whizard.hepforge.org"
     urls = [
         "https://launchpad.net/whizard/3.1.x/3.1.2/+download/whizard-3.1.2.tar.gz",
         "https://whizard.hepforge.org/downloads/?f=whizard-2.8.3.tar.gz",

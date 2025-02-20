@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -34,7 +35,6 @@ class SuperluMt(Package):
 
     # NOTE: must link with a single-threaded BLAS library
     depends_on("blas", when="+blas")
-    depends_on("gmake", type="build")
 
     # Cannot be built in parallel
     parallel = False

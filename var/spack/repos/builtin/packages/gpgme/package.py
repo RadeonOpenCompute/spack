@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -32,7 +33,7 @@ class Gpgme(AutotoolsPackage):
 
     depends_on("gnupg", type="build")
     depends_on("libgpg-error", type="build")
-    depends_on("libassuan@2.4.2:2", type=("build", "link"))
+    depends_on("libassuan", type="build")
 
     @classmethod
     def determine_version(cls, exe):

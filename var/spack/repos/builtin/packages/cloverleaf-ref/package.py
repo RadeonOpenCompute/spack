@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -96,8 +97,14 @@ class CloverleafRef(MakefilePackage):
             targets.append("COMPILER=CRAY")
             targets.append("OMP_CRAY=-fopenmp")
 
+        elif self.spec.satisfies("%pgi"):
+            targets.append("COMPILER=PGI")
+
         elif self.spec.satisfies("%xl"):
             targets.append("COMPILER=XLF")
+
+        else:
+            raise ValueError("Compiler {} not supported".format(self.spec.compiler.name))
 
         return targets
 

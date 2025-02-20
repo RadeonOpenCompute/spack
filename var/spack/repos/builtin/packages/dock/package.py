@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -32,13 +33,16 @@ class Dock(Package):
             env.set("MPICH_HOME", self.spec["mpi"].prefix)
 
     def install(self, spec, prefix):
-        compiler_targets = {"gcc": "gnu", "intel": "intel", "sgi": "sgi"}
+        compiler_targets = {"gcc": "gnu", "intel": "intel", "pgi": "pgi", "sgi": "sgi"}
 
         if self.compiler.name not in compiler_targets:
             template = "Unsupported compiler {0}! Supported compilers: {1}"
             err = template.format(self.compiler.name, ", ".join(list(compiler_targets.keys())))
 
             raise InstallError(err)
+
+        if self.compiler.name == "pgi" and "+mpi" in spec:
+            raise InstallError("Parallel output is not supported with pgi.")
 
         with working_dir("install"):
             sh_args = ["./configure", compiler_targets[self.compiler.name]]

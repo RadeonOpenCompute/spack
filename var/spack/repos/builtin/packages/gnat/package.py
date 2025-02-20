@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -28,8 +29,6 @@ class Gnat(Package):
         extension="tar.gz",
         url="http://mirrors.cdn.adacore.com/art/5739cefdc7a447658e0b016b",
     )
-
-    depends_on("gmake", type="build")
 
     def install(self, spec, prefix):
         make("ins-all", "prefix={0}".format(prefix))

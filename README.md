@@ -46,17 +46,12 @@ See the
 [Feature Overview](https://spack.readthedocs.io/en/latest/features.html)
 for examples and highlights.
 
-To install spack and your first package, make sure you have Python & Git.
+To install spack and your first package, make sure you have Python.
 Then:
 
-    $ git clone -c feature.manyFiles=true --depth=2 https://github.com/spack/spack.git
+    $ git clone -c feature.manyFiles=true https://github.com/spack/spack.git
     $ cd spack/bin
     $ ./spack install zlib
-
-> [!TIP]
-> `-c feature.manyFiles=true` improves git's performance on repositories with 1,000+ files.
->
-> `--depth=2` prunes the git history to reduce the size of the Spack installation.
 
 Documentation
 ----------------
@@ -70,7 +65,7 @@ Tutorial
 ----------------
 
 We maintain a
-[**hands-on tutorial**](https://spack-tutorial.readthedocs.io/).
+[**hands-on tutorial**](https://spack.readthedocs.io/en/latest/tutorial.html).
 It covers basic to advanced usage, packaging, developer features, and large HPC
 deployments.  You can do all of the exercises on your own laptop using a
 Docker container.

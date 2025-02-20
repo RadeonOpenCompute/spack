@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -7,7 +8,7 @@ import os
 import tempfile
 
 import spack.binary_distribution
-import spack.mirrors.mirror
+import spack.mirror
 import spack.paths
 import spack.stage
 import spack.util.gpg
@@ -216,11 +217,11 @@ def gpg_publish(args):
     mirror = None
     if args.directory:
         url = spack.util.url.path_to_file_url(args.directory)
-        mirror = spack.mirrors.mirror.Mirror(url, url)
+        mirror = spack.mirror.Mirror(url, url)
     elif args.mirror_name:
-        mirror = spack.mirrors.mirror.MirrorCollection(binary=True).lookup(args.mirror_name)
+        mirror = spack.mirror.MirrorCollection(binary=True).lookup(args.mirror_name)
     elif args.mirror_url:
-        mirror = spack.mirrors.mirror.Mirror(args.mirror_url, args.mirror_url)
+        mirror = spack.mirror.Mirror(args.mirror_url, args.mirror_url)
 
     with tempfile.TemporaryDirectory(dir=spack.stage.get_stage_root()) as tmpdir:
         spack.binary_distribution._url_push_keys(

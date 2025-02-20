@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 import os
@@ -7,9 +8,7 @@ from llnl.util.filesystem import find
 
 import spack.builder
 import spack.package_base
-import spack.spec
 import spack.util.executable
-import spack.util.prefix
 from spack.directives import build_system, depends_on, extends
 from spack.multimethod import when
 
@@ -57,9 +56,7 @@ class LuaBuilder(spack.builder.Builder):
     #: Names associated with package attributes in the old build-system format
     legacy_attributes = ()
 
-    def unpack(
-        self, pkg: LuaPackage, spec: spack.spec.Spec, prefix: spack.util.prefix.Prefix
-    ) -> None:
+    def unpack(self, pkg, spec, prefix):
         if os.path.splitext(pkg.stage.archive_file)[1] == ".rock":
             directory = pkg.luarocks("unpack", pkg.stage.archive_file, output=str)
             dirlines = directory.split("\n")
@@ -70,16 +67,15 @@ class LuaBuilder(spack.builder.Builder):
     def _generate_tree_line(name, prefix):
         return """{{ name = "{name}", root = "{prefix}" }};""".format(name=name, prefix=prefix)
 
-    def generate_luarocks_config(
-        self, pkg: LuaPackage, spec: spack.spec.Spec, prefix: spack.util.prefix.Prefix
-    ) -> None:
+    def generate_luarocks_config(self, pkg, spec, prefix):
         spec = self.pkg.spec
         table_entries = []
         for d in spec.traverse(deptype=("build", "run")):
             if d.package.extends(self.pkg.extendee_spec):
                 table_entries.append(self._generate_tree_line(d.name, d.prefix))
 
-        with open(self._luarocks_config_path(), "w", encoding="utf-8") as config:
+        path = self._luarocks_config_path()
+        with open(path, "w") as config:
             config.write(
                 """
                 deps_mode="all"
@@ -90,26 +86,23 @@ class LuaBuilder(spack.builder.Builder):
                     "\n".join(table_entries)
                 )
             )
+        return path
 
-    def preprocess(
-        self, pkg: LuaPackage, spec: spack.spec.Spec, prefix: spack.util.prefix.Prefix
-    ) -> None:
+    def preprocess(self, pkg, spec, prefix):
         """Override this to preprocess source before building with luarocks"""
         pass
 
     def luarocks_args(self):
         return []
 
-    def install(
-        self, pkg: LuaPackage, spec: spack.spec.Spec, prefix: spack.util.prefix.Prefix
-    ) -> None:
+    def install(self, pkg, spec, prefix):
         rock = "."
         specs = find(".", "*.rockspec", recursive=False)
         if specs:
             rock = specs[0]
         rocks_args = self.luarocks_args()
         rocks_args.append(rock)
-        pkg.luarocks("--tree=" + prefix, "make", *rocks_args)
+        self.pkg.luarocks("--tree=" + prefix, "make", *rocks_args)
 
     def _luarocks_config_path(self):
         return os.path.join(self.pkg.stage.source_path, "spack_luarocks.lua")

@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -88,20 +89,24 @@ class Hisat2(MakefilePackage):
             pattern = "^#!.*/usr/bin/env python"
             repl = f"#!{self.spec['python'].command.path}"
             files = ["hisat2-build", "hisat2-inspect"]
-            filter_file(pattern, repl, *files, backup=False)
+            for file in files:
+                filter_file(pattern, repl, *files, backup=False)
 
             pattern = "^#!.*/usr/bin/env perl"
             repl = f"#!{self.spec['perl'].command.path}"
             files = ["hisat2"]
-            filter_file(pattern, repl, *files, backup=False)
+            for file in files:
+                filter_file(pattern, repl, *files, backup=False)
 
             pattern = "^#!.*/usr/bin/env python3"
             repl = f"#!{self.spec['python'].command.path}"
             files = glob.glob("*.py")
-            filter_file(pattern, repl, *files, backup=False)
+            for file in files:
+                filter_file(pattern, repl, *files, backup=False)
 
         with working_dir(self.prefix.scripts):
             pattern = "^#!.*/usr/bin/perl"
             repl = f"#!{self.spec['perl'].command.path}"
             files = glob.glob("*.pl")
-            filter_file(pattern, repl, *files, backup=False)
+            for file in files:
+                filter_file(pattern, repl, *files, backup=False)

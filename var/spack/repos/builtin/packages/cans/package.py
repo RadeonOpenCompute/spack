@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -14,8 +15,8 @@ class Cans(MakefilePackage):
     finite-difference Poisson equation
     in a 3D Cartesian grid."""
 
-    homepage = "https://github.com/CaNS-World/CaNS"
-    url = "https://github.com/CaNS-World/CaNS/archive/refs/tags/v1.1.4.tar.gz"
+    homepage = "https://github.com/p-costa/CaNS"
+    url = "https://github.com/p-costa/CaNS/archive/refs/tags/v1.1.4.tar.gz"
 
     maintainers("lhxone", "p-costa", "nscapin", "GabrieleBoga")
 

@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -29,7 +30,7 @@ class GpuBurn(MakefilePackage, CudaPackage):
 
     def edit(self, spec, prefix):
         # update cuda architecture if necessary
-        if self.spec.satisfies("+cuda"):
+        if "+cuda" in self.spec:
             cuda_arch = self.spec.variants["cuda_arch"].value
             archflag = " ".join(CudaPackage.cuda_flags(cuda_arch))
             with open("Makefile", "w") as fh:

@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -23,9 +24,7 @@ class Libmypaint(AutotoolsPackage):
     version("1.4.0", sha256="59d13b14c6aca0497095f29ee7228ca2499a923ba8e1dd718a2f2ecb45a9cbff")
     version("1.3.0", sha256="6a07d9d57fea60f68d218a953ce91b168975a003db24de6ac01ad69dcc94a671")
 
-    depends_on("c", type="build")
-    depends_on("gettext", type="build")
-    depends_on("pkgconfig", type="build")
+    depends_on("c", type="build")  # generated
 
     variant("gegl", default=False, description="Enable GEGL based code in build")
     variant("introspection", default=True, description="Enable introspection for this build")
@@ -42,10 +41,10 @@ class Libmypaint(AutotoolsPackage):
     def configure_args(self):
         args = []
 
-        if self.spec.satisfies("+gegl"):
+        if "+gegl" in self.spec:
             args.append("--enable-gegl=yes")
 
-        if self.spec.satisfies("+introspection"):
+        if "+introspection" in self.spec:
             args.extend(
                 ["--enable-introspection=yes", "--with-glib={0}".format(self.spec["glib"].prefix)]
             )

@@ -81,13 +81,8 @@ class Microarchitecture:
         self.generation = generation
         # Only relevant for AArch64
         self.cpu_part = cpu_part
-
-        # Cache the "ancestor" computation
+        # Cache the ancestor computation
         self._ancestors = None
-        # Cache the "generic" computation
-        self._generic = None
-        # Cache the "family" computation
-        self._family = None
 
     @property
     def ancestors(self):
@@ -119,9 +114,6 @@ class Microarchitecture:
             and self.generation == other.generation
             and self.cpu_part == other.cpu_part
         )
-
-    def __hash__(self):
-        return hash(self.name)
 
     @coerce_target_names
     def __ne__(self, other):
@@ -179,22 +171,18 @@ class Microarchitecture:
     @property
     def family(self):
         """Returns the architecture family a given target belongs to"""
-        if self._family is None:
-            roots = [x for x in [self] + self.ancestors if not x.ancestors]
-            msg = "a target is expected to belong to just one architecture family"
-            msg += f"[found {', '.join(str(x) for x in roots)}]"
-            assert len(roots) == 1, msg
-            self._family = roots.pop()
+        roots = [x for x in [self] + self.ancestors if not x.ancestors]
+        msg = "a target is expected to belong to just one architecture family"
+        msg += f"[found {', '.join(str(x) for x in roots)}]"
+        assert len(roots) == 1, msg
 
-        return self._family
+        return roots.pop()
 
     @property
     def generic(self):
         """Returns the best generic architecture that is compatible with self"""
-        if self._generic is None:
-            generics = [x for x in [self] + self.ancestors if x.vendor == "generic"]
-            self._generic = max(generics, key=lambda x: len(x.ancestors))
-        return self._generic
+        generics = [x for x in [self] + self.ancestors if x.vendor == "generic"]
+        return max(generics, key=lambda x: len(x.ancestors))
 
     def to_dict(self):
         """Returns a dictionary representation of this object."""

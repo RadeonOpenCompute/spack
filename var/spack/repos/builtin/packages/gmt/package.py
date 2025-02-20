@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -129,16 +130,16 @@ class CMakeBuilder(CMakeBuilder):
             self.define("DCW_PATH", "dcw"),
         ]
 
-        if spec.satisfies("+ghostscript"):
+        if "+ghostscript" in spec:
             args.append(self.define("GS", spec["ghostscript"].prefix.bin.gs))
 
-        if spec.satisfies("+geos"):
+        if "+geos" in spec:
             args.append(self.define("GEOS_CONFIG", spec["geos"].prefix.bin.join("geos-config")))
 
-        if spec.satisfies("+pcre"):
+        if "+pcre" in spec:
             args.append(self.define("PCRE2_CONFIG", spec["pcre2"].prefix.bin.join("pcre2-config")))
 
-        if spec.satisfies("+fftw"):
+        if "+fftw" in spec:
             args.extend(
                 [
                     self.define("FFTW3_INCLUDE_DIR", spec["fftw"].headers.directories[0]),
@@ -146,7 +147,7 @@ class CMakeBuilder(CMakeBuilder):
                 ]
             )
 
-        if spec.satisfies("+glib"):
+        if "+glib" in spec:
             args.extend(
                 [
                     self.define("GLIB_INCLUDE_DIR", spec["glib"].headers.directories[0]),
@@ -154,7 +155,7 @@ class CMakeBuilder(CMakeBuilder):
                 ]
             )
 
-        if spec.satisfies("graphicsmagick"):
+        if "graphicsmagick" in spec:
             args.extend(
                 [
                     self.define("GM", spec["graphicsmagick"].prefix.bin.gm),
@@ -162,7 +163,7 @@ class CMakeBuilder(CMakeBuilder):
                 ]
             )
 
-        if spec.satisfies("+ffmpeg"):
+        if "+ffmpeg" in spec:
             args.append(self.define("FFMPEG", spec["ffmpeg"].prefix.bin.ffmpeg))
 
         return args

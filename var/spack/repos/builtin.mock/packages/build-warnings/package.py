@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -17,7 +18,7 @@ class BuildWarnings(Package):
 
     def install(self, spec, prefix):
         if sys.platform == "win32":
-            with open("configure.bat", "w", encoding="utf-8") as f:
+            with open("configure.bat", "w") as f:
                 f.write(
                     """
   @ECHO off
@@ -33,7 +34,7 @@ class BuildWarnings(Package):
 
             Executable("configure.bat")("--prefix=%s" % self.prefix)
         else:
-            with open("configure", "w", encoding="utf-8") as f:
+            with open("configure", "w") as f:
                 f.write(
                     """#!/bin/sh\n
   echo 'checking for gcc... /Users/gamblin2/src/spack/lib/spack/env/clang/clang'

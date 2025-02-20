@@ -1,7 +1,8 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
-import os
+import os.path
 
 from spack.package import *
 
@@ -74,7 +75,7 @@ class Globalarrays(AutotoolsPackage):
             "--with-lapack={0}".format(lapack_libs),
         ]
 
-        if self.spec.satisfies("+scalapack"):
+        if "+scalapack" in self.spec:
             scalapack_libs = self.spec["scalapack"].libs.ld_flags
             args.append("--with-scalapack={0}".format(scalapack_libs))
 

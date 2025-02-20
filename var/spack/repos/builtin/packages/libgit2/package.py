@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -104,16 +105,16 @@ class Libgit2(CMakePackage):
 
     def cmake_args(self):
         args = []
-        if self.spec.satisfies("https=system"):
-            if self.spec.satisfies("platform=linux"):
+        if "https=system" in self.spec:
+            if "platform=linux" in self.spec:
                 args.append("-DUSE_HTTPS=OpenSSL")
-            elif self.spec.satisfies("platform=darwin"):
+            elif "platform=darwin" in self.spec:
                 args.append("-DUSE_HTTPS=SecureTransport")
             else:
                 # Let CMake try to find an HTTPS implementation. Mileage on
                 # your platform may vary
                 args.append("-DUSE_HTTPS=ON")
-        elif self.spec.satisfies("https=openssl"):
+        elif "https=openssl" in self.spec:
             args.append("-DUSE_HTTPS=OpenSSL")
         else:
             args.append("-DUSE_HTTPS=OFF")
@@ -121,7 +122,7 @@ class Libgit2(CMakePackage):
         args.append(f"-DUSE_SSH={'ON' if '+ssh' in self.spec else 'OFF'}")
 
         # The curl backed is not supported after 0.27.x
-        if self.spec.satisfies("@:0.27 +curl"):
+        if "@:0.27 +curl" in self.spec:
             args.append(f"-DCURL={'ON' if '+curl' in self.spec else 'OFF'}")
 
         # Control tests

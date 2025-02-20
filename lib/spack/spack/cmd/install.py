@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -12,16 +13,18 @@ import llnl.util.filesystem as fs
 from llnl.string import plural
 from llnl.util import lang, tty
 
+import spack.build_environment
 import spack.cmd
-import spack.concretize
 import spack.config
 import spack.environment as ev
+import spack.fetch_strategy
+import spack.package_base
 import spack.paths
 import spack.report
 import spack.spec
 import spack.store
 from spack.cmd.common import arguments
-from spack.error import InstallError, SpackError
+from spack.error import SpackError
 from spack.installer import PackageInstaller
 
 description = "build and install packages"
@@ -284,14 +287,14 @@ def require_user_confirmation_for_overwrite(concrete_specs, args):
         tty.die("Reinstallation aborted.")
 
 
-def _dump_log_on_error(e: InstallError):
+def _dump_log_on_error(e: spack.build_environment.InstallError):
     e.print_context()
     assert e.pkg, "Expected InstallError to include the associated package"
     if not os.path.exists(e.pkg.log_path):
         tty.error("'spack install' created no log.")
     else:
         sys.stderr.write("Full build log:\n")
-        with open(e.pkg.log_path, errors="replace", encoding="utf-8") as log:
+        with open(e.pkg.log_path, errors="replace") as log:
             shutil.copyfileobj(log, sys.stderr)
 
 
@@ -349,7 +352,7 @@ def install(parser, args):
             install_with_active_env(env, args, install_kwargs, reporter_factory)
         else:
             install_without_active_env(args, install_kwargs, reporter_factory)
-    except InstallError as e:
+    except spack.build_environment.InstallError as e:
         if args.show_log_on_error:
             _dump_log_on_error(e)
         raise
@@ -445,13 +448,13 @@ def concrete_specs_from_file(args):
     """Return the list of concrete specs read from files."""
     result = []
     for file in args.specfiles:
-        with open(file, "r", encoding="utf-8") as f:
+        with open(file, "r") as f:
             if file.endswith("yaml") or file.endswith("yml"):
                 s = spack.spec.Spec.from_yaml(f)
             else:
                 s = spack.spec.Spec.from_json(f)
 
-        concretized = spack.concretize.concretize_one(s)
+        concretized = s.concretized()
         if concretized.dag_hash() != s.dag_hash():
             msg = 'skipped invalid file "{0}". '
             msg += "The file does not contain a concrete spec."
@@ -474,5 +477,5 @@ def install_without_active_env(args, install_kwargs, reporter_factory):
 
         installs = [s.package for s in concrete_specs]
         install_kwargs["explicit"] = [s.dag_hash() for s in concrete_specs]
-        builder = PackageInstaller(installs, **install_kwargs)
+        builder = PackageInstaller(installs, install_kwargs)
         builder.install()

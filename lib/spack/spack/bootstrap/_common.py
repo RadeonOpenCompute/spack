@@ -1,18 +1,16 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 """Common basic functions used through the spack.bootstrap package"""
 import fnmatch
-import glob
 import importlib
-import os
+import os.path
 import re
 import sys
 import sysconfig
 import warnings
-from typing import Optional, Sequence, Union
-
-from typing_extensions import TypedDict
+from typing import Dict, Optional, Sequence, Union
 
 import archspec.cpu
 
@@ -20,17 +18,13 @@ import llnl.util.filesystem as fs
 from llnl.util import tty
 
 import spack.platforms
-import spack.spec
 import spack.store
 import spack.util.environment
 import spack.util.executable
 
 from .config import spec_for_current_python
 
-
-class QueryInfo(TypedDict, total=False):
-    spec: spack.spec.Spec
-    command: spack.util.executable.Executable
+QueryInfo = Dict[str, "spack.spec.Spec"]
 
 
 def _python_import(module: str) -> bool:
@@ -66,19 +60,10 @@ def _try_import_from_store(
             python, *_ = candidate_spec.dependencies("python-venv")
         else:
             python, *_ = candidate_spec.dependencies("python")
-
-        # if python is installed, ask it for the layout
-        if python.installed:
-            module_paths = [
-                os.path.join(candidate_spec.prefix, python.package.purelib),
-                os.path.join(candidate_spec.prefix, python.package.platlib),
-            ]
-        # otherwise search for the site-packages directory
-        # (clingo from binaries with truncated python-venv runtime)
-        else:
-            module_paths = glob.glob(
-                os.path.join(candidate_spec.prefix, "lib", "python*", "site-packages")
-            )
+        module_paths = [
+            os.path.join(candidate_spec.prefix, python.package.purelib),
+            os.path.join(candidate_spec.prefix, python.package.platlib),
+        ]
         path_before = list(sys.path)
 
         # NOTE: try module_paths first and last, last allows an existing version in path
@@ -217,9 +202,7 @@ def _executables_in_store(
             ):
                 spack.util.environment.path_put_first("PATH", [bin_dir])
                 if query_info is not None:
-                    query_info["command"] = spack.util.executable.which(
-                        *executables, path=bin_dir, required=True
-                    )
+                    query_info["command"] = spack.util.executable.which(*executables, path=bin_dir)
                     query_info["spec"] = concrete_spec
                 return True
     return False

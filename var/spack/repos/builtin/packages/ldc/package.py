@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -42,9 +43,7 @@ class Ldc(CMakePackage):
 
         args = [
             "-DD_COMPILER:STRING={0}".format(ldmd2),
-            "-DBUILD_SHARED_LIBS:BOOL={0}".format(
-                "ON" if self.spec.satisfies("+shared") else "OFF"
-            ),
+            "-DBUILD_SHARED_LIBS:BOOL={0}".format("ON" if "+shared" in self.spec else "OFF"),
             "-DLDC_INSTALL_LTOPLUGIN:BOOL=ON",
             "-DLDC_BUILD_WITH_LTO:BOOL=OFF",
         ]

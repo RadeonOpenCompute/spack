@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -37,8 +38,7 @@ class Pdt(AutotoolsPackage):
     version("3.19", sha256="d57234077e2e999f2acf9860ea84369a4694b50cc17fa6728e5255dc5f4a2160")
     version("3.18.1", sha256="d06c2d1793fadebf169752511e5046d7e02cf3fead6135a35c34b1fee6d6d3b2")
 
-    depends_on("c", type="build")
-    depends_on("cxx", type="build")
+    depends_on("cxx", type="build")  # generated
 
     variant("pic", default=False, description="Builds with pic")
 
@@ -50,21 +50,23 @@ class Pdt(AutotoolsPackage):
             filter_file(r"PDT_GXX=g\+\+ ", r"PDT_GXX=clang++ ", "ductape/Makefile")
 
     def configure(self, spec, prefix):
-        options = [f"-prefix={prefix}"]
-        if spec.satisfies("%xl"):
+        options = ["-prefix=%s" % prefix]
+        if self.compiler.name == "xl":
             options.append("-XLC")
-        elif spec.satisfies("%intel"):
+        elif self.compiler.name == "intel":
             options.append("-icpc")
-        elif spec.satisfies("%oneapi"):
+        elif self.compiler.name == "oneapi":
             if spec.satisfies("@3.25.2:"):
                 options.append("-icpx")
             else:
                 options.append("-icpc")
-        elif spec.satisfies("%gcc"):
+        elif self.compiler.name == "pgi":
+            options.append("-pgCC")
+        elif self.compiler.name == "gcc":
             options.append("-GNU")
-        elif spec.satisfies("%clang") or spec.satisfies("%apple-clang") or spec.satisfies("%aocc"):
+        elif self.compiler.name in ["clang", "apple-clang", "aocc"]:
             options.append("-clang")
-        elif spec.satisfies("%cce"):
+        elif self.compiler.name == "cce":
             options.append("-CC")
         else:
             raise InstallError("Unknown/unsupported compiler family: " + self.compiler.name)

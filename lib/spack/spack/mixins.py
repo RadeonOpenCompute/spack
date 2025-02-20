@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -9,7 +10,7 @@ import os
 
 import llnl.util.filesystem
 
-import spack.phase_callbacks
+import spack.builder
 
 
 def filter_compiler_wrappers(*files, **kwargs):
@@ -110,4 +111,4 @@ def filter_compiler_wrappers(*files, **kwargs):
         if pkg.compiler.name == "nag":
             x.filter("-Wl,--enable-new-dtags", "", **filter_kwargs)
 
-    spack.phase_callbacks.run_after(after)(_filter_compiler_wrappers_impl)
+    spack.builder.run_after(after)(_filter_compiler_wrappers_impl)

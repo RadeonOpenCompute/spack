@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -7,6 +8,8 @@ import os
 import socket
 import sys
 from os import environ as env
+
+import llnl.util.tty as tty
 
 from spack.package import *
 
@@ -121,9 +124,11 @@ class VtkH(CMakePackage, CudaPackage):
 
     @run_before("cmake")
     def hostconfig(self):
-        """This method creates a 'host-config' file that specifies all of the options used to
-        configure and build vtkh."""
         spec = self.spec
+        """
+        This method creates a 'host-config' file that specifies
+        all of the options used to configure and build vtkh.
+        """
 
         if not os.path.isdir(spec.prefix):
             os.mkdir(spec.prefix)

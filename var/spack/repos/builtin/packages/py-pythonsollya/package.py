@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -8,7 +9,7 @@ from spack.package import *
 class PyPythonsollya(PythonPackage):
     """Python wrapper for the Sollya library"""
 
-    homepage = "https://gitlab.com/metalibm-dev/pythonsollya"
+    homepage = "Python wrapper for the Sollya library"
     url = "https://gitlab.com/metalibm-dev/pythonsollya/-/archive/release-0.4.0-alpha0/pythonsollya-release-0.4.0-alpha0.tar.gz"
 
     license("CECILL-2.1")

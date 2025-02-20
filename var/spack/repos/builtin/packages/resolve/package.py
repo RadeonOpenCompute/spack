@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -25,12 +26,6 @@ class Resolve(CMakePackage, CudaPackage, ROCmPackage):
     depends_on("cxx", type="build")  # generated
 
     variant("klu", default=True, description="Use KLU, AMD and COLAMD Libraries from SuiteSparse")
-    variant(
-        "lusol",
-        default=True,
-        when="@develop:",
-        description="Build the LUSOL Library. Requires fortran",
-    )
 
     depends_on("suite-sparse", when="+klu")
 
@@ -51,11 +46,7 @@ class Resolve(CMakePackage, CudaPackage, ROCmPackage):
         spec = self.spec
 
         args.extend(
-            [
-                self.define_from_variant("RESOLVE_USE_KLU", "klu"),
-                self.define_from_variant("RESOLVE_USE_LUSOL", "lusol"),
-                self.define("RESOLVE_TEST_WITH_BSUB", False),
-            ]
+            [self.define("RESOLVE_USE_KLU", "klu"), self.define("RESOLVE_TEST_WITH_BSUB", False)]
         )
 
         if "+cuda" in spec:

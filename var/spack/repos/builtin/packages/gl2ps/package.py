@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -62,7 +63,7 @@ class Gl2ps(CMakePackage):
         if spec.satisfies("platform=windows"):
             options.append(self.define_from_variant("BUILD_SHARED_LIBS", "shared"))
 
-        if spec.satisfies("~doc"):
+        if "~doc" in spec:
             # Make sure we don't look.
             options.append(self.define("CMAKE_DISABLE_FIND_PACKAGE_LATEX", True))
 

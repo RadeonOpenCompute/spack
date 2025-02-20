@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -62,7 +63,7 @@ class Sw4(MakefilePackage):
                 os.environ["EXTRA_LINK_FLAGS"] += spec["llvm-openmp"].libs.ld_flags + " "
 
         # From spack/trilinos
-        if spec.satisfies("%gcc") or spec.satisfies("%clang") or spec.satisfies("%apple-clang"):
+        if spec.compiler.name in ["clang", "apple-clang", "gcc"]:
             fc = Executable(self.compiler.fc)
             libgfortran = fc("--print-file-name", "libgfortran." + dso_suffix, output=str).strip()
             if libgfortran == "libgfortran." + dso_suffix:

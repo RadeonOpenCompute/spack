@@ -1,9 +1,11 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 import re
 
-import spack.compiler
+import llnl.util.tty as tty
+
 from spack.package import *
 
 
@@ -238,7 +240,7 @@ class Intel(IntelPackage):
             match = version_regex.search(output)
             if match:
                 return match.group(1)
-        except ProcessError:
+        except spack.util.executable.ProcessError:
             pass
         except Exception as e:
             tty.debug(str(e))

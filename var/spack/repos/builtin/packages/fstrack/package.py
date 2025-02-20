@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -42,7 +43,7 @@ class Fstrack(MakefilePackage):
         env.set("F90FLAGS_DEBUG", "-g -x f95-cpp-input")
         env.set("LDFLAGS", "-lm")
 
-        if self.spec.satisfies("+flow"):
+        if "+flow" in self.spec:
             env.set("GMTHOME", self.spec["gmt"].prefix)
             env.set("NETCDFDIR", self.spec["netcdf-c"].prefix)
 
@@ -54,7 +55,7 @@ class Fstrack(MakefilePackage):
             make()
 
         with working_dir("fstrack"):
-            if spec.satisfies("+flow"):
+            if "+flow" in spec:
                 make("really_all")
             else:
                 make()

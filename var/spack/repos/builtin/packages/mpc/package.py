@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -10,7 +11,7 @@ class Mpc(AutotoolsPackage, GNUMirrorPackage):
     with arbitrarily high precision and correct rounding of the
     result."""
 
-    homepage = "https://www.multiprecision.org"
+    homepage = "http://www.multiprecision.org"
     gnu_mirror_path = "mpc/mpc-1.1.0.tar.gz"
     list_url = "http://www.multiprecision.org/mpc/download.html"
 

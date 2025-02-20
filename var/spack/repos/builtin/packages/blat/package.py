@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -19,7 +20,6 @@ class Blat(Package):
     depends_on("libpng")
     depends_on("uuid", when="@37:")
     depends_on("mysql-client", when="@37:")
-    depends_on("gmake", type="build")
 
     @when("@37")
     def patch(self):

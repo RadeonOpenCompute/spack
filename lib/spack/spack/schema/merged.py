@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -20,7 +21,6 @@ import spack.schema.config
 import spack.schema.container
 import spack.schema.definitions
 import spack.schema.develop
-import spack.schema.env_vars
 import spack.schema.mirrors
 import spack.schema.modules
 import spack.schema.packages
@@ -39,7 +39,6 @@ properties: Dict[str, Any] = union_dicts(
     spack.schema.ci.properties,
     spack.schema.definitions.properties,
     spack.schema.develop.properties,
-    spack.schema.env_vars.properties,
     spack.schema.mirrors.properties,
     spack.schema.modules.properties,
     spack.schema.packages.properties,

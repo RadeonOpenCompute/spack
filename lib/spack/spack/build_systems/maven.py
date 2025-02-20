@@ -1,17 +1,16 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 import llnl.util.filesystem as fs
 
 import spack.builder
 import spack.package_base
-import spack.spec
-import spack.util.prefix
 from spack.directives import build_system, depends_on
 from spack.multimethod import when
 from spack.util.executable import which
 
-from ._checks import BuilderWithDefaults
+from ._checks import BaseBuilder
 
 
 class MavenPackage(spack.package_base.PackageBase):
@@ -35,7 +34,7 @@ class MavenPackage(spack.package_base.PackageBase):
 
 
 @spack.builder.builder("maven")
-class MavenBuilder(BuilderWithDefaults):
+class MavenBuilder(BaseBuilder):
     """The Maven builder encodes the default way to build software with Maven.
     It has two phases that can be overridden, if need be:
 
@@ -60,20 +59,16 @@ class MavenBuilder(BuilderWithDefaults):
         """List of args to pass to build phase."""
         return []
 
-    def build(
-        self, pkg: MavenPackage, spec: spack.spec.Spec, prefix: spack.util.prefix.Prefix
-    ) -> None:
+    def build(self, pkg, spec, prefix):
         """Compile code and package into a JAR file."""
         with fs.working_dir(self.build_directory):
-            mvn = which("mvn", required=True)
+            mvn = which("mvn")
             if self.pkg.run_tests:
                 mvn("verify", *self.build_args())
             else:
                 mvn("package", "-DskipTests", *self.build_args())
 
-    def install(
-        self, pkg: MavenPackage, spec: spack.spec.Spec, prefix: spack.util.prefix.Prefix
-    ) -> None:
+    def install(self, pkg, spec, prefix):
         """Copy to installation prefix."""
         with fs.working_dir(self.build_directory):
             fs.install_tree(".", prefix)

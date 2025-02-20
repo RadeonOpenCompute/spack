@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -8,7 +9,7 @@ from spack.package import *
 class PyMlCollections(PythonPackage):
     """ML Collections is a library of Python collections designed for ML usecases."""
 
-    homepage = "https://github.com/google/ml_collections"
+    homepage = "https://https://github.com/google/ml_collections"
     pypi = "ml_collections/ml_collections-0.1.0.tar.gz"
     git = "https://github.com/google/ml_collections"
 

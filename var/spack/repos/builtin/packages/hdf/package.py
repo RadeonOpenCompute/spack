@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -120,28 +121,28 @@ class Hdf(AutotoolsPackage):
         elif "static" in query_parameters:
             shared = False
         else:
-            shared = self.spec.satisfies("+shared")
+            shared = "+shared" in self.spec
 
         libs = find_libraries(libraries, root=self.prefix, shared=shared, recursive=True)
 
         if not libs:
             msg = "Unable to recursively locate {0} {1} libraries in {2}"
-            raise NoLibrariesError(
+            raise spack.error.NoLibrariesError(
                 msg.format("shared" if shared else "static", self.spec.name, self.spec.prefix)
             )
 
         if not shared and "transitive" in query_parameters:
             libs += self.spec["jpeg:transitive"].libs
             libs += self.spec["zlib:transitive"].libs
-            if self.spec.satisfies("+szip"):
+            if "+szip" in self.spec:
                 libs += self.spec["szip:transitive"].libs
-            if self.spec.satisfies("+external-xdr") and self.spec["rpc"].name == "libtirpc":
+            if "+external-xdr" in self.spec and self.spec["rpc"].name == "libtirpc":
                 libs += self.spec["rpc:transitive"].libs
 
         return libs
 
     def flag_handler(self, name, flags):
-        if self.spec.satisfies("+pic"):
+        if "+pic" in self.spec:
             if name == "cflags":
                 flags.append(self.compiler.cc_pic_flag)
             elif name == "fflags":
@@ -174,12 +175,12 @@ class Hdf(AutotoolsPackage):
         config_args += self.enable_or_disable("fortran")
         config_args += self.enable_or_disable("java")
 
-        if self.spec.satisfies("+szip"):
+        if "+szip" in self.spec:
             config_args.append("--with-szlib=%s" % self.spec["szip"].prefix)
         else:
             config_args.append("--without-szlib")
 
-        if self.spec.satisfies("~external-xdr"):
+        if "~external-xdr" in self.spec:
             config_args.append("--enable-hdf4-xdr")
         elif self.spec["rpc"].name == "libtirpc":
             # We should not specify '--disable-hdf4-xdr' due to a bug in the

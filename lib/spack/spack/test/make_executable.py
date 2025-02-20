@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -20,7 +21,7 @@ pytestmark = pytest.mark.not_on_windows("MakeExecutable not supported on Windows
 @pytest.fixture(autouse=True)
 def make_executable(tmp_path, working_env):
     make_exe = tmp_path / "make"
-    with open(make_exe, "w", encoding="utf-8") as f:
+    with open(make_exe, "w") as f:
         f.write("#!/bin/sh\n")
         f.write('echo "$@"')
     os.chmod(make_exe, 0o700)
@@ -29,31 +30,31 @@ def make_executable(tmp_path, working_env):
 
 
 def test_make_normal():
-    make = MakeExecutable("make", jobs=8)
+    make = MakeExecutable("make", 8)
     assert make(output=str).strip() == "-j8"
     assert make("install", output=str).strip() == "-j8 install"
 
 
 def test_make_explicit():
-    make = MakeExecutable("make", jobs=8)
+    make = MakeExecutable("make", 8)
     assert make(parallel=True, output=str).strip() == "-j8"
     assert make("install", parallel=True, output=str).strip() == "-j8 install"
 
 
 def test_make_one_job():
-    make = MakeExecutable("make", jobs=1)
+    make = MakeExecutable("make", 1)
     assert make(output=str).strip() == "-j1"
     assert make("install", output=str).strip() == "-j1 install"
 
 
 def test_make_parallel_false():
-    make = MakeExecutable("make", jobs=8)
+    make = MakeExecutable("make", 8)
     assert make(parallel=False, output=str).strip() == "-j1"
     assert make("install", parallel=False, output=str).strip() == "-j1 install"
 
 
 def test_make_parallel_disabled(monkeypatch):
-    make = MakeExecutable("make", jobs=8)
+    make = MakeExecutable("make", 8)
 
     monkeypatch.setenv("SPACK_NO_PARALLEL_MAKE", "true")
     assert make(output=str).strip() == "-j1"
@@ -74,7 +75,7 @@ def test_make_parallel_disabled(monkeypatch):
 
 
 def test_make_parallel_precedence(monkeypatch):
-    make = MakeExecutable("make", jobs=8)
+    make = MakeExecutable("make", 8)
 
     # These should work
     monkeypatch.setenv("SPACK_NO_PARALLEL_MAKE", "true")
@@ -96,21 +97,21 @@ def test_make_parallel_precedence(monkeypatch):
 
 
 def test_make_jobs_env():
-    make = MakeExecutable("make", jobs=8)
+    make = MakeExecutable("make", 8)
     dump_env = {}
     assert make(output=str, jobs_env="MAKE_PARALLELISM", _dump_env=dump_env).strip() == "-j8"
     assert dump_env["MAKE_PARALLELISM"] == "8"
 
 
 def test_make_jobserver(monkeypatch):
-    make = MakeExecutable("make", jobs=8)
+    make = MakeExecutable("make", 8)
     monkeypatch.setenv("MAKEFLAGS", "--jobserver-auth=X,Y")
     assert make(output=str).strip() == ""
     assert make(parallel=False, output=str).strip() == "-j1"
 
 
 def test_make_jobserver_not_supported(monkeypatch):
-    make = MakeExecutable("make", jobs=8, supports_jobserver=False)
+    make = MakeExecutable("make", 8, supports_jobserver=False)
     monkeypatch.setenv("MAKEFLAGS", "--jobserver-auth=X,Y")
     # Currently fallback on default job count, Maybe it should force -j1 ?
     assert make(output=str).strip() == "-j8"

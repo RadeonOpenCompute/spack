@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -102,14 +103,14 @@ class Kripke(CMakePackage, CudaPackage, ROCmPackage):
             ]
         )
 
-        if spec.satisfies("+caliper"):
+        if "+caliper" in spec:
             args.append("-DENABLE_CALIPER=ON")
 
-        if spec.satisfies("+mpi"):
+        if "+mpi" in spec:
             args.append("-DENABLE_MPI=ON")
             args.append(self.define("CMAKE_CXX_COMPILER", self.spec["mpi"].mpicxx))
 
-        if spec.satisfies("+rocm"):
+        if "+rocm" in spec:
             # Set up the hip macros needed by the build
             args.append("-DENABLE_HIP=ON")
             args.append("-DHIP_ROOT_DIR={0}".format(spec["hip"].prefix))
@@ -122,7 +123,7 @@ class Kripke(CMakePackage, CudaPackage, ROCmPackage):
             # Ensure build with hip is disabled
             args.append("-DENABLE_HIP=OFF")
 
-        if spec.satisfies("+cuda"):
+        if "+cuda" in spec:
             args.append("-DENABLE_CUDA=ON")
             args.append(self.define("CMAKE_CUDA_HOST_COMPILER", self.spec["mpi"].mpicxx))
             if not spec.satisfies("cuda_arch=none"):

@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -16,15 +17,15 @@ class Hypar(AutotoolsPackage):
     forms of the hyperbolic flux, parabolic flux, source terms, upwinding functions, etc.
     """
 
-    homepage = "https://hypar.github.io/"
-    url = "https://github.com/debog/hypar/archive/refs/tags/v4.1.tar.gz"
-    git = "https://github.com/debog/hypar.git"
+    homepage = "http://hypar.github.io/"
+    url = "https://bitbucket.org/deboghosh/hypar/get/v4.1.tar.gz"
+    git = "https://bitbucket.org/deboghosh/hypar.git"
 
     maintainers("debog")
 
     tags = ["proxy-app", "ecp-proxy-app"]
 
-    version("4.1", sha256="b3bfc6da28d78e2cc89868a35990617e4f77521b68911772887c2f8d0b1fec21")
+    version("4.1", sha256="36c11dcfda006115f4656ff73790992e5caea99dbc64776c9db4e0a29b4c60da")
 
     variant("mpi", default=True, description="Build with MPI support")
     variant("openmp", default=False, description="Build with OpenMP support")
@@ -46,18 +47,17 @@ class Hypar(AutotoolsPackage):
     def configure_args(self):
         args = []
         spec = self.spec
-        if spec.satisfies("+mpi"):
+        if "+mpi" in spec:
+            args.append("--enable-mpi")
             args.append("--with-mpi-dir={0}".format(spec["mpi"].prefix))
-        else:
-            args.append("--enable-serial")
-        if spec.satisfies("+openmp"):
+        if "+openmp" in spec:
             args.append("--enable-omp")
-        if spec.satisfies("+scalapack"):
+        if "+scalapack" in spec:
             args.append("--enable-scalapack")
             args.append("--with-blas-dir={0}".format(spec["blas"].prefix))
             args.append("--with-lapack-dir={0}".format(spec["lapack"].prefix))
             args.append("--with-scalapack-dir={0}".format(spec["scalapack"].prefix))
-        if spec.satisfies("+fftw"):
+        if "+fftw" in spec:
             args.append("--enable-fftw")
             args.append("--with-fftw-dir={0}".format(spec["fftw"].prefix))
         return args

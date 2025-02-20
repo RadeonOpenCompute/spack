@@ -1,15 +1,14 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 import glob
 
 import spack.builder
 import spack.package_base
-import spack.spec
-import spack.util.prefix
 from spack.directives import build_system, extends, maintainers
 
-from ._checks import BuilderWithDefaults
+from ._checks import BaseBuilder
 
 
 class RubyPackage(spack.package_base.PackageBase):
@@ -29,7 +28,7 @@ class RubyPackage(spack.package_base.PackageBase):
 
 
 @spack.builder.builder("ruby")
-class RubyBuilder(BuilderWithDefaults):
+class RubyBuilder(BaseBuilder):
     """The Ruby builder provides two phases that can be overridden if required:
 
     #. :py:meth:`~.RubyBuilder.build`
@@ -44,9 +43,7 @@ class RubyBuilder(BuilderWithDefaults):
     #: Names associated with package attributes in the old build-system format
     legacy_attributes = ()
 
-    def build(
-        self, pkg: RubyPackage, spec: spack.spec.Spec, prefix: spack.util.prefix.Prefix
-    ) -> None:
+    def build(self, pkg, spec, prefix):
         """Build a Ruby gem."""
 
         # ruby-rake provides both rake.gemspec and Rakefile, but only
@@ -62,9 +59,7 @@ class RubyBuilder(BuilderWithDefaults):
             # Some Ruby packages only ship `*.gem` files, so nothing to build
             pass
 
-    def install(
-        self, pkg: RubyPackage, spec: spack.spec.Spec, prefix: spack.util.prefix.Prefix
-    ) -> None:
+    def install(self, pkg, spec, prefix):
         """Install a Ruby gem.
 
         The ruby package sets ``GEM_HOME`` to tell gem where to install to."""

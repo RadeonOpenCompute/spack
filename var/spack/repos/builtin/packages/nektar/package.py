@@ -1,8 +1,11 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
 import os
+
+import llnl.util.filesystem as fs
 
 from spack.package import *
 
@@ -165,7 +168,7 @@ class Nektar(CMakePackage):
         super(Nektar, self).install(spec, prefix)
         if "+python" in spec:
             python = which("python")
-            with working_dir(self.build_directory):
+            with fs.working_dir(self.build_directory):
                 python("setup.py", "install", "--prefix", prefix)
 
     def setup_run_environment(self, env):

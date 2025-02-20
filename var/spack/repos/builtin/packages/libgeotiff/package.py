@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -62,17 +63,17 @@ class Libgeotiff(AutotoolsPackage):
 
         args = ["--with-libtiff={0}".format(spec["libtiff"].prefix)]
 
-        if spec.satisfies("+zlib"):
+        if "+zlib" in spec:
             args.append("--with-zlib={0}".format(spec["zlib-api"].prefix))
         else:
             args.append("--with-zlib=no")
 
-        if spec.satisfies("+jpeg"):
+        if "+jpeg" in spec:
             args.append("--with-jpeg={0}".format(spec["jpeg"].prefix))
         else:
             args.append("--with-jpeg=no")
 
-        if spec.satisfies("+proj"):
+        if "+proj" in spec:
             args.append("--with-proj={0}".format(spec["proj"].prefix))
         else:
             args.append("--with-proj=no")

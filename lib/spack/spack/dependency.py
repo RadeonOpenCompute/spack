@@ -1,8 +1,9 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 """Data structures that represent Spack's dependency relationships."""
-from typing import Dict, List, Type
+from typing import Dict, List
 
 import spack.deptypes as dt
 import spack.spec
@@ -37,7 +38,7 @@ class Dependency:
 
     def __init__(
         self,
-        pkg: Type["spack.package_base.PackageBase"],
+        pkg: "spack.package_base.PackageBase",
         spec: "spack.spec.Spec",
         depflag: dt.DepFlag = dt.DEFAULT,
     ):

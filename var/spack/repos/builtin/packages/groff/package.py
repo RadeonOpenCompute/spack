@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -81,7 +82,7 @@ class Groff(AutotoolsPackage, GNUMirrorPackage):
     def configure_args(self):
         args = ["--disable-silent-rules"]
         args.extend(self.with_or_without("x"))
-        if self.spec.satisfies("@1.22.4:"):
+        if "@1.22.4:" in self.spec:
             args.extend(self.with_or_without("uchardet"))
         if self.spec["iconv"].name == "libiconv":
             args.append(f"--with-libiconv-prefix={self.spec['iconv'].prefix}")

@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2023 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -7,8 +8,9 @@ from spack.package import *
 
 
 class Pandoramonitoring(CMakePackage):
-    """ROOT-based Event Visualisation Environment for Pandora with
-    tree-writing functionality"""
+    """Metadata package to bring together and build multiple Pandora libraries.
+    NOTE: for proper version control with spack, this should be broken up and
+    the subpackages installed individually."""
 
     url = "https://github.com/PandoraPFA/PandoraMonitoring/archive/v03-04-00.tar.gz"
     homepage = "https://github.com/PandoraPFA/PandoraMonitoring"
@@ -25,15 +27,6 @@ class Pandoramonitoring(CMakePackage):
 
     depends_on("root@6.18.04: +x +opengl")
     depends_on("pandorasdk")
-
-    # https://github.com/PandoraPFA/PandoraMonitoring/pull/13
-    @when("@:3.6.0")
-    def patch(self):
-        filter_file(
-            "TTreeWrapper::Branch<T>::~Branch<T>",
-            "TTreeWrapper::Branch<T>::~Branch",
-            "src/TTreeWrapper.cc",
-        )
 
     def cmake_args(self):
         args = [

@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -41,7 +42,6 @@ class Plink(Package):
         depends_on("zlib-api", when="@1.9-beta6.27:")
         depends_on("blas", when="@1.9-beta6.27:")
         depends_on("lapack", when="@1.9-beta6.27:")
-    depends_on("gmake", type="build")
 
     patch("dynamic_zlib.patch", when="@1.9-beta6.27:")
 

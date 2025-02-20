@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -73,7 +74,6 @@ class NeicFinitefault(PythonPackage):
     depends_on("proj@=9.2.0", type=("build", "run"))
     # not a direct dep, but we do need gdal to have these variants
     depends_on("gdal+jpeg+jxl+openjpeg", type=("build", "run"))
-    depends_on("gmake", type="build")
 
     parallel = False
 

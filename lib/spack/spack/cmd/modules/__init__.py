@@ -1,11 +1,12 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
 """Implementation details of the ``spack module`` command."""
 
 import collections
-import os
+import os.path
 import shutil
 import sys
 
@@ -14,11 +15,9 @@ from llnl.util.tty import color
 
 import spack.cmd
 import spack.config
-import spack.error
 import spack.modules
 import spack.modules.common
 import spack.repo
-from spack.cmd import MultipleSpecsMatch, NoSpecMatches
 from spack.cmd.common import arguments
 
 description = "manipulate module files"
@@ -91,6 +90,18 @@ def add_loads_arguments(subparser):
     arguments.add_common_arguments(subparser, ["recurse_dependencies"])
 
 
+class MultipleSpecsMatch(Exception):
+    """Raised when multiple specs match a constraint, in a context where
+    this is not allowed.
+    """
+
+
+class NoSpecMatches(Exception):
+    """Raised when no spec matches a constraint, in a context where
+    this is not allowed.
+    """
+
+
 def one_spec_or_raise(specs):
     """Ensures exactly one spec has been selected, or raises the appropriate
     exception.
@@ -113,13 +124,13 @@ def check_module_set_name(name):
     names = [k for k in modules if k != "prefix_inspections"]
 
     if not names:
-        raise spack.error.ConfigError(
+        raise spack.config.ConfigError(
             f"Module set configuration is missing. Cannot use module set '{name}'"
         )
 
     pretty_names = "', '".join(names)
 
-    raise spack.error.ConfigError(
+    raise spack.config.ConfigError(
         f"Cannot use invalid module set '{name}'.",
         f"Valid module set names are: '{pretty_names}'.",
     )
@@ -161,7 +172,7 @@ def loads(module_type, specs, args, out=None):
     modules = list(
         (
             spec,
-            spack.modules.get_module(
+            spack.modules.common.get_module(
                 module_type,
                 spec,
                 get_full_path=False,
@@ -210,7 +221,7 @@ def find(module_type, specs, args):
 
     try:
         modules = [
-            spack.modules.get_module(
+            spack.modules.common.get_module(
                 module_type,
                 spec,
                 args.full_path,
@@ -221,7 +232,7 @@ def find(module_type, specs, args):
         ]
 
         modules.append(
-            spack.modules.get_module(
+            spack.modules.common.get_module(
                 module_type,
                 single_spec,
                 args.full_path,
@@ -366,10 +377,7 @@ callbacks = {"refresh": refresh, "rm": rm, "find": find, "loads": loads}
 def modules_cmd(parser, args, module_type, callbacks=callbacks):
     # Qualifiers to be used when querying the db for specs
     constraint_qualifiers = {
-        "refresh": {
-            "installed": True,
-            "predicate_fn": lambda x: spack.repo.PATH.exists(x.spec.name),
-        }
+        "refresh": {"installed": True, "known": lambda x: not spack.repo.PATH.exists(x)}
     }
     query_args = constraint_qualifiers.get(args.subparser_name, {})
 

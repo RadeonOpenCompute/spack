@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 """Bootstrap non-core Spack dependencies from an environment."""
@@ -13,9 +14,9 @@ import archspec.cpu
 from llnl.util import tty
 
 import spack.environment
-import spack.spec
 import spack.tengine
-import spack.util.path
+import spack.util.cpus
+import spack.util.executable
 
 from ._common import _root_spec
 from .config import root_path, spec_for_current_python, store_path

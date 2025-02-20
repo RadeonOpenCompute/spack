@@ -1,33 +1,21 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
-import os
-import sys
+import os.path
 
 import pytest
 
-from llnl.util.symlink import _windows_can_symlink
-
-import spack.concretize
 import spack.util.spack_yaml as s_yaml
-from spack.installer import PackageInstaller
 from spack.main import SpackCommand
+from spack.spec import Spec
 
 extensions = SpackCommand("extensions")
 install = SpackCommand("install")
 view = SpackCommand("view")
 
-if sys.platform == "win32":
-    if not _windows_can_symlink():
-        pytest.skip(
-            "Windows must be able to create symlinks to run tests.", allow_module_level=True
-        )
-    # TODO: Skipping hardlink command testing on windows until robust checks can be added.
-    #   See https://github.com/spack/spack/pull/46335#discussion_r1757411915
-    commands = ["symlink", "add", "copy", "relocate"]
-else:
-    commands = ["hardlink", "symlink", "hard", "add", "copy", "relocate"]
+pytestmark = pytest.mark.not_on_windows("does not run on windows")
 
 
 def create_projection_file(tmpdir, projection):
@@ -39,7 +27,7 @@ def create_projection_file(tmpdir, projection):
     return projection_file
 
 
-@pytest.mark.parametrize("cmd", commands)
+@pytest.mark.parametrize("cmd", ["hardlink", "symlink", "hard", "add", "copy", "relocate"])
 def test_view_link_type(tmpdir, mock_packages, mock_archive, mock_fetch, install_mockery, cmd):
     install("libdwarf")
     viewpath = str(tmpdir.mkdir("view_{0}".format(cmd)))
@@ -52,7 +40,7 @@ def test_view_link_type(tmpdir, mock_packages, mock_archive, mock_fetch, install
     assert os.path.islink(package_prefix) == is_link_cmd
 
 
-@pytest.mark.parametrize("add_cmd", commands)
+@pytest.mark.parametrize("add_cmd", ["hardlink", "symlink", "hard", "add", "copy", "relocate"])
 def test_view_link_type_remove(
     tmpdir, mock_packages, mock_archive, mock_fetch, install_mockery, add_cmd
 ):
@@ -66,7 +54,7 @@ def test_view_link_type_remove(
     assert not os.path.exists(bindir)
 
 
-@pytest.mark.parametrize("cmd", commands)
+@pytest.mark.parametrize("cmd", ["hardlink", "symlink", "hard", "add", "copy", "relocate"])
 def test_view_projections(tmpdir, mock_packages, mock_archive, mock_fetch, install_mockery, cmd):
     install("libdwarf@20130207")
 
@@ -174,7 +162,7 @@ def test_view_extension_conflict_ignored(
     viewpath = str(tmpdir.mkdir("view"))
     view("symlink", viewpath, "extension1@1.0")
     view("symlink", viewpath, "-i", "extension1@2.0")
-    with open(os.path.join(viewpath, "bin", "extension1"), "r", encoding="utf-8") as fin:
+    with open(os.path.join(viewpath, "bin", "extension1"), "r") as fin:
         assert fin.read() == "1.0"
 
 
@@ -190,9 +178,9 @@ def test_view_fails_with_missing_projections_file(tmpdir):
 def test_view_files_not_ignored(
     tmpdir, mock_packages, mock_archive, mock_fetch, install_mockery, cmd, with_projection
 ):
-    spec = spack.concretize.concretize_one("view-not-ignored")
+    spec = Spec("view-not-ignored").concretized()
     pkg = spec.package
-    PackageInstaller([pkg], explicit=True).install()
+    pkg.do_install()
     pkg.assert_installed(spec.prefix)
 
     install("view-file")  # Arbitrary package to add noise
@@ -201,7 +189,7 @@ def test_view_files_not_ignored(
 
     if with_projection:
         proj = str(tmpdir.join("proj.yaml"))
-        with open(proj, "w", encoding="utf-8") as f:
+        with open(proj, "w") as f:
             f.write('{"projections":{"all":"{name}"}}')
         prefix_in_view = os.path.join(viewpath, "view-not-ignored")
         args = ["--projection-file", proj]

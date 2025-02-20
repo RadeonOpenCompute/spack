@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -39,13 +40,13 @@ class Latte(CMakePackage):
 
     def cmake_args(self):
         options = []
-        if self.spec.satisfies("+shared"):
+        if "+shared" in self.spec:
             options.append("-DBUILD_SHARED_LIBS=ON")
         else:
             options.append("-DBUILD_SHARED_LIBS=OFF")
-        if self.spec.satisfies("+mpi"):
+        if "+mpi" in self.spec:
             options.append("-DO_MPI=yes")
-        if self.spec.satisfies("+progress"):
+        if "+progress" in self.spec:
             options.append("-DPROGRESS=yes")
 
         blas_list = ";".join(self.spec["blas"].libs)

@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 from spack.package import *
@@ -12,8 +13,6 @@ class CrayLibsci(Package):
     homepage = "https://docs.nersc.gov/development/libraries/libsci/"
     has_code = False  # Skip attempts to fetch source that is not available
 
-    version("23.02.1.1")
-    version("22.11.1.2")
     version("21.08.1.2")
     version("20.06.1")
     version("20.03.1")

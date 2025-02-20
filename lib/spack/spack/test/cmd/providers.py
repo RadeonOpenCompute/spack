@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -30,6 +31,7 @@ def test_it_just_runs(pkg):
                 "mpilander",
                 "mvapich2",
                 "openmpi",
+                "openmpi@1.6.5",
                 "openmpi@1.7.5:",
                 "openmpi@2.0.0:",
                 "spectrum-mpi",

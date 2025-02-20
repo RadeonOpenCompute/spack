@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -116,132 +117,132 @@ class Grass(AutotoolsPackage):
             "--with-proj-share={0}".format(spec["proj"].prefix.share.proj),
         ]
 
-        if spec.satisfies("+cxx"):
+        if "+cxx" in spec:
             args.append("--with-cxx")
         else:
             args.append("--without-cxx")
 
-        if spec.satisfies("+tiff"):
+        if "+tiff" in spec:
             args.append("--with-tiff")
         else:
             args.append("--without-tiff")
 
-        if spec.satisfies("+png"):
+        if "+png" in spec:
             args.append("--with-png")
         else:
             args.append("--without-png")
 
-        if spec.satisfies("+postgres"):
+        if "+postgres" in spec:
             args.append("--with-postgres")
         else:
             args.append("--without-postgres")
 
-        if spec.satisfies("+mysql"):
+        if "+mysql" in spec:
             args.append("--with-mysql")
         else:
             args.append("--without-mysql")
 
-        if spec.satisfies("+sqlite"):
+        if "+sqlite" in spec:
             args.append("--with-sqlite")
         else:
             args.append("--without-sqlite")
 
-        if spec.satisfies("+opengl"):
+        if "+opengl" in spec:
             args.append("--with-opengl")
         else:
             args.append("--without-opengl")
 
-        if spec.satisfies("+odbc"):
+        if "+odbc" in spec:
             args.append("--with-odbc")
         else:
             args.append("--without-odbc")
 
-        if spec.satisfies("+fftw"):
+        if "+fftw" in spec:
             args.append("--with-fftw")
         else:
             args.append("--without-fftw")
 
-        if spec.satisfies("+blas"):
+        if "+blas" in spec:
             args.append("--with-blas")
         else:
             args.append("--without-blas")
 
-        if spec.satisfies("+lapack"):
+        if "+lapack" in spec:
             args.append("--with-lapack")
         else:
             args.append("--without-lapack")
 
-        if spec.satisfies("+cairo"):
+        if "+cairo" in spec:
             args.append("--with-cairo")
         else:
             args.append("--without-cairo")
 
-        if spec.satisfies("+freetype"):
+        if "+freetype" in spec:
             args.append("--with-freetype")
         else:
             args.append("--without-freetype")
 
-        if spec.satisfies("+readline"):
+        if "+readline" in spec:
             args.append("--with-readline")
         else:
             args.append("--without-readline")
 
-        if spec.satisfies("+regex"):
+        if "+regex" in spec:
             args.append("--with-regex")
         else:
             args.append("--without-regex")
 
-        if spec.satisfies("+pthread"):
+        if "+pthread" in spec:
             args.append("--with-pthread")
         else:
             args.append("--without-pthread")
 
-        if spec.satisfies("+openmp"):
+        if "+openmp" in spec:
             args.append("--with-openmp")
         else:
             args.append("--without-openmp")
 
-        if spec.satisfies("+opencl"):
+        if "+opencl" in spec:
             args.append("--with-opencl")
         else:
             args.append("--without-opencl")
 
-        if spec.satisfies("+bzlib"):
+        if "+bzlib" in spec:
             args.append("--with-bzlib")
         else:
             args.append("--without-bzlib")
 
-        if spec.satisfies("+zstd"):
+        if "+zstd" in spec:
             args.append("--with-zstd")
         else:
             args.append("--without-zstd")
 
-        if spec.satisfies("+gdal"):
+        if "+gdal" in spec:
             args.append("--with-gdal={0}/gdal-config".format(spec["gdal"].prefix.bin))
         else:
             args.append("--without-gdal")
 
-        if spec.satisfies("+liblas"):
+        if "+liblas" in spec:
             args.append("--with-liblas={0}/liblas-config".format(spec["liblas"].prefix.bin))
         else:
             args.append("--without-liblas")
 
-        if spec.satisfies("+wxwidgets"):
+        if "+wxwidgets" in spec:
             args.append("--with-wxwidgets={0}/wx-config".format(spec["wxwidgets"].prefix.bin))
         else:
             args.append("--without-wxwidgets")
 
-        if spec.satisfies("+netcdf"):
+        if "+netcdf" in spec:
             args.append("--with-netcdf={0}/bin/nc-config".format(spec["netcdf-c"].prefix))
         else:
             args.append("--without-netcdf")
 
-        if spec.satisfies("+geos"):
+        if "+geos" in spec:
             args.append("--with-geos={0}/bin/geos-config".format(spec["geos"].prefix))
         else:
             args.append("--without-geos")
 
-        if spec.satisfies("+x"):
+        if "+x" in spec:
             args.append("--with-x")
         else:
             args.append("--without-x")

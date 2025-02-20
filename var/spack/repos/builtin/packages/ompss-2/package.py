@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -36,7 +37,6 @@ class Ompss2(Package):
     depends_on("extrae", when="+extrae")
     depends_on("boost@1.59.0:")
     depends_on("numactl")
-    depends_on("gmake", type="build")
 
     resource(
         name="jemalloc",

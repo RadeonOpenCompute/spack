@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -36,7 +37,7 @@ def test_log_python_output_with_echo(capfd, tmpdir):
             print("logged")
 
         # foo.txt has output
-        with open("foo.txt", encoding="utf-8") as f:
+        with open("foo.txt") as f:
             assert f.read() == "logged\n"
 
         # output is also echoed.
@@ -49,23 +50,25 @@ def test_log_python_output_without_echo(capfd, tmpdir):
             print("logged")
 
         # foo.txt has output
-        with open("foo.txt", encoding="utf-8") as f:
+        with open("foo.txt") as f:
             assert f.read() == "logged\n"
 
         # nothing on stdout or stderr
         assert capfd.readouterr()[0] == ""
 
 
-def test_log_python_output_with_invalid_utf8(capfd, tmp_path):
-    tmp_file = str(tmp_path / "foo.txt")
-    with log.log_output(tmp_file, echo=True):
-        sys.stdout.buffer.write(b"\xc3helloworld\n")
+def test_log_python_output_with_invalid_utf8(capfd, tmpdir):
+    with tmpdir.as_cwd():
+        with log.log_output("foo.txt"):
+            sys.stdout.buffer.write(b"\xc3\x28\n")
 
-    # we should be able to read this as valid utf-8
-    with open(tmp_file, "r", encoding="utf-8") as f:
-        assert f.read() == "�helloworld\n"
+        expected = b"<line lost: output was not encoded as UTF-8>\n"
+        with open("foo.txt", "rb") as f:
+            written = f.read()
+            assert written == expected
 
-    assert capfd.readouterr().out == "�helloworld\n"
+        # nothing on stdout or stderr
+        assert capfd.readouterr()[0] == ""
 
 
 def test_log_python_output_and_echo_output(capfd, tmpdir):
@@ -77,7 +80,7 @@ def test_log_python_output_and_echo_output(capfd, tmpdir):
             print("logged")
 
         # log file contains everything
-        with open("foo.txt", encoding="utf-8") as f:
+        with open("foo.txt") as f:
             assert f.read() == "force echo\nlogged\n"
 
         # only force-echo'd stuff is in output
@@ -95,7 +98,7 @@ def test_log_output_with_control_codes(capfd, tmpdir):
                 f"{csi}01m{csi}Kgcc:{csi}m{csi}K {csi}01;31m{csi}Kerror: {csi}m{csi}K./test.cpp:"
             )
 
-        with open("foo.txt", encoding="utf-8") as f:
+        with open("foo.txt") as f:
             assert f.read() == "gcc: error: ./test.cpp:\n"
 
 
@@ -111,7 +114,7 @@ def test_log_output_with_filter(capfd, tmpdir):
             print("foo foo")
 
         # foo.txt output is not filtered
-        with open("foo.txt", encoding="utf-8") as f:
+        with open("foo.txt") as f:
             assert f.read() == "foo blah\nblah foo\nfoo foo\n"
 
     # output is not echoed
@@ -125,7 +128,7 @@ def test_log_output_with_filter(capfd, tmpdir):
             print("foo foo")
 
         # foo.txt output is still not filtered
-        with open("foo.txt", encoding="utf-8") as f:
+        with open("foo.txt") as f:
             assert f.read() == "foo blah\nblah foo\nfoo foo\n"
 
     # echoed output is filtered.
@@ -146,7 +149,7 @@ def test_log_subproc_and_echo_output_no_capfd(capfd, tmpdir):
                     echo("echo")
                 print("logged")
 
-            with open("foo.txt", encoding="utf-8") as f:
+            with open("foo.txt") as f:
                 assert f.read() == "echo\nlogged\n"
 
 

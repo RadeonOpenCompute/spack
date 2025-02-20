@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -17,7 +18,7 @@ class BuildError(Package):
 
     def install(self, spec, prefix):
         if sys.platform == "win32":
-            with open("configure.bat", "w", encoding="utf-8") as f:
+            with open("configure.bat", "w") as f:
                 f.write(
                     """
     @ECHO off
@@ -36,7 +37,7 @@ class BuildError(Package):
             Executable("configure.bat")("--prefix=%s" % self.prefix)
             configure()
         else:
-            with open("configure", "w", encoding="utf-8") as f:
+            with open("configure", "w") as f:
                 f.write(
                     """#!/bin/sh\n
     echo 'checking build system type... x86_64-apple-darwin16.6.0'

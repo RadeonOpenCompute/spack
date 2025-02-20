@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 import os
@@ -47,7 +48,7 @@ class Fxt(AutotoolsPackage):
 
     def patch(self):
         # Increase the value of FXT_MAX_PARAMS (to allow longer task names)
-        if self.spec.satisfies("+moreparams"):
+        if "+moreparams" in self.spec:
             filter_file("#define FXT_MAX_PARAMS.*", "#define FXT_MAX_PARAMS 16", "tools/fxt.h")
 
     def autoreconf(self, spec, prefix):
@@ -57,7 +58,8 @@ class Fxt(AutotoolsPackage):
                 subprocess.check_call("./autogen.sh")
             else:
                 raise RuntimeError(
-                    "Neither configure nor autogen.sh script exist. FxT Cannot configure."
+                    "Neither configure nor autogen.sh script exist.\
+                FxT Cannot configure."
                 )
 
     def configure_args(self):

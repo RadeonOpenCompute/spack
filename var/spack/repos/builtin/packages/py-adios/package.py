@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -39,7 +40,6 @@ class PyAdios(PythonPackage):
     depends_on("mpi", when="+mpi")
     depends_on("py-mpi4py", type=["run"], when="+mpi")
     depends_on("py-cython", type=["build"])
-    depends_on("gmake", type="build")
 
     build_directory = "wrappers/numpy"
 

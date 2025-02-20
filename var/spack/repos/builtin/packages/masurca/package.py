@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -11,7 +12,7 @@ class Masurca(Package):
     of the de Bruijn graph and Overlap-Layout-Consensus (OLC)
     approaches."""
 
-    homepage = "https://www.genome.umd.edu/masurca.html"
+    homepage = "http://www.genome.umd.edu/masurca.html"
     url = "https://github.com/alekseyzimin/masurca/releases/download/v3.3.1/MaSuRCA-3.3.1.tar.gz"
 
     license("GPL-3.0-only")

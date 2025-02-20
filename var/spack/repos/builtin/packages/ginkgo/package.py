@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -24,9 +25,7 @@ class Ginkgo(CMakePackage, CudaPackage, ROCmPackage):
     license("BSD-3-Clause")
 
     version("develop", branch="develop")
-    version("main", branch="main")
-    version("master", branch="master", deprecated=True)
-    version("1.9.0", commit="20cfd68795f58078898da9890baa311b46845a8b")  # v1.9.0
+    version("master", branch="master")
     version("1.8.0", commit="586b1754058d7a32d4bd1b650f9603484c2a8927")  # v1.8.0
     version("1.7.0", commit="49242ff89af1e695d7794f6d50ed9933024b66fe")  # v1.7.0
     version("1.6.0", commit="1f1ed46e724334626f016f105213c047e16bc1ae")  # v1.6.0
@@ -54,9 +53,6 @@ class Ginkgo(CMakePackage, CudaPackage, ROCmPackage):
     variant("hwloc", default=False, description="Enable HWLOC support")
     variant("sde", default=False, description="Enable PAPI SDE support", when="@1.7.0:")
     variant("mpi", default=False, description="Enable MPI support", when="@1.5.0:")
-    variant(
-        "half_precision", default=True, description="Enable half-precision support", when="@1.9.0:"
-    )
 
     depends_on("cmake@3.9:", type="build", when="@:1.3.0")
     depends_on("cmake@3.13:", type="build", when="@1.4.0:1.6.0")
@@ -66,7 +62,6 @@ class Ginkgo(CMakePackage, CudaPackage, ROCmPackage):
     depends_on("cuda@9:", when="+cuda @:1.4.0")
     depends_on("cuda@9.2:", when="+cuda @1.5.0:")
     depends_on("cuda@10.1:", when="+cuda @1.7.0:")
-    depends_on("cuda@11:", when="+cuda @1.9.0:")
     depends_on("mpi@3.1:", when="+mpi")
 
     depends_on("rocthrust", when="+rocm")
@@ -134,7 +129,7 @@ class Ginkgo(CMakePackage, CudaPackage, ROCmPackage):
 
     def setup_build_environment(self, env):
         spec = self.spec
-        if spec.satisfies("+sycl"):
+        if "+sycl" in spec:
             env.set("MKLROOT", join_path(spec["intel-oneapi-mkl"].prefix, "mkl", "latest"))
             env.set("DPL_ROOT", join_path(spec["intel-oneapi-dpl"].prefix, "dpl", "latest"))
             # The `IntelSYCLConfig.cmake` is broken with spack. By default, it
@@ -152,16 +147,11 @@ class Ginkgo(CMakePackage, CudaPackage, ROCmPackage):
                 self.compiler.cxx11_flag
             except UnsupportedCompilerFlag:
                 raise InstallError("Ginkgo requires a C++11-compliant C++ compiler")
-        if self.spec.satisfies("@1.3.0:1.8.0"):
+        else:
             try:
                 self.compiler.cxx14_flag
             except UnsupportedCompilerFlag:
                 raise InstallError("Ginkgo requires a C++14-compliant C++ compiler")
-        if self.spec.satisfies("@1.9.0:"):
-            try:
-                self.compiler.cxx17_flag
-            except UnsupportedCompilerFlag:
-                raise InstallError("Ginkgo requires a C++17-compliant C++ compiler")
 
         if self.spec.satisfies("@1.4.0:1.6.0 +sycl") and not self.spec.satisfies(
             "%oneapi@2021.3.0:"
@@ -185,7 +175,6 @@ class Ginkgo(CMakePackage, CudaPackage, ROCmPackage):
             from_variant("GINKGO_BUILD_HWLOC", "hwloc"),
             from_variant("GINKGO_WITH_PAPI_SDE", "sde"),
             from_variant("GINKGO_DEVEL_TOOLS", "develtools"),
-            from_variant("GINKGO_ENABLE_HALF", "half_precision"),
             # As we are not exposing benchmarks, examples, tests nor doc
             # as part of the installation, disable building them altogether.
             "-DGINKGO_BUILD_BENCHMARKS=OFF",
@@ -200,13 +189,13 @@ class Ginkgo(CMakePackage, CudaPackage, ROCmPackage):
         if self.run_tests:
             args.append("-DGINKGO_USE_EXTERNAL_GTEST=ON")
 
-        if spec.satisfies("+cuda"):
+        if "+cuda" in spec:
             archs = spec.variants["cuda_arch"].value
             if archs != "none":
                 arch_str = ";".join(archs)
                 args.append("-DGINKGO_CUDA_ARCHITECTURES={0}".format(arch_str))
 
-        if spec.satisfies("+rocm"):
+        if "+rocm" in spec:
             args.append("-DHIP_PATH={0}".format(spec["hip"].prefix))
             args.append("-DHIP_CLANG_PATH={0}/bin".format(spec["llvm-amdgpu"].prefix))
             args.append("-DHIP_CLANG_INCLUDE_PATH={0}/include".format(spec["llvm-amdgpu"].prefix))
@@ -224,9 +213,9 @@ class Ginkgo(CMakePackage, CudaPackage, ROCmPackage):
                     self.define("CMAKE_MODULE_PATH", self.spec["hip"].prefix.lib.cmake.hip)
                 )
 
-        if self.spec.satisfies("+sycl"):
+        if "+sycl" in self.spec:
             sycl_compatible_compilers = ["icpx"]
-            if os.path.basename(self.compiler.cxx) not in sycl_compatible_compilers:
+            if not (os.path.basename(self.compiler.cxx) in sycl_compatible_compilers):
                 raise InstallError("ginkgo +sycl requires icpx compiler.")
         return args
 
@@ -254,7 +243,7 @@ class Ginkgo(CMakePackage, CudaPackage, ROCmPackage):
         ]
 
         # Fix: For HIP tests, add the ARCH compilation flags when not present
-        if self.spec.satisfies("+rocm"):
+        if "+rocm" in self.spec:
             src_path = join_path(src_dir, "CMakeLists.txt")
             cmakelists = open(src_path, "rt")
             data = cmakelists.read()

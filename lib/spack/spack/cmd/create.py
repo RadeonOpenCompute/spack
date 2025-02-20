@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 import os
@@ -12,6 +13,7 @@ from llnl.util.filesystem import mkdirp
 
 import spack.repo
 import spack.stage
+import spack.util.web
 from spack.spec import Spec
 from spack.url import (
     UndetectableNameError,
@@ -31,7 +33,8 @@ level = "short"
 
 
 package_template = '''\
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -108,7 +111,7 @@ class BundlePackageTemplate:
         all_deps.append(self.dependencies)
 
         # Write out a template for the file
-        with open(pkg_path, "w", encoding="utf-8") as pkg_file:
+        with open(pkg_path, "w") as pkg_file:
             pkg_file.write(
                 package_template.format(
                     name=self.name,

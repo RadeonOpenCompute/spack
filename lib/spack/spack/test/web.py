@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 import collections
@@ -13,9 +14,10 @@ import pytest
 import llnl.util.tty as tty
 
 import spack.config
-import spack.mirrors.mirror
+import spack.mirror
 import spack.paths
 import spack.url
+import spack.util.path
 import spack.util.s3
 import spack.util.url as url_util
 import spack.util.web
@@ -211,14 +213,14 @@ def test_list_url(tmpdir):
 
     os.mkdir(os.path.join(testpath, "dir"))
 
-    with open(os.path.join(testpath, "file-0.txt"), "w", encoding="utf-8"):
+    with open(os.path.join(testpath, "file-0.txt"), "w"):
         pass
-    with open(os.path.join(testpath, "file-1.txt"), "w", encoding="utf-8"):
+    with open(os.path.join(testpath, "file-1.txt"), "w"):
         pass
-    with open(os.path.join(testpath, "file-2.txt"), "w", encoding="utf-8"):
+    with open(os.path.join(testpath, "file-2.txt"), "w"):
         pass
 
-    with open(os.path.join(testpath, "dir", "another-file.txt"), "w", encoding="utf-8"):
+    with open(os.path.join(testpath, "dir", "another-file.txt"), "w"):
         pass
 
     list_url = lambda recursive: list(
@@ -275,7 +277,7 @@ class MockS3Client:
 
 
 def test_gather_s3_information(monkeypatch, capfd):
-    mirror = spack.mirrors.mirror.Mirror(
+    mirror = spack.mirror.Mirror(
         {
             "fetch": {
                 "access_token": "AAAAAAA",
@@ -384,7 +386,7 @@ def ssl_scrubbed_env(mutable_config, monkeypatch):
     [
         pytest.param(
             lambda base_path: os.path.join(base_path, "mock_cert.crt"),
-            lambda cert_path: open(cert_path, "w", encoding="utf-8").close(),
+            lambda cert_path: open(cert_path, "w").close(),
             id="cert_file",
         ),
         pytest.param(
@@ -434,7 +436,7 @@ def test_ssl_curl_cert_file(cert_exists, tmpdir, ssl_scrubbed_env, mutable_confi
         mock_cert = str(tmpdir.join("mock_cert.crt"))
         spack.config.set("config:ssl_certs", mock_cert)
         if cert_exists:
-            open(mock_cert, "w", encoding="utf-8").close()
+            open(mock_cert, "w").close()
             assert os.path.isfile(mock_cert)
         curl = spack.util.web.require_curl()
 

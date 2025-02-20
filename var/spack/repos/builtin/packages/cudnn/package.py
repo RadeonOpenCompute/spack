@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -398,6 +399,3 @@ class Cudnn(Package):
             target_include = os.path.join(prefix, "targets", "ppc64le-linux", "include")
             if os.path.isdir(target_include) and not os.path.isdir(prefix.include):
                 symlink(target_include, prefix.include)
-
-    # contains precompiled binaries without rpaths
-    unresolved_libraries = ["*"]

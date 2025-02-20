@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -25,7 +26,7 @@ class Hwloc(AutotoolsPackage, CudaPackage, ROCmPackage):
     """
 
     homepage = "https://www.open-mpi.org/projects/hwloc/"
-    url = "https://download.open-mpi.org/release/hwloc/v2.11/hwloc-2.11.1.tar.bz2"
+    url = "https://download.open-mpi.org/release/hwloc/v2.0/hwloc-2.0.2.tar.gz"
     git = "https://github.com/open-mpi/hwloc.git"
 
     maintainers("bgoglin")
@@ -95,7 +96,9 @@ class Hwloc(AutotoolsPackage, CudaPackage, ROCmPackage):
     )
     variant("opencl", default=False, description="Support an OpenCL library at run time")
     variant("rocm", default=False, description="Support ROCm devices")
-    variant("level_zero", default=False, description="Support Intel OneAPI Level Zero devices")
+    variant(
+        "oneapi-level-zero", default=False, description="Support Intel OneAPI Level Zero devices"
+    )
 
     depends_on("c", type="build")
     depends_on("cxx", type="build")
@@ -136,10 +139,10 @@ class Hwloc(AutotoolsPackage, CudaPackage, ROCmPackage):
         # variant of llvm-amdgpu depends on hwloc.
         depends_on("llvm-amdgpu", when="+opencl")
 
-    with when("+level_zero"):
+    with when("+oneapi-level-zero"):
         depends_on("oneapi-level-zero")
         # LevelZero support isn't available until hwloc version 2.5.0
-        conflicts("@:2.4", msg="hwloc supports Intel OneAPI Level Zero only since 2.5.0")
+        conflicts("@:2.4.99", msg="hwloc supports Intel OneAPI Level Zero only since 2.5.0")
 
     @classmethod
     def determine_version(cls, exe):
@@ -157,18 +160,7 @@ class Hwloc(AutotoolsPackage, CudaPackage, ROCmPackage):
         return LibraryList(libs)
 
     def configure_args(self):
-        args = [
-            *self.enable_or_disable("netloc"),
-            *self.enable_or_disable("cairo"),
-            *self.enable_or_disable("nvml"),
-            *self.enable_or_disable("gl"),
-            *self.enable_or_disable("cuda"),
-            *self.enable_or_disable("libxml2"),
-            *self.enable_or_disable("libudev"),
-            *self.enable_or_disable("pci"),
-            *self.enable_or_disable("libs"),
-            *self.enable_or_disable("levelzero", variant="level_zero"),
-        ]
+        args = []
 
         # If OpenCL is not enabled, disable it since hwloc might
         # pick up an OpenCL library at build time that is then
@@ -186,12 +178,25 @@ class Hwloc(AutotoolsPackage, CudaPackage, ROCmPackage):
         if "+rocm" not in self.spec:
             args.append("--disable-rsmi")
 
-        if self.spec.satisfies("+rocm"):
-            args.append(f'--with-rocm={self.spec["hip"].prefix}')
-            args.append(f'--with-rocm-version={self.spec["hip"].version}')
+        if "+rocm" in self.spec:
+            args.append("--with-rocm={0}".format(self.spec["hip"].prefix))
+            args.append("--with-rocm-version={0}".format(self.spec["hip"].version))
 
-        if self.spec.satisfies("+cuda"):
-            args.append(f'--with-cuda={self.spec["cuda"].prefix}')
-            args.append(f'--with-cuda-version={self.spec["cuda"].version}')
+        args.extend(self.enable_or_disable("netloc"))
+        args.extend(self.enable_or_disable("cairo"))
+        args.extend(self.enable_or_disable("nvml"))
+        args.extend(self.enable_or_disable("gl"))
+        args.extend(self.enable_or_disable("cuda"))
+        args.extend(self.enable_or_disable("libxml2"))
+        args.extend(self.enable_or_disable("libudev"))
+        args.extend(self.enable_or_disable("pci"))
+        args.extend(self.enable_or_disable("libs"))
+
+        if "+cuda" in self.spec:
+            args.append("--with-cuda={0}".format(self.spec["cuda"].prefix))
+            args.append("--with-cuda-version={0}".format(self.spec["cuda"].version))
+
+        if "+oneapi-level-zero" in self.spec:
+            args.append("--enable-levelzero")
 
         return args

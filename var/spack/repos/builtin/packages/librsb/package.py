@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -43,7 +44,7 @@ class Librsb(AutotoolsPackage):
     variant("verbose", default=False, description="Extra Library Verbosity. Good for learning.")
 
     def setup_build_environment(self, spack_env):
-        if self.spec.satisfies("+asan"):
+        if "+asan" in self.spec:
             spack_env.set("LSAN_OPTIONS", "verbosity=1:log_threads=1")
             spack_env.set("ASAN_OPTS", "detect_leaks=0")
 
@@ -55,25 +56,25 @@ class Librsb(AutotoolsPackage):
             f"CPPFLAGS={self.spec['zlib-api'].headers.include_flags}",
             f"LDFLAGS={self.spec['zlib-api'].libs.search_flags}",
         ]
-        if self.spec.satisfies("+asan"):
+        if "+asan" in self.spec:
             args.append("CFLAGS=-O0 -ggdb -fsanitize=address -fno-omit-frame-pointer")
             args.append("CXXFLAGS=-O0 -ggdb -fsanitize=address -fno-omit-frame-pointer")
             args.append("LIBS=-lasan")
             args.append("FCLIBS=-lasan")
             args.append("--disable-shared")
             args.append("--enable-fortran-linker")
-        if self.spec.satisfies("+debug"):
+        if "+debug" in self.spec:
             args.append("--enable-allocator-wrapper")
             args.append("--enable-debug")
-        if self.spec.satisfies("+native"):
+        if "+native" in self.spec:
             args.append("CFLAGS=-O3 -march=native")
             args.append("CXXFLAGS=-O3 -march=native")
             args.append("FCFLAGS=-O3 -march=native")
-        if self.spec.satisfies("+nospblas"):
+        if "+nospblas" in self.spec:
             args.append("--disable-sparse-blas-interface")
-        if self.spec.satisfies("+serial"):
+        if "+serial" in self.spec:
             args.append("--disable-openmp")
-        if self.spec.satisfies("+verbose"):
+        if "+verbose" in self.spec:
             args.append("--enable-internals-error-verbosity=1")
             args.append("--enable-interface-error-verbosity=1")
         return args

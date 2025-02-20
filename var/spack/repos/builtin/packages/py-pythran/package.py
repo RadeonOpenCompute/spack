@@ -1,8 +1,11 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
 import sys
+
+import llnl.util.filesystem as fs
 
 from spack.package import *
 
@@ -86,7 +89,7 @@ class PyPythran(PythonPackage):
         # Pythran is mainly meant to be used as a compiler, so return no headers to
         # avoid issue https://github.com/spack/spack/issues/33237 This can be refined
         # later to allow using pythran also as a library.
-        return HeaderList([])
+        return fs.HeaderList([])
 
     def patch(self):
         # Compiler is used at run-time to determine name of OpenMP library to search for

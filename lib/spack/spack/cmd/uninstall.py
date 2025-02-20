@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -16,8 +17,7 @@ import spack.spec
 import spack.store
 import spack.traverse as traverse
 from spack.cmd.common import arguments
-
-from ..enums import InstallRecordStatus
+from spack.database import InstallStatuses
 
 description = "remove installed packages"
 section = "build"
@@ -90,7 +90,6 @@ def find_matching_specs(
         env: optional active environment
         specs: list of specs to be matched against installed packages
         allow_multiple_matches: if True multiple matches are admitted
-        origin: origin of the spec
 
     Return:
         list: list of specs
@@ -99,14 +98,12 @@ def find_matching_specs(
     hashes = env.all_hashes() if env else None
 
     # List of specs that match expressions given via command line
-    specs_from_cli: List[spack.spec.Spec] = []
+    specs_from_cli = []
     has_errors = False
     for spec in specs:
+        install_query = [InstallStatuses.INSTALLED, InstallStatuses.DEPRECATED]
         matching = spack.store.STORE.db.query_local(
-            spec,
-            hashes=hashes,
-            installed=(InstallRecordStatus.INSTALLED | InstallRecordStatus.DEPRECATED),
-            origin=origin,
+            spec, hashes=hashes, installed=install_query, origin=origin
         )
         # For each spec provided, make sure it refers to only one package.
         # Fail and ask user to be unambiguous if it doesn't
@@ -119,7 +116,7 @@ def find_matching_specs(
             has_errors = True
 
         # No installed package matches the query
-        if len(matching) == 0 and spec is not None:
+        if len(matching) == 0 and spec is not any:
             if env:
                 pkg_type = "packages in environment '%s'" % env.name
             else:
@@ -144,7 +141,7 @@ def installed_dependents(specs: List[spack.spec.Spec]) -> List[spack.spec.Spec]:
         record = spack.store.STORE.db.query_local_by_spec_hash(spec.dag_hash())
         return record and record.installed
 
-    all_specs = traverse.traverse_nodes(
+    specs = traverse.traverse_nodes(
         specs,
         root=False,
         order="breadth",
@@ -155,7 +152,7 @@ def installed_dependents(specs: List[spack.spec.Spec]) -> List[spack.spec.Spec]:
     )
 
     with spack.store.STORE.db.read_transaction():
-        return [spec for spec in all_specs if is_installed(spec)]
+        return [spec for spec in specs if is_installed(spec)]
 
 
 def dependent_environments(
@@ -216,7 +213,7 @@ def get_uninstall_list(args, specs: List[spack.spec.Spec], env: Optional[ev.Envi
 
     # Gets the list of installed specs that match the ones given via cli
     # args.all takes care of the case where '-a' is given in the cli
-    matching_specs = find_matching_specs(env, specs, args.all, origin=args.origin)
+    matching_specs = find_matching_specs(env, specs, args.all)
     dependent_specs = installed_dependents(matching_specs)
     all_uninstall_specs = matching_specs + dependent_specs if args.dependents else matching_specs
     other_dependent_envs = dependent_environments(all_uninstall_specs, current_env=env)
@@ -304,6 +301,6 @@ def uninstall(parser, args):
             "  Use `spack uninstall --all` to uninstall ALL packages.",
         )
 
-    # [None] here handles the --all case by forcing all specs to be returned
-    specs = spack.cmd.parse_specs(args.specs) if args.specs else [None]
+    # [any] here handles the --all case by forcing all specs to be returned
+    specs = spack.cmd.parse_specs(args.specs) if args.specs else [any]
     uninstall_specs(args, specs)

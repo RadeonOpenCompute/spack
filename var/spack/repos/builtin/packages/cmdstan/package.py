@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -31,7 +32,7 @@ class Cmdstan(MakefilePackage):
     filter_compiler_wrappers("local", relative_root="make")
 
     def edit(self, spec, prefix):
-        if spec.satisfies("%intel"):
+        if spec.compiler.name == "intel":
             cxx_type = "icc"
         else:
             cxx_type = spec.compiler.name

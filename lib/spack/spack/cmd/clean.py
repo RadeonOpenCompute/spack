@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -9,9 +10,11 @@ import shutil
 import llnl.util.filesystem
 import llnl.util.tty as tty
 
+import spack.bootstrap
 import spack.caches
-import spack.cmd
+import spack.cmd.test
 import spack.config
+import spack.repo
 import spack.stage
 import spack.store
 import spack.util.path
@@ -104,8 +107,7 @@ def clean(parser, args):
     # Then do the cleaning falling through the cases
     if args.specs:
         specs = spack.cmd.parse_specs(args.specs, concretize=False)
-        specs = spack.cmd.matching_specs_from_env(specs)
-
+        specs = list(spack.cmd.matching_spec_from_env(x) for x in specs)
         for spec in specs:
             msg = "Cleaning build stage [{0}]"
             tty.msg(msg.format(spec.short_spec))

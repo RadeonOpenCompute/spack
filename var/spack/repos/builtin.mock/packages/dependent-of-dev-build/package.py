@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -15,5 +16,5 @@ class DependentOfDevBuild(Package):
     depends_on("dev-build-test-install")
 
     def install(self, spec, prefix):
-        with open(prefix.filename, "w", encoding="utf-8") as f:
+        with open(prefix.filename, "w") as f:
             f.write("This file is installed")

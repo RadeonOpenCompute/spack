@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -9,7 +10,7 @@ user's VISUAL environment variable if set. We fall back to the editor
 defined by the EDITOR environment variable if VISUAL is not set or the
 specified editor fails (e.g. no DISPLAY for a graphical editor). If
 neither variable is set, we fall back to one of several common editors,
-raising an OSError if we are unable to find one.
+raising an EnvironmentError if we are unable to find one.
 """
 import os
 import shlex
@@ -141,7 +142,7 @@ def editor(*args: str, exec_fn: Callable[[str, List[str]], int] = os.execv) -> b
         return True
 
     # Fail if nothing could be found
-    raise OSError(
+    raise EnvironmentError(
         "No text editor found! Please set the VISUAL and/or EDITOR "
         "environment variable(s) to your preferred text editor."
     )

@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 import os
@@ -9,17 +10,14 @@ import pytest
 from llnl.util.symlink import readlink
 
 import spack.cmd.modules
-import spack.concretize
 import spack.config
 import spack.error
-import spack.modules
-import spack.modules.common
 import spack.modules.tcl
 import spack.package_base
-import spack.package_prefs
-import spack.repo
-from spack.installer import PackageInstaller
+import spack.schema.modules
+import spack.spec
 from spack.modules.common import UpstreamModuleIndex
+from spack.spec import Spec
 
 pytestmark = [
     pytest.mark.not_on_windows("does not run on windows"),
@@ -59,7 +57,7 @@ def mock_package_perms(monkeypatch):
 def test_modules_written_with_proper_permissions(
     mock_module_filename, mock_package_perms, mock_packages, config
 ):
-    spec = spack.concretize.concretize_one("mpileaks")
+    spec = spack.spec.Spec("mpileaks").concretized()
 
     # The code tested is common to all module types, but has to be tested from
     # one. Tcl picked at random
@@ -73,7 +71,7 @@ def test_modules_written_with_proper_permissions(
 def test_modules_default_symlink(
     module_type, mock_packages, mock_module_filename, mock_module_defaults, config
 ):
-    spec = spack.concretize.concretize_one("mpileaks@2.3")
+    spec = spack.spec.Spec("mpileaks@2.3").concretized()
     mock_module_defaults(spec.format("{name}{@version}"), True)
 
     generator_cls = spack.modules.module_types[module_type]
@@ -170,7 +168,7 @@ module_index:
         old_index = spack.modules.common.upstream_module_index
         spack.modules.common.upstream_module_index = upstream_index
 
-        m1_path = spack.modules.get_module("tcl", s1, True)
+        m1_path = spack.modules.common.get_module("tcl", s1, True)
         assert m1_path == "/path/to/a"
     finally:
         spack.modules.common.upstream_module_index = old_index
@@ -179,8 +177,8 @@ module_index:
 @pytest.mark.regression("14347")
 def test_load_installed_package_not_in_repo(install_mockery, mock_fetch, monkeypatch):
     """Test that installed packages that have been removed are still loadable"""
-    spec = spack.concretize.concretize_one("trivial-install-test-package")
-    PackageInstaller([spec.package], explicit=True).install()
+    spec = Spec("trivial-install-test-package").concretized()
+    spec.package.do_install()
     spack.modules.module_types["tcl"](spec, "default", True).write()
 
     def find_nothing(*args):
@@ -192,7 +190,7 @@ def test_load_installed_package_not_in_repo(install_mockery, mock_fetch, monkeyp
     with pytest.raises(spack.repo.UnknownPackageError):
         spec.package
 
-    module_path = spack.modules.get_module("tcl", spec, True)
+    module_path = spack.modules.common.get_module("tcl", spec, True)
     assert module_path
 
     spack.package_base.PackageBase.uninstall_by_spec(spec)
@@ -218,8 +216,8 @@ def test_check_module_set_name(mutable_config):
 
     # Invalid module set names
     msg = "Valid module set names are"
-    with pytest.raises(spack.error.ConfigError, match=msg):
+    with pytest.raises(spack.config.ConfigError, match=msg):
         spack.cmd.modules.check_module_set_name("prefix_inspections")
 
-    with pytest.raises(spack.error.ConfigError, match=msg):
+    with pytest.raises(spack.config.ConfigError, match=msg):
         spack.cmd.modules.check_module_set_name("third")

@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -61,7 +62,7 @@ class Libhio(AutotoolsPackage):
         args = []
 
         args.append("--with-external_bz2={0}".format(spec["bzip2"].prefix))
-        if spec.satisfies("+hdf5"):
+        if "+hdf5" in spec:
             args.append("--with-hdf5={0}".format(spec["hdf5"].prefix))
 
         args.append("--with-external-json={0}".format(spec["json-c"].prefix))

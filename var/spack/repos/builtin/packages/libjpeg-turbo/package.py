@@ -1,10 +1,8 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
-import sys
-
-import spack.build_systems.cmake
 from spack.package import *
 
 
@@ -113,8 +111,7 @@ class LibjpegTurbo(CMakePackage, AutotoolsPackage):
     @property
     def libs(self):
         shared = self.spec.satisfies("libs=shared")
-        name = "jpeg" if sys.platform == "win32" else "libjpeg*"
-        return find_libraries(name, root=self.prefix, shared=shared, recursive=True, runtime=False)
+        return find_libraries("libjpeg*", root=self.prefix, shared=shared, recursive=True)
 
 
 class CMakeBuilder(spack.build_systems.cmake.CMakeBuilder):
@@ -131,5 +128,5 @@ class CMakeBuilder(spack.build_systems.cmake.CMakeBuilder):
     @run_after("install")
     def darwin_fix(self):
         # The shared library is not installed correctly on Darwin; fix this
-        if self.spec.satisfies("platform=darwin") and self.spec.satisfies("+shared"):
+        if self.spec.satisfies("platform=darwin") and ("+shared" in self.spec):
             fix_darwin_install_name(self.prefix.lib)

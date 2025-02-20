@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 import spack.build_systems.autotools
@@ -92,15 +93,16 @@ class ArpackNg(CMakePackage, AutotoolsPackage):
 
     def flag_handler(self, name, flags):
         spec = self.spec
+        iflags = []
         if name == "cflags":
             if spec.satisfies("%oneapi"):
-                flags.append("-Wno-error=implicit-function-declaration")
+                iflags.append("-Wno-error=implicit-function-declaration")
 
         if name == "fflags":
             if self.spec.satisfies("%cce"):
-                flags.append("-hnopattern")
+                iflags.append("-hnopattern")
 
-        return (flags, None, None)
+        return (iflags, None, None)
 
     @property
     def libs(self):

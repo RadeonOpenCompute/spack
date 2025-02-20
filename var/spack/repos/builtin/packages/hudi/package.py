@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -11,7 +12,7 @@ class Hudi(MavenPackage):
     Hudi manages the storage of large analytical datasets on DFS."""
 
     homepage = "https://hudi.apache.org/"
-    url = "https://github.com/apache/hudi/archive/refs/tags/release-0.5.3.tar.gz"
+    url = "https://github.com/apache/hudi/archive/release-0.5.3.tar.gz"
 
     license("Apache-2.0")
 

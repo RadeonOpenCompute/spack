@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -42,7 +43,7 @@ class H5hut(AutotoolsPackage):
     def validate(self):
         """Checks if Fortran compiler is available."""
 
-        if self.spec.satisfies("+fortran") and not self.compiler.fc:
+        if "+fortran" in self.spec and not self.compiler.fc:
             raise RuntimeError("Cannot build Fortran variant without a Fortran compiler.")
 
     def flag_handler(self, name, flags):
@@ -58,10 +59,10 @@ class H5hut(AutotoolsPackage):
         spec = self.spec
         config_args = ["--enable-shared"]
 
-        if spec.satisfies("+fortran"):
+        if "+fortran" in spec:
             config_args.append("--enable-fortran")
 
-        if spec.satisfies("+mpi"):
+        if "+mpi" in spec:
             config_args.extend(
                 [
                     "--enable-parallel",
@@ -70,7 +71,7 @@ class H5hut(AutotoolsPackage):
                 ]
             )
 
-            if spec.satisfies("+fortran"):
+            if "+fortran" in spec:
                 config_args.append("FC={0}".format(spec["mpi"].mpifc))
 
         return config_args

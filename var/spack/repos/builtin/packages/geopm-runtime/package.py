@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2023 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -57,7 +58,6 @@ class GeopmRuntime(AutotoolsPackage):
 
     # Autotools dependencies
     depends_on("automake", type="build")
-    depends_on("autoconf", type="build")
     depends_on("libtool", type="build")
     depends_on("file")
 
@@ -113,7 +113,7 @@ class GeopmRuntime(AutotoolsPackage):
     @property
     def install_targets(self):
         target = ["install"]
-        if self.spec.satisfies("+checkprogs"):
+        if "+checkprogs" in self.spec:
             target += ["checkprogs"]
         return target
 
@@ -161,7 +161,7 @@ class GeopmRuntime(AutotoolsPackage):
             lib_dir = self.prefix.lib
         env.prepend_path("LD_LIBRARY_PATH", lib_dir)
 
-        if self.spec.satisfies("+checkprogs"):
+        if "+checkprogs" in self.spec:
             env.set("GEOPM_SOURCE", self.stage.source_path)
             env.prepend_path("PYTHONPATH", self.stage.source_path)
         env.set("GEOPM_INSTALL", self.prefix)

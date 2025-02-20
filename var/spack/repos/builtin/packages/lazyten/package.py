@@ -1,4 +1,5 @@
-# Copyright Spack Project Developers. See COPYRIGHT file for details.
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
+# Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
@@ -74,10 +75,10 @@ class Lazyten(CMakePackage):
         args = [
             "-DAUTOCHECKOUT_MISSING_REPOS=OFF",
             #
-            "-DBUILD_SHARED_LIBS=" + str(spec.satisfies("+shared")),
+            "-DBUILD_SHARED_LIBS=" + str("+shared" in spec),
             # TODO Hard-disable tests for now, since rapidcheck not in Spack
             "-DLAZYTEN_ENABLE_TESTS=OFF",
-            "-DLAZYTEN_ENABLE_EXAMPLES=" + str(spec.satisfies("+examples")),
+            "-DLAZYTEN_ENABLE_EXAMPLES=" + str("+examples" in spec),
         ]
 
         # Tell lazyten where to look for the krims cmake config
@@ -97,7 +98,7 @@ class Lazyten(CMakePackage):
             ]
         )
 
-        if spec.satisfies("+arpack"):
+        if "+arpack" in spec:
             args.append("-DARPACK_DIR=" + spec["arpack-ng"].prefix)
             args.append("-DARPACK_LIBRARY=" + ";".join(spec["arpack-ng"].libs))
 
