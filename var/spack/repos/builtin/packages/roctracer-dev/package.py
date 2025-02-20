@@ -13,14 +13,15 @@ class RoctracerDev(CMakePackage, ROCmPackage):
     specific runtime profiler to trace API and asyncronous activity."""
 
     homepage = "https://github.com/ROCm/roctracer"
-    git = "https://github.com/ROCm/roctracer.git"
-    url = "https://github.com/ROCm/roctracer/archive/rocm-6.1.2.tar.gz"
+    git = "ssh://gerritgit/compute/ec/roctracer.git"
+    url = "https://github.com/ROCm/roctracer/archive/rocm-6.0.2.tar.gz"
     tags = ["rocm"]
 
     maintainers("srekolam", "renjithravindrankannath", "afzpatel")
     libraries = ["libroctracer64"]
 
     license("MIT")
+    version("develop", branch="amd-staging")
     version("6.3.2", sha256="ca8e93fc37f4671db28df5cb7a24b48f3d4879a188e4780e45961bba3725bb8a")
     version("6.3.1", sha256="89e4ab249f527131f684714c9135c69eaad1a63b7e74bae718b1617543b94426")
     version("6.3.0", sha256="6eb09e3b3b45ed68b2ac7ed6848521e645569bcd4a1f3a336cf2473a801308a2")
@@ -72,6 +73,7 @@ class RoctracerDev(CMakePackage, ROCmPackage):
         "6.2.0",
         "6.2.1",
         "6.2.4",
+        "develop",
     ]:
         depends_on(f"hsakmt-roct@{ver}", when=f"@{ver}")
 
@@ -123,6 +125,7 @@ class RoctracerDev(CMakePackage, ROCmPackage):
         "6.3.0",
         "6.3.1",
         "6.3.2",
+        "develop",
     ]:
         depends_on(f"rocm-core@{ver}", when=f"@{ver}")
 

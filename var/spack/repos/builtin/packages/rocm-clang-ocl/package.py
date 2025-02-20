@@ -8,9 +8,9 @@ from spack.package import *
 class RocmClangOcl(CMakePackage):
     """OpenCL compilation with clang compiler"""
 
-    homepage = "https://github.com/ROCm/clang-ocl"
-    git = "https://github.com/ROCm/clang-ocl.git"
-    url = "https://github.com/ROCm/clang-ocl/archive/rocm-6.1.2.tar.gz"
+    homepage = "https://github.com/RadeonOpenCompute/clang-ocl"
+    git = "ssh://gerritgit/compute/ec/clang-ocl.git"
+    url = "https://github.com/RadeonOpenCompute/clang-ocl/archive/rocm-5.4.3.tar.gz"
     tags = ["rocm"]
 
     test_requires_compiler = True
@@ -19,6 +19,7 @@ class RocmClangOcl(CMakePackage):
 
     maintainers("srekolam", "renjithravindrankannath")
     version("master", branch="master")
+    version("develop", branch="amd-master")
     version("6.1.2", sha256="cc9942539b5e50b97fa0d2425ba93aae7223635fecba869d8f43b2c26f9482ae")
     version("6.1.1", sha256="21b8a6d521a8e584e18851d27b5ef328a63ea7ee9eb3cc52508b9bfcf975e119")
     version("6.1.0", sha256="c983adad49ab5850307db1282f8bc957b9870d4ce37db8fbb43c52db6c90d0ed")
@@ -55,6 +56,7 @@ class RocmClangOcl(CMakePackage):
         "6.1.1",
         "6.1.2",
         "master",
+        "develop",
     ]:
         depends_on(f"rocm-cmake@{ver}:", type="build", when=f"@{ver}")
         depends_on(f"llvm-amdgpu@{ver}", when=f"@{ver}")
@@ -73,6 +75,7 @@ class RocmClangOcl(CMakePackage):
         "6.1.0",
         "6.1.1",
         "6.1.2",
+        "develop",
     ]:
         depends_on(f"rocm-core@{ver}", when=f"@{ver}")
 

@@ -131,6 +131,7 @@ class Rocrand(CMakePackage):
         "6.3.0",
         "6.3.1",
         "6.3.2",
+        "develop",
     ]:
         depends_on(f"hip@{ver}", when=f"@{ver}")
         depends_on(f"rocm-cmake@{ver}:", type="build", when=f"@{ver}")

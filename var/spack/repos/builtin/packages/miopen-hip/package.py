@@ -20,6 +20,8 @@ class MiopenHip(CMakePackage):
     libraries = ["libMIOpen"]
 
     license("MIT")
+
+    version("develop", branch="develop")
     version("6.3.2", sha256="7abda3b437e396a1611a6f63e73ab1656d45d5405194504136c0ccbb75b81fea")
     version("6.3.1", sha256="edb82a74086fb96f8d7ee9e50a180302f716332cd0dff96bf7244bdc6fab5895")
     version("6.3.0", sha256="171834978d6316a5ec7607d4b10c7c69e5bfe9064edae8bdb9b207e578b41c1d")
@@ -98,6 +100,7 @@ class MiopenHip(CMakePackage):
         "6.3.0",
         "6.3.1",
         "6.3.2",
+        "develop",
     ]:
         depends_on(f"rocm-cmake@{ver}:", type="build", when=f"@{ver}")
         depends_on(f"hip@{ver}", when=f"@{ver}")
@@ -142,6 +145,7 @@ class MiopenHip(CMakePackage):
         "6.3.0",
         "6.3.1",
         "6.3.2",
+        "develop",
     ]:
         depends_on("nlohmann-json", type="link")
         depends_on(f"composable-kernel@{ver}", when=f"@{ver}")

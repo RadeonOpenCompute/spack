@@ -16,6 +16,7 @@ class Hipfort(CMakePackage):
     license("MIT")
 
     maintainers("cgmb", "srekolam", "renjithravindrankannath", "afzpatel")
+    version("develop", branch="develop")
     version("6.3.2", sha256="d2438971199637eb2e09519c1f2300cdd7a84b4d948034a7cd1ce3e441faf5de")
     version("6.3.1", sha256="8141bf3d05ab4f91c561815134707123e3d06486bf775224b9a3a4cc8ee8f56f")
     version("6.3.0", sha256="9e7f4420c75430cdb9046c0c4dbe656f22128b0672b2e261d50a6e92e47cc6d3")
@@ -70,6 +71,7 @@ class Hipfort(CMakePackage):
         "6.3.0",
         "6.3.1",
         "6.3.2",
+        "develop",
     ]:
         depends_on(f"hip@{ver}", type="build", when=f"@{ver}")
 

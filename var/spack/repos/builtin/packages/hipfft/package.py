@@ -24,6 +24,7 @@ class Hipfft(CMakePackage, CudaPackage, ROCmPackage):
     license("MIT")
 
     version("master", branch="master")
+    version("develop", branch="develop")
     version("6.3.2", sha256="5d9e662c7d67f4c814cad70476b57651df5ae6b65f371ca6dbb5aa51d9eeb6f5")
     version("6.3.1", sha256="b709df2d0115748ed004d0cddce829cb0f9ec3761eb855e61f0097cab04e4806")
     version("6.3.0", sha256="08a0c800f531247281b4dbe8de9567a6fde4f432829a451a720d0b0a3c711059")
@@ -70,6 +71,15 @@ class Hipfft(CMakePackage, CudaPackage, ROCmPackage):
     depends_on("cmake@3.5:", type="build")
 
     depends_on("hip +cuda", when="+cuda")
+    resource(
+        name="client",
+        git = "https://github.com/ROCmSoftwarePlatform/rocFFT.git",
+        expand=True,
+        destination="",
+        branch="develop",
+        placement="clients",
+        when="@develop",
+    )
 
     for ver in [
         "5.3.0",
@@ -94,6 +104,7 @@ class Hipfft(CMakePackage, CudaPackage, ROCmPackage):
         "6.3.1",
         "6.3.2",
         "master",
+        "develop",
     ]:
         depends_on(f"rocm-cmake@{ver}:", type="build", when=f"@{ver}")
         depends_on(f"rocfft@{ver}", when=f"+rocm @{ver}")

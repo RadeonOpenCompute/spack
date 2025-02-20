@@ -11,13 +11,14 @@ class RoctracerDevApi(Package):
     For the ROC-tracer library, please check out roctracer-dev."""
 
     homepage = "https://github.com/ROCm/roctracer"
-    git = "https://github.com/ROCm/roctracer.git"
+    git = "ssh://gerritgit/compute/ec/roctracer.git"
     url = "https://github.com/ROCm/roctracer/archive/refs/tags/rocm-6.2.4.tar.gz"
     tags = ["rocm"]
 
     license("MIT")
 
     maintainers("srekolam", "renjithravindrankannath", "afzpatel")
+    version("develop", branch="amd-staging")
     version("6.3.2", sha256="ca8e93fc37f4671db28df5cb7a24b48f3d4879a188e4780e45961bba3725bb8a")
     version("6.3.1", sha256="89e4ab249f527131f684714c9135c69eaad1a63b7e74bae718b1617543b94426")
     version("6.3.0", sha256="6eb09e3b3b45ed68b2ac7ed6848521e645569bcd4a1f3a336cf2473a801308a2")

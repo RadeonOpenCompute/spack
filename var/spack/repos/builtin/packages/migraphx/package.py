@@ -19,6 +19,8 @@ class Migraphx(CMakePackage):
     libraries = ["libmigraphx"]
 
     license("MIT")
+
+    version("develop", branch="develop")
     version("6.3.2", sha256="4e6b9800919e99070c0289616657592c23ff66a55230409f38e5c7e099c0d89b")
     version("6.3.1", sha256="c60df20b3c890c469265ae6f273fb5d43cc13c8c514f76dd7b4d195d9e44ba85")
     version("6.3.0", sha256="21550e5cecf1b26c02e1c4633c7c4c6eb5e37be8758d7a2641f10cfdf4203636")
@@ -107,12 +109,14 @@ class Migraphx(CMakePackage):
         "6.3.0",
         "6.3.1",
         "6.3.2",
+        "develop",
     ]:
         depends_on(f"rocm-cmake@{ver}:", type="build", when=f"@{ver}")
         depends_on(f"hip@{ver}", when=f"@{ver}")
         depends_on(f"llvm-amdgpu@{ver}", when=f"@{ver}")
         depends_on(f"rocblas@{ver}", when=f"@{ver}")
         depends_on(f"miopen-hip@{ver}", when=f"@{ver}")
+
     for ver in [
         "6.0.0",
         "6.0.2",
@@ -125,6 +129,7 @@ class Migraphx(CMakePackage):
         "6.3.0",
         "6.3.1",
         "6.3.2",
+        "develop",
     ]:
         depends_on(f"rocmlir@{ver}", when=f"@{ver}")
 

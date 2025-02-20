@@ -217,6 +217,8 @@ class RocmOpenmpExtras(Package):
     depends_on("libffi", type=("build", "link"))
     depends_on("libdrm", when="@5.7:6.0")
     depends_on("numactl", when="@5.7:6.0")
+    depends_on("libdrm", when="@develop")
+    depends_on("numactl", when="@develop")
     depends_on("zlib", when="@6.2:")
 
     for ver in [
@@ -237,6 +239,7 @@ class RocmOpenmpExtras(Package):
         "6.3.0",
         "6.3.1",
         "6.3.2",
+	"develop",
     ]:
         depends_on(f"rocm-core@{ver}", when=f"@{ver}")
 
@@ -297,10 +300,56 @@ class RocmOpenmpExtras(Package):
             placement="llvm-project",
             when=f"@{ver}",
         )
+    for ver in ["develop"]:
+        #depends_on(f"rocm-core@{ver}", when=f"@{ver}")
+        depends_on(f"hip@{ver}", when=f"@{ver}")
+
+        tag = "rocm-"
+
+        resource(
+            name="rocm-device-libs",
+            git=f"ssh://gerritgit/lightning/ec/device-libs.git",
+            branch="amd-stg-open",
+            expand=True,
+            destination="rocm-openmp-extras",
+            placement="rocm-device-libs",
+            when=f"@{ver}",
+        )
+
+        resource(
+            name="flang",
+            git=f"ssh://gerritgit/compute/ec/flang.git",
+            branch="amd-mainline-open",
+            expand=True,
+            destination="rocm-openmp-extras",
+            placement="flang",
+            when=f"@{ver}",
+        )
+
+        resource(
+            name="aomp-extras",
+            git=f"ssh://gerritgit/compute/ec/aomp-extras.git",
+            branch="amd-mainline-open",
+            expand=True,
+            destination="rocm-openmp-extras",
+            placement="aomp-extras",
+            when=f"@{ver}",
+        )
+
+        resource(
+            name="llvm-project",
+            git=f"ssh://gerritgit/lightning/ec/llvm-project.git",
+            branch="amd-staging",
+            expand=True,
+            destination="rocm-openmp-extras",
+            placement="llvm-project",
+            when=f"@{ver}",
+        )
+
     for ver in ["6.1.0", "6.1.1", "6.1.2", "6.2.0", "6.2.1", "6.2.4"]:
         depends_on(f"hsakmt-roct@{ver}", when=f"@{ver}")
 
-    for ver in ["6.1.0", "6.1.1", "6.1.2", "6.2.0", "6.2.1", "6.2.4", "6.3.0", "6.3.1", "6.3.2"]:
+    for ver in ["6.1.0", "6.1.1", "6.1.2", "6.2.0", "6.2.1", "6.2.4", "6.3.0", "6.3.1", "6.3.2", "develop"]:
         depends_on(f"comgr@{ver}", when=f"@{ver}")
         depends_on(f"hsa-rocr-dev@{ver}", when=f"@{ver}")
         depends_on(f"llvm-amdgpu@{ver}", when=f"@{ver}")
@@ -483,18 +532,12 @@ class RocmOpenmpExtras(Package):
                 string=True,
             )
 
-        filter_file(
-            "ADDITIONAL_VERSIONS 2.7",
-            "ADDITIONAL_VERSIONS 3",
-            flang.format(src) + "CMakeLists.txt",
-        )
-
-        filter_file(
-            "if (LIBOMPTARGET_DEP_CUDA_FOUND)",
-            "if (LIBOMPTARGET_DEP_CUDA_FOUND AND NOT LIBOMPTARGET_AMDGPU_ARCH)",
-            libomptarget.format(src) + "/hostexec/CMakeLists.txt",
-            string=True,
-        )
+            filter_file(
+                "if (LIBOMPTARGET_DEP_CUDA_FOUND)",
+                "if (LIBOMPTARGET_DEP_CUDA_FOUND AND NOT LIBOMPTARGET_AMDGPU_ARCH)",
+                libomptarget.format(src) + "/hostexec/CMakeLists.txt",
+                string=True,
+            )
 
     def install(self, spec, prefix):
         src = self.stage.source_path
@@ -510,6 +553,9 @@ class RocmOpenmpExtras(Package):
         if self.spec.satisfies("@:6.2"):
             hsakmt_prefix = self.spec["hsakmt-roct"].prefix
         if self.spec.satisfies("@5.7:6.1"):
+            libdrm_prefix = self.spec["libdrm"].prefix
+            numactl_prefix = self.spec["numactl"].prefix
+        if self.spec.satisfies("@develop"):
             libdrm_prefix = self.spec["libdrm"].prefix
             numactl_prefix = self.spec["numactl"].prefix
         comgr_prefix = self.spec["comgr"].prefix

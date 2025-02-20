@@ -10,13 +10,15 @@ class RocmGdb(AutotoolsPackage):
     """This is ROCmgdb, the ROCm source-level debugger for Linux,
     based on GDB, the GNU source-level debugger."""
 
-    homepage = "https://github.com/ROCm/ROCgdb"
-    url = "https://github.com/ROCm/ROCgdb/archive/rocm-6.2.4.tar.gz"
+    homepage = "https://github.com/ROCm-Developer-Tools/ROCgdb/"
+    git = "ssh://gerritgit/compute/ec/rocm-gdb"
+    url = "https://github.com/ROCm-Developer-Tools/ROCgdb/archive/rocm-5.5.0.tar.gz"
     tags = ["rocm"]
 
     license("LGPL-2.0-or-later")
 
     maintainers("srekolam", "renjithravindrankannath")
+    version("develop", branch="amd-mainline-rocgdb-14")
     version("6.3.2", sha256="85b03c1fb99f55272f4732dff58e8ba0a1add454a79d2b9d471df200366d0c7e")
     version("6.3.1", sha256="954236518491ba547f849be7c86e71ff95ef24535f66acabfd45040e11c25d7b")
     version("6.3.0", sha256="4a41ffbc4f7a5970181ee0aae07f0ea4cda278870cd60a562b25001f1365e29f")
@@ -54,6 +56,7 @@ class RocmGdb(AutotoolsPackage):
     depends_on("zlib-api", type="link")
     depends_on("babeltrace@1.2.4", type="link")
     depends_on("gmp", type=("build", "link"))
+    depends_on("mpfr", type=("build", "link"), when="@develop")
     depends_on("mpfr", type=("build", "link"))
     depends_on("pkgconfig", type="build")
 
@@ -79,6 +82,7 @@ class RocmGdb(AutotoolsPackage):
         "6.3.0",
         "6.3.1",
         "6.3.2",
+        "develop",
     ]:
         depends_on(f"rocm-dbgapi@{ver}", type="link", when=f"@{ver}")
         depends_on(f"comgr@{ver}", type="link", when=f"@{ver}")
@@ -101,6 +105,7 @@ class RocmGdb(AutotoolsPackage):
         "6.3.0",
         "6.3.1",
         "6.3.2",
+        "develop",
     ]:
         depends_on(f"rocm-core@{ver}", when=f"@{ver}")
 

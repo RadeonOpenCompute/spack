@@ -10,20 +10,14 @@ class RocmDeviceLibs(CMakePackage):
     """set of AMD specific device-side language runtime libraries"""
 
     homepage = "https://github.com/ROCm/ROCm-Device-Libs"
-    git = "https://github.com/ROCm/ROCm-Device-Libs.git"
-
-    def url_for_version(self, version):
-        if version <= Version("6.0.2"):
-            url = "https://github.com/ROCm/ROCm-Device-Libs/archive/rocm-{0}.tar.gz"
-        else:
-            url = "https://github.com/ROCm/llvm-project/archive/rocm-{0}.tar.gz"
-        return url.format(version)
-
+    git = "ssh://gerritgit/lightning/ec/llvm-project.git"
+    url = "https://github.com/ROCm/ROCm-Device-Libs/archive/rocm-6.0.2.tar.gz"
     tags = ["rocm"]
 
     maintainers("srekolam", "renjithravindrankannath", "haampie", "afzpatel")
 
     version("master", branch="amd-stg-open")
+    version("develop", branch="amd-mainline")
     version("6.3.2", sha256="1f52e45660ea508d3fe717a9903fe27020cee96de95a3541434838e0193a4827")
     version("6.3.1", sha256="e9c2481cccacdea72c1f8d3970956c447cec47e18dfb9712cbbba76a2820552c")
     version("6.3.0", sha256="79580508b039ca6c50dfdfd7c4f6fbcf489fe1931037ca51324818851eea0c1c")
@@ -85,6 +79,7 @@ class RocmDeviceLibs(CMakePackage):
         "6.3.1",
         "6.3.2",
         "master",
+        "develop",
     ]:
         depends_on(f"llvm-amdgpu@{ver}", when=f"@{ver}")
 
@@ -106,6 +101,7 @@ class RocmDeviceLibs(CMakePackage):
         "6.3.0",
         "6.3.1",
         "6.3.2",
+        "develop",
     ]:
         depends_on(f"rocm-core@{ver}", when=f"@{ver}")
 

@@ -23,6 +23,7 @@ class HsaRocrDev(CMakePackage):
     libraries = ["libhsa-runtime64"]
 
     version("master", branch="master")
+    version("develop", branch="amd-staging")
     version("6.3.2", sha256="aaecaa7206b6fa1d5d7b8f7c1f7c5057a944327ba4779448980d7e7c7122b074")
     version("6.3.1", sha256="547ceeeda9a41cdffa21e57809dc5834f94938a0a2809c283aebcbcf01901df0")
     version("6.3.0", sha256="8fd6bcd6a5afd0ae5a59e33b786a525f575183d38c34049c2dab6b9270a1ca3b")
@@ -109,6 +110,7 @@ class HsaRocrDev(CMakePackage):
         "6.3.1",
         "6.3.2",
         "master",
+        "develop",
     ]:
         depends_on(f"llvm-amdgpu@{ver}", when=f"@{ver}")
         # allow standalone rocm-device-libs (useful for aomp)
@@ -132,15 +134,20 @@ class HsaRocrDev(CMakePackage):
         "6.3.0",
         "6.3.1",
         "6.3.2",
+        "develop",
     ]:
         depends_on(f"rocm-core@{ver}", when=f"@{ver}")
 
     patch("0002-Remove-explicit-RPATH-again.patch", when="@3.7.0:5.6")
 
+    #root_cmakelists_dir = "src"
+    #root_cmakelists_dir = "opensrc/hsa-runtime"
     @property
     def root_cmakelists_dir(self):
         if self.spec.satisfies("@6.3:"):
             return "."
+        elif self.spec.satisfies("@develop"):
+            return "opensrc/hsa-runtime"
         else:
             return "src"
 
@@ -180,6 +187,8 @@ class HsaRocrDev(CMakePackage):
 
         if self.spec.satisfies("@5.6:"):
             args.append("-DCMAKE_INSTALL_LIBDIR=lib")
+        if self.spec.satisfies("@develop"):
+            args.append(self.define("ROCM_PATCH_VERSION", "60200"))
         if self.spec.satisfies("@6.0"):
             args.append(self.define("ROCM_PATCH_VERSION", "60000"))
         if self.spec.satisfies("@6.1"):

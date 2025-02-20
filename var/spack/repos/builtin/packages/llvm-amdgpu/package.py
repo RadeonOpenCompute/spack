@@ -24,6 +24,7 @@ class LlvmAmdgpu(CMakePackage, CompilerPackage):
     license("Apache-2.0")
 
     version("master", branch="amd-stg-open")
+    version("develop", branch="amd-mainline")
     version("6.3.2", sha256="1f52e45660ea508d3fe717a9903fe27020cee96de95a3541434838e0193a4827")
     version("6.3.1", sha256="e9c2481cccacdea72c1f8d3970956c447cec47e18dfb9712cbbba76a2820552c")
     version("6.3.0", sha256="79580508b039ca6c50dfdfd7c4f6fbcf489fe1931037ca51324818851eea0c1c")
@@ -74,6 +75,9 @@ class LlvmAmdgpu(CMakePackage, CompilerPackage):
     provides("libllvm@15", when="@5.3:5.4")
     provides("libllvm@16", when="@5.5:5.6")
     provides("libllvm@17", when="@5.7:6.1")
+    provides("libllvm@18", when="@develop")
+    provides("libllvm@18", when="@6.2:")
+    #provides("libllvm@18", when="@develop")
     provides("libllvm@18", when="@6.2:")
 
     depends_on("cmake@3.13.4:", type="build")
@@ -111,7 +115,7 @@ class LlvmAmdgpu(CMakePackage, CompilerPackage):
     patch(
         "https://github.com/ROCm/llvm-project/commit/444d1d12bbc0269fed5451fb1a9110a049679ca5.patch?full_index=1",
         sha256="b4774ca19b030890d7b276d12c446400ccf8bc3aa724c7f2e9a73531a7400d69",
-        when="@6.0:",
+        when="@6.0:6.1",
     )
 
     # Fix for https://github.com/llvm/llvm-project/issues/78530
@@ -160,6 +164,14 @@ class LlvmAmdgpu(CMakePackage, CompilerPackage):
         branch="amd-stg-open",
         when="@master +rocm-device-libs",
     )
+
+    resource(
+        name="rocm-device-libs",
+        placement="rocm-device-libs",
+        git="ssh://gerritgit/lightning/ec/device-libs.git",
+        branch="amd-stg-open",
+        when="@develop +rocm-device-libs",
+    )
     for d_version, d_shasum in [
         ("6.3.2", "aaecaa7206b6fa1d5d7b8f7c1f7c5057a944327ba4779448980d7e7c7122b074"),
         ("6.3.1", "547ceeeda9a41cdffa21e57809dc5834f94938a0a2809c283aebcbcf01901df0"),
@@ -187,6 +199,13 @@ class LlvmAmdgpu(CMakePackage, CompilerPackage):
     resource(
         name="hsa-runtime",
         placement="hsa-runtime",
+        git="ssh://gerritgit/hsa/ec/hsa-runtime.git",
+        branch="amd-staging",
+        when="@develop",
+    )
+    resource(
+        name="hsa-runtime",
+        placement="hsa-runtime",
         git="https://github.com/ROCm/ROCR-Runtime.git",
         branch="master",
         when="@master",
@@ -207,6 +226,13 @@ class LlvmAmdgpu(CMakePackage, CompilerPackage):
             sha256=d_shasum,
             when=f"@{d_version}",
         )
+    resource(
+        name="comgr",
+        placement="comgr",
+        git= "ssh://gerritgit/lightning/ec/support.git",
+        branch="amd-stg-open",
+        when="@develop",
+    )
     resource(
         name="comgr",
         placement="comgr",
@@ -262,11 +288,12 @@ class LlvmAmdgpu(CMakePackage, CompilerPackage):
             args.append(self.define("CLANG_LINK_CLANG_DYLIB", True))
 
         # Get the GCC prefix for LLVM.
-        if self.compiler.name == "gcc":
-            args.append(self.define("GCC_INSTALL_PREFIX", self.compiler.prefix))
         if self.spec.satisfies("@5.4.3:"):
             args.append("-DCMAKE_INSTALL_LIBDIR=lib")
         if self.spec.satisfies("@5.5.0:"):
+            args.append("-DCLANG_DEFAULT_RTLIB=compiler-rt")
+            args.append("-DCLANG_DEFAULT_UNWINDLIB=libgcc")
+        if self.spec.satisfies("@5.6.0:5.7"):
             args.append("-DCLANG_DEFAULT_RTLIB=compiler-rt")
             args.append("-DCLANG_DEFAULT_UNWINDLIB=libgcc")
         if self.spec.satisfies("@5.6.0:6.0"):
@@ -283,6 +310,13 @@ class LlvmAmdgpu(CMakePackage, CompilerPackage):
             args.append("-DSANITIZER_HSA_INCLUDE_PATH={0}".format(hsainc_path))
             args.append("-DSANITIZER_COMGR_INCLUDE_PATH={0}".format(comgrinc_path))
             args.append("-DSANITIZER_AMDGPU:Bool=ON")
+        if self.spec.satisfies("@develop"):
+            hsainc = os.path.join(self.stage.source_path, "hsa-runtime/opensrc/hsa-runtime/inc")
+            comgrinc = os.path.join(self.stage.source_path, "comgr/lib/comgr/include")
+            args.append("-DSANITIZER_HSA_INCLUDE_PATH={0}/hsa-runtime/opensrc/hsa-runtime/inc".format(self.stage.source_path))
+            args.append("-DSANITIZER_COMGR_INCLUDE_PATH={0}/comgr/lib/comgr/include".format(self.stage.source_path))
+            args.append("-DSANITIZER_AMDGPU:Bool=ON")
+
         if self.spec.satisfies("@:6.0"):
             args.append(self.define("LLVM_ENABLE_PROJECTS", llvm_projects))
             args.append(self.define("LLVM_ENABLE_RUNTIMES", llvm_runtimes))
@@ -318,7 +352,20 @@ class LlvmAmdgpu(CMakePackage, CompilerPackage):
 
     @run_after("install")
     def post_install(self):
-        if self.spec.satisfies("@6.1: +rocm-device-libs"):
+        if self.spec.satisfies("@6.1:6.2 +rocm-device-libs"):
+            exe = self.prefix.bin.join("llvm-config")
+            output = Executable(exe)("--version", output=str, error=str)
+            version = re.split("[.]", output)[0]
+            mkdirp(join_path(self.prefix.lib.clang, version, "lib"), "amdgcn")
+            install_tree(
+                self.prefix.amdgcn, join_path(self.prefix.lib.clang, version, "lib", "amdgcn")
+            )
+            shutil.rmtree(self.prefix.amdgcn)
+            os.symlink(
+                join_path(self.prefix.lib.clang, version, "lib", "amdgcn"),
+                os.path.join(self.prefix, "amdgcn"),
+            )
+        if self.spec.satisfies("@develop +rocm-device-libs"):
             exe = self.prefix.bin.join("llvm-config")
             output = Executable(exe)("--version", output=str, error=str)
             version = re.split("[.]", output)[0]

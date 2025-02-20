@@ -11,9 +11,8 @@ class HipRocclr(CMakePackage):
     with to different backends such as ROCr or PAL This abstraction allows
     runtimes to work on Windows as well as on Linux without much effort."""
 
-    homepage = "https://github.com/ROCm/ROCclr"
-    url = "https://github.com/ROCm/ROCclr/archive/rocm-5.6.1.tar.gz"
-    git = "https://github.com/ROCm/ROCclr.git"
+    homepage = "https://github.com/ROCm-Developer-Tools/ROCclr"
+    git = "ssh://gerritgit/compute/ec/vdi.git"
     tags = ["rocm"]
 
     phases = ["cmake", "build"]
@@ -23,6 +22,7 @@ class HipRocclr(CMakePackage):
     license("MIT")
 
     version("master", branch="main")
+    version("develop", branch="amd-staging-closed")
     version("5.6.1", sha256="cc9a99c7e4de3d9360c0a471b27d626e84a39c9e60e0aff1e8e1500d82391819")
     version("5.6.0", sha256="864f87323e793e60b16905284fba381a7182b960dd4a37fb67420c174442c03c")
     version("5.5.1", sha256="1375fc7723cfaa0ae22a78682186d4804188b0a54990bfd9c0b8eb421b85e37e")
@@ -44,8 +44,20 @@ class HipRocclr(CMakePackage):
     depends_on("gl@4.5:", type="link")
     depends_on("numactl", type="link")
 
-    for ver in ["5.3.0", "5.3.3", "5.4.0", "5.4.3", "5.5.0", "5.5.1", "5.6.0", "5.6.1", "master"]:
+    for ver in [
+        "5.3.0",
+        "5.3.3",
+        "5.4.0",
+        "5.4.3",
+        "5.5.0",
+        "5.5.1",
+        "5.6.0",
+        "5.6.1",
+        "master",
+        "develop",
+    ]:
         depends_on(f"hsakmt-roct@{ver}", when=f"@{ver}")
+        depends_on(f"hsa-rocr-dev@{ver}", when=f"@{ver}")
         depends_on(f"hsa-rocr-dev@{ver}", when=f"@{ver}")
         depends_on(f"comgr@{ver}", when=f"@{ver}")
 
@@ -78,6 +90,27 @@ class HipRocclr(CMakePackage):
         branch="main",
         when="@master",
     )
+    resource(
+        name="opencl-on-vdi",
+        git= "ssh://gerritgit/compute/ec/opencl.git",
+        destination="",
+        placement="opencl-on-vdi",
+        branch="amd-staging-closed",
+        when="@develop",
+    )
+    @run_after("install")
+    def deploy_missing_files(self):
+        if "@3.5.0" in self.spec:
+            # the amdrocclr_staticTargets.cmake file is generated but not
+            # installed and when we install it by hand, we have to fix the
+            # path to the static library libamdrocclr_static.a from build
+            # dir to prefix lib dir.
+            cmakefile = join_path(self.build_directory, "amdrocclr_staticTargets.cmake")
+            filter_file(self.build_directory, self.prefix.lib, cmakefile)
+            install(cmakefile, self.prefix.lib)
+        elif self.spec.satisfies("@3.7.0:4.3.2"):
+            path = join_path(self.prefix.lib, "cmake/rocclr/ROCclrConfig.cmake")
+            filter_file(self.build_directory, self.prefix, path)
 
     def cmake_args(self):
         return [

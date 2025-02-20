@@ -89,6 +89,9 @@ class Hipsolver(CMakePackage, CudaPackage, ROCmPackage):
 
     depends_on("hip +cuda", when="+cuda")
 
+    for os in ["rhel7", "rhel8", "centos7", "centos8"]:
+        depends_on("suite-sparse", when="+rocm @develop")
+
     for ver in [
         "5.3.0",
         "5.3.3",

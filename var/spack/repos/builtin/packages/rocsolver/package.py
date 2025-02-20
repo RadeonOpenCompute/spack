@@ -81,15 +81,13 @@ class Rocsolver(CMakePackage):
     # Maximize compatibility with other libraries that are using fmt.
     patch("fmt-9-compatibility.patch", when="@5.2.0:5.5")
 
-    depends_on("hip")
-    depends_on("rocm-cmake@master", type="build", when="@master:")
+    depends_on("hip@4.1.0:", when="@4.1.0:")
+    depends_on("rocm-cmake@develop", type="build", when="@develop")
+    depends_on("rocm-cmake@master", type="build", when="@master")
     depends_on("rocm-cmake@4.5.0:", type="build", when="@4.5.0:")
     depends_on("rocm-cmake@4.3.0:", type="build", when="@4.3.0:")
-    depends_on("rocm-cmake@3.5.0:", type="build")
     depends_on("rocsparse@5.2:", when="@5.6:")
-
-    for ver in ["master", "develop"]:
-        depends_on(f"rocblas@{ver}", when=f"@{ver}")
+    depends_on("rocsparse@develop", when="@develop")
 
     for ver in [
         "5.3.0",
@@ -113,10 +111,13 @@ class Rocsolver(CMakePackage):
         "6.3.0",
         "6.3.1",
         "6.3.2",
+        "develop",
+        "master",
     ]:
         depends_on(f"hip@{ver}", when=f"@{ver}")
         depends_on(f"rocblas@{ver}", when=f"@{ver}")
 
+ 
     for tgt in itertools.chain(["auto"], amdgpu_targets):
         depends_on(f"rocblas amdgpu_target={tgt}", when=f"amdgpu_target={tgt}")
 

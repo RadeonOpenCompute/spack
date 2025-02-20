@@ -12,8 +12,8 @@ from spack.package import *
 class RocmOpencl(CMakePackage):
     """OpenCL: Open Computing Language on ROCclr"""
 
-    homepage = "https://github.com/ROCm/ROCm-OpenCL-Runtime"
-    git = "https://github.com/ROCm/ROCm-OpenCL-Runtime.git"
+    homepage = "https://github.com/RadeonOpenCompute/ROCm-OpenCL-Runtime"
+    git = "ssh://gerritgit/compute/ec/opencl.git"
     tags = ["rocm"]
 
     maintainers("srekolam", "renjithravindrankannath", "afzpatel")
@@ -35,6 +35,7 @@ class RocmOpencl(CMakePackage):
     license("MIT")
 
     version("master", branch="main")
+    version("develop", branch="amd-staging")
     version("6.3.2", sha256="ec13dc4ffe212beee22171cb2825d2b16cdce103c835adddb482b9238cf4f050"),
     version("6.3.1", sha256="bfb8a4a59e7bd958e2cd4bf6f14c6cdea601d9827ebf6dc7af053a90e963770f")
     version("6.3.0", sha256="829e61a5c54d0c8325d02b0191c0c8254b5740e63b8bfdb05eec9e03d48f7d2c")
@@ -93,6 +94,14 @@ class RocmOpencl(CMakePackage):
             placement="rocclr",
             when=f"@{d_version}",
         )
+    resource(
+        name="rocclr",
+        git= "ssh://gerritgit/compute/ec/vdi.git",
+        destination="",
+        placement="rocclr",
+        branch="amd-staging-closed",
+        when="@develop",
+    )
     # For avx build, the start address of values_ buffer in KernelParameters is not
     # correct as it is computed based on 16-byte alignment.
     patch(
@@ -132,6 +141,7 @@ class RocmOpencl(CMakePackage):
         "6.3.1",
         "6.3.2",
         "master",
+        "develop",
     ]:
         depends_on(f"comgr@{ver}", type="build", when=f"@{ver}")
         depends_on(f"hsa-rocr-dev@{ver}", type="link", when=f"@{ver}")
@@ -148,6 +158,7 @@ class RocmOpencl(CMakePackage):
         "6.3.0",
         "6.3.1",
         "6.3.2",
+        "develop",
     ]:
         depends_on(f"aqlprofile@{ver}", type="link", when=f"@{ver}")
 
@@ -169,6 +180,7 @@ class RocmOpencl(CMakePackage):
         "6.3.0",
         "6.3.1",
         "6.3.2",
+        "develop",
     ]:
         depends_on(f"rocm-core@{ver}", when=f"@{ver}")
 

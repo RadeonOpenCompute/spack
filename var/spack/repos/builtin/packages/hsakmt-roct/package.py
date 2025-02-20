@@ -14,12 +14,13 @@ class HsakmtRoct(CMakePackage):
     with the ROCk driver."""
 
     homepage = "https://github.com/ROCm/ROCT-Thunk-Interface"
-    git = "https://github.com/ROCm/ROCT-Thunk-Interface.git"
+    git = "ssh://gerritgit/compute/ec/libhsakmt.git"
     url = "https://github.com/ROCm/ROCT-Thunk-Interface/archive/rocm-6.2.4.tar.gz"
     tags = ["rocm"]
 
-    maintainers("srekolam", "renjithravindrankannath")
 
+    maintainers("srekolam", "renjithravindrankannath")
+    version("develop", branch="amd-staging")
     version("master", branch="master")
     version("6.2.4", sha256="5c71655e3a1b9d1404dc8cb64b9d2fadd27e67606aaa8aec0c325768d8c483c0")
     version("6.2.1", sha256="bba5dd8cce595d94d6a8e467dbd6de9e921f81e665ca8aac1e346e0ade7620f0")
@@ -70,6 +71,7 @@ class HsakmtRoct(CMakePackage):
         "6.2.0",
         "6.2.1",
         "6.2.4",
+        "develop",
     ]:
         depends_on(f"rocm-core@{ver}", when=f"@{ver}")
         depends_on(f"llvm-amdgpu@{ver}", type="test", when=f"@{ver}")

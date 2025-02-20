@@ -74,7 +74,7 @@ class Rocblas(CMakePackage):
     depends_on("googletest@1.10.0:", type="test")
     depends_on("amdblis", type="test")
 
-    for ver in [
+<    for ver in [
         "5.6.0",
         "5.6.1",
         "5.7.0",
@@ -90,13 +90,20 @@ class Rocblas(CMakePackage):
         "6.3.0",
         "6.3.1",
         "6.3.2",
+        "develop",
     ]:
         depends_on(f"rocm-openmp-extras@{ver}", type="test", when=f"@{ver}")
 
-    for ver in ["6.2.0", "6.2.1", "6.2.4", "6.3.0", "6.3.1", "6.3.2"]:
-        depends_on(f"rocm-smi-lib@{ver}", type="test", when=f"@{ver}")
+    depends_on("rocm-cmake@master", type="build", when="@master")
+    depends_on("rocm-cmake@4.5.0:6.0", type="build", when="@4.5.0:6.0")
+    depends_on("rocm-cmake@develop", type="build", when="@develop")
+    depends_on("comgr@develop", type="build", when="@develop")
+    depends_on("hsa-rocr-dev@develop", type="build", when="@develop")
+    depends_on("rocm-cmake@master", type="build", when="@master")
 
-    depends_on("rocm-cmake@master", type="build", when="@master:")
+
+    for ver in ["6.2.0", "6.2.1", "6.2.4", "6.3.0", "6.3.1", "6.3.2", "develop"]:
+        depends_on(f"rocm-smi-lib@{ver}", type="test", when=f"@{ver}")
 
     for ver in [
         "5.3.0",
@@ -120,13 +127,14 @@ class Rocblas(CMakePackage):
         "6.3.0",
         "6.3.1",
         "6.3.2",
+        "develop",
     ]:
         depends_on(f"hip@{ver}", when=f"@{ver}")
         depends_on(f"llvm-amdgpu@{ver}", type="build", when=f"@{ver}")
         depends_on(f"rocminfo@{ver}", type="build", when=f"@{ver}")
         depends_on(f"rocm-cmake@{ver}", type="build", when=f"@{ver}")
 
-    for ver in ["6.3.0", "6.3.1", "6.3.2"]:
+    for ver in ["6.3.0", "6.3.1", "6.3.2", "develop"]:
         depends_on(f"hipblaslt@{ver}", when=f"@{ver}")
     depends_on("python@3.6:", type="build")
 
@@ -216,7 +224,7 @@ class Rocblas(CMakePackage):
         ]
         if self.run_tests:
             args.append(self.define("LINK_BLIS", "ON"))
-            if self.spec.satisfies("@5.6.0:"):
+            if self.spec.satisfies("@5.6.0:6.0"):
                 args.append(
                     self.define("ROCM_OPENMP_EXTRAS_DIR", self.spec["rocm-openmp-extras"].prefix)
                 )
