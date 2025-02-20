@@ -1,0 +1,90 @@
+name: Linux Install Nightly
+
+on:
+  schedule:
+    - cron: '0 2 * * *' # Run at 2 am
+
+jobs:
+  setup:
+    runs-on:  [self-hosted, Linux]
+    steps:
+    - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+      with:
+        ref: rocm-spack-ci-changes
+
+    - name: Install  essential utilities
+      run: |
+          apt-get update -y
+          apt-get install -y make patch bash tar gzip unzip bzip2 file gnupg2 git gawk
+          apt-get update -y
+          apt-get install -y xz-utils
+          apt-get install -y build-essential
+          apt-get install -y vim
+          
+    - name: Install Python
+      run: |
+          apt-get install -y python3
+          apt-get upgrade -y python3-pip
+
+    - name : Install Compilers
+      run: |
+          apt-get install -y gcc
+          apt-get install -y gfortran
+
+    - name : Initialize Spack
+      run: |
+          . share/spack/setup-env.sh
+          spack --version
+          
+  install-rocm:
+    needs: setup
+    runs-on: [self-hosted, Linux]
+    strategy:
+      matrix:
+        component: [
+          "rocm-cmake",
+          "hsakmt-roct",
+          "rocm-smi-lib",
+          "hsa-rocr-dev",
+          "llvm-amdgpu",
+          "rocm-device-libs",
+          "comgr",
+          "hipify-clang",
+          "hip",
+          "hipcc",
+          "rocminfo",
+          "rccl",
+          "rocm-debug-agent",
+          "rocm-bandwidth-test",
+          "rocprofiler-dev",
+          "roctracer-dev-api",
+          "roctracer-dev",
+          "rocm-dbgapi",
+          "rocm-gdb",
+          "rocm-openmp-extras"
+        ]
+    steps:
+      - name: Install ROCm components
+        id: install
+        continue-on-error: true
+        run: |
+          . share/spack/setup-env.sh
+          spack install ${{ matrix.component }}@develop
+      
+      - name: Save installation result
+        if: ${{ steps.install.outcome == 'failure' }}
+        run: echo "${{ matrix.component }}" >> failed_components.txt
+          
+  report-failures:
+    needs: install-rocm
+    runs-on: [self-hosted, Linux]
+    steps:
+      - name: Report ROCm component installation status
+        run: |
+          if [ -f failed_components.txt ]; then
+            echo "Failed to install the following ROCm components:"
+            cat failed_components.txt
+            exit 1
+          else
+            echo "All components installed successfully."
+          fi
